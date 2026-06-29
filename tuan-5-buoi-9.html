@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 5 — Buổi 9: Âm thanh & Nhiều sprite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+      --slide-w: min(1100px, 94vw);
+      --slide-h: min(700px, 84vh);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Nunito", "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #1a2744 0%, #2d4a7a 50%, #1a2744 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--scratch-dark);
+      user-select: none;
+    }
+
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+
+    /* Progress */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 4px;
+      width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow));
+      transition: width 0.35s ease;
+      z-index: 200;
+    }
+
+    /* Deck */
+    .deck {
+      width: var(--slide-w);
+      height: var(--slide-h);
+      position: relative;
+      margin-top: 56px;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.38);
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(40px);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      pointer-events: auto;
+      z-index: 10;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-40px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .slide.next {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(40px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .progress-bar { transition: none; }
+    }
+
+    /* Global top bar */
+    .global-topbar {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--slide-w);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      z-index: 150;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      color: var(--scratch-dark);
+      white-space: nowrap;
+    }
+
+    .brand-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--scratch-orange), var(--scratch-blue));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .brand-sub {
+      font-weight: 600;
+      color: #7a8a9e;
+      font-size: 0.78rem;
+    }
+
+    .slide-dots {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 360px;
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #d0d8e4;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .dot:hover { transform: scale(1.25); background: #aab4c4; }
+    .dot.active { background: var(--scratch-orange); transform: scale(1.2); }
+
+    .topbar-actions { display: flex; gap: 6px; }
+
+    .icon-btn {
+      width: 34px; height: 34px;
+      border: 1px solid #dde3ec;
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      color: var(--scratch-dark);
+    }
+
+    .icon-btn:hover { background: var(--scratch-bg); }
+
+    /* Slide content */
+    .slide-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 40px 20px;
+      min-height: 0;
+    }
+
+    .title-slide .slide-main {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 32px;
+    }
+
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--scratch-blue);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+      align-self: flex-start;
+    }
+
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green  { background: var(--scratch-green); }
+    .slide-tag.red    { background: var(--scratch-red); }
+    .slide-tag.yellow { background: #c98a00; }
+
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.2;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      font-size: clamp(1.3rem, 2.8vw, 1.75rem);
+      font-weight: 800;
+      margin-bottom: 14px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: #5a6a7e;
+      font-weight: 600;
+    }
+
+    .slide-body {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 6px;
+      min-height: 0;
+    }
+
+    .slide-body::-webkit-scrollbar { width: 5px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #c8d0da; border-radius: 4px; }
+
+    /* Title slide */
+    .title-slide {
+      background: linear-gradient(160deg, #fff8f0 0%, #fff 55%, #f0f7ff 100%);
+    }
+
+    .title-emoji {
+      font-size: clamp(3rem, 8vw, 4.5rem);
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .title-slide h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .title-meta {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .badge {
+      background: #fff;
+      border: 2px solid #dde3ec;
+      border-radius: 12px;
+      padding: 7px 16px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .start-hint {
+      margin-top: 28px;
+      color: #7a8a9e;
+      font-size: 0.88rem;
+      font-weight: 600;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 1; }
+    }
+
+    /* Typography */
+    ul, ol {
+      padding-left: 1.3em;
+      line-height: 1.7;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    li { margin-bottom: 4px; }
+
+    code {
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 0.92em;
+      font-weight: 700;
+      background: #eef2f7;
+      color: #5b3ea8;
+      padding: 1px 7px;
+      border-radius: 5px;
+    }
+
+    strong { font-weight: 800; }
+
+    .highlight-box {
+      background: #f0f7ff;
+      border-left: 4px solid var(--scratch-blue);
+      border-radius: 0 12px 12px 0;
+      padding: 14px 18px;
+      margin: 12px 0;
+      font-size: 1rem;
+      line-height: 1.6;
+      font-weight: 600;
+    }
+
+    .highlight-box.orange { background: #fff8f0; border-color: var(--scratch-orange); }
+    .highlight-box.green  { background: #f0fff4; border-color: var(--scratch-green); }
+    .highlight-box.purple { background: #f5f0ff; border-color: var(--scratch-purple); }
+
+    /* Scratch blocks */
+    .blocks {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      margin: 10px 0;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .block {
+      position: relative;
+      display: inline-block;
+      padding: 7px 14px 7px 12px;
+      border-radius: 6px;
+      color: #fff;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.18);
+      white-space: normal;
+      line-height: 1.35;
+      max-width: 100%;
+    }
+
+    .block::before {
+      content: "";
+      position: absolute;
+      top: -3px; left: 10px;
+      width: 12px; height: 6px;
+      background: inherit;
+      border-radius: 3px 3px 0 0;
+      filter: brightness(0.92);
+    }
+
+    .block:first-child::before,
+    .block.event::before,
+    .block.c-block::before { display: none; }
+
+    .block.event {
+      background: #ffbf00;
+      color: #422c00;
+      border-radius: 14px 6px 6px 6px;
+      padding-top: 9px;
+    }
+
+    .block.looks   { background: #9966ff; }
+    .block.control { background: #ffab19; color: #422c00; }
+    .block.motion  { background: #4c97ff; }
+    .block.sound   { background: #cf63cf; }
+
+    .block.indent   { margin-left: 20px; }
+    .block.indent-2 { margin-left: 40px; }
+    .block.optional { opacity: 0.65; font-style: italic; }
+
+    .block.c-block {
+      border-radius: 6px 6px 4px 4px;
+      padding-bottom: 4px;
+    }
+
+    .c-body {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin: 4px 0 2px 8px;
+      padding-left: 8px;
+      border-left: 3px solid rgba(0,0,0,0.12);
+    }
+
+    /* Layout */
+    .cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 6px;
+    }
+
+    .cols-60-40 { grid-template-columns: 1.1fr 0.9fr; }
+
+    @media (max-width: 720px) {
+      .cols, .cols-60-40 { grid-template-columns: 1fr; }
+      .slide-main { padding: 18px 22px 14px; }
+      .global-topbar { padding: 8px 12px; top: 8px; }
+      .slide-dots { display: none; }
+      .brand-sub { display: none; }
+    }
+
+    .card {
+      background: var(--scratch-bg);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .card h3 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--scratch-blue);
+      margin-bottom: 8px;
+    }
+
+    .section-label {
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #7a8a9e;
+      margin: 10px 0 6px;
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      background: var(--scratch-bg);
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.98rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .checklist li::before {
+      content: "☐";
+      font-size: 1.1rem;
+      color: var(--scratch-green);
+      flex-shrink: 0;
+    }
+
+    .checklist li.checked {
+      background: #e8f8ec;
+      text-decoration: line-through;
+      color: #5a7a62;
+    }
+
+    .checklist li.checked::before { content: "☑"; }
+
+    /* Knowledge grid */
+    .knowledge-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+    }
+
+    .k-card {
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #fff;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .k-card strong {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .k-card.span-2 { grid-column: span 2; }
+    .k-card.span-3 { grid-column: span 3; }
+
+    .k-card.blue   { background: var(--scratch-blue); }
+    .k-card.orange { background: var(--scratch-orange); color: #422c00; }
+    .k-card.purple { background: var(--scratch-purple); }
+    .k-card.green  { background: var(--scratch-green); }
+    .k-card.red    { background: var(--scratch-red); }
+
+    @media (max-width: 720px) {
+      .knowledge-grid { grid-template-columns: 1fr; }
+      .k-card.span-2, .k-card.span-3 { grid-column: span 1; }
+    }
+
+    /* Quiz */
+    .quiz-item {
+      background: var(--scratch-bg);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.96rem;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .quiz-item:hover { background: #e4eaf2; }
+
+    .quiz-num {
+      background: var(--scratch-purple);
+      color: #fff;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.82rem;
+      flex-shrink: 0;
+    }
+
+    .quiz-answer {
+      display: none;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #e8f4e8;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #2d6a3a;
+    }
+
+    .quiz-item.revealed .quiz-answer { display: block; }
+    .quiz-item.revealed { background: #eef6ee; }
+
+    /* Tips */
+    .tip {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: #fffbe6;
+      border: 2px dashed var(--scratch-yellow);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      font-size: 0.94rem;
+      line-height: 1.55;
+      font-weight: 600;
+    }
+
+    .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    /* Labels */
+    .th-label {
+      display: inline-block;
+      background: var(--scratch-green);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.72rem;
+      padding: 3px 9px;
+      border-radius: 6px;
+      margin-right: 4px;
+      vertical-align: middle;
+      letter-spacing: 0.03em;
+    }
+
+    .btvn-label { background: var(--scratch-red); }
+
+    .emoji-row {
+      font-size: 1.6rem;
+      letter-spacing: 6px;
+      margin: 10px 0;
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 100;
+    }
+
+    .nav button {
+      background: rgba(255,255,255,0.14);
+      border: 2px solid rgba(255,255,255,0.38);
+      color: #fff;
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(8px);
+    }
+
+    .nav button:hover:not(:disabled) {
+      background: rgba(255,255,255,0.28);
+      transform: scale(1.07);
+    }
+
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+
+    .slide-counter {
+      color: rgba(255,255,255,0.9);
+      font-size: 0.88rem;
+      font-weight: 800;
+      min-width: 56px;
+      text-align: center;
+    }
+
+    .hint {
+      position: fixed;
+      bottom: 76px;
+      color: rgba(255,255,255,0.42);
+      font-size: 0.74rem;
+      font-weight: 600;
+      transition: opacity 0.4s;
+    }
+
+    /* Fullscreen presentation */
+    html:fullscreen,
+    html:-webkit-full-screen {
+      width: 100%;
+      height: 100%;
+    }
+
+    html:fullscreen body,
+    html:-webkit-full-screen body {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      background: #1a2744;
+      padding: 0;
+    }
+
+    html:fullscreen .deck,
+    html:-webkit-full-screen .deck {
+      width: 100vw;
+      height: 100dvh;
+      height: 100vh;
+      max-width: none;
+      margin: 0;
+    }
+
+    html:fullscreen .slide,
+    html:-webkit-full-screen .slide {
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    html:fullscreen .global-topbar,
+    html:-webkit-full-screen .global-topbar {
+      display: none;
+    }
+
+    html:fullscreen .hint,
+    html:-webkit-full-screen .hint {
+      display: none;
+    }
+
+    html:fullscreen .nav,
+    html:-webkit-full-screen .nav {
+      bottom: 16px;
+      opacity: 0.35;
+      transition: opacity 0.25s;
+    }
+
+    html:fullscreen .nav:hover,
+    html:-webkit-full-screen .nav:hover {
+      opacity: 1;
+    }
+
+    html:fullscreen .progress-bar,
+    html:-webkit-full-screen .progress-bar {
+      height: 3px;
+    }
+
+    /* Nút thoát fullscreen (chỉ hiện khi full màn hình) */
+    .fs-exit {
+      display: none;
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 300;
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      backdrop-filter: blur(6px);
+      transition: background 0.15s;
+    }
+
+    .fs-exit:hover { background: rgba(0,0,0,0.65); }
+
+    html:fullscreen .fs-exit,
+    html:-webkit-full-screen .fs-exit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Print */
+    @media print {
+      body { background: #fff; overflow: visible; }
+      .nav, .hint, .progress-bar, .global-topbar { display: none !important; }
+      .deck { width: 100%; height: auto; }
+      .slide {
+        position: relative;
+        opacity: 1 !important;
+        transform: none !important;
+        page-break-after: always;
+        box-shadow: none;
+        border: 1px solid #ccc;
+        margin-bottom: 20px;
+        min-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🐱</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1 -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji">🎵</div>
+      <h1>Âm thanh &amp; Nhiều sprite</h1>
+      <p class="subtitle">Lập trình Scratch — Tháng 2 · Nội dung cơ bản (2)</p>
+      <div class="title-meta">
+        <span class="badge">📅 Tuần 5</span>
+        <span class="badge">📖 Buổi 9 — Học</span>
+        <span class="badge">🎯 8–10 tuổi</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Space để bắt đầu</p>
+    </div>
+  </section>
+
+  <!-- Slide 2 -->
+  <section class="slide" data-index="1" aria-label="Mục tiêu">
+    <div class="slide-main">
+      <span class="slide-tag">Mục tiêu</span>
+      <h2>Hôm nay em học gì?</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange">
+          Em làm project Scratch <strong>có tiếng</strong> và <strong>có nhiều nhân vật cùng lúc</strong> — nhạc nền, tiếng click, và hội thoại giữa 2 sprite!
+        </div>
+        <div class="emoji-row">🎶 🐱 🐶 💬</div>
+        <ul>
+          <li>Phát âm thanh bằng khối <strong>Sound</strong></li>
+          <li>Thêm nhạc nền ở <strong>Stage</strong>, tiếng nhân vật ở <strong>Sprite</strong></li>
+          <li>Lập trình <strong>2 sprite</strong> nói chuyện xen kẽ</li>
+          <li>Dùng <code>wait</code> để không nói chồng lên nhau</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3 -->
+  <section class="slide" data-index="2" aria-label="Kiến thức mới">
+    <div class="slide-main">
+      <span class="slide-tag purple">Kiến thức mới</span>
+      <h2>Sound &amp; nhiều sprite</h2>
+      <div class="slide-body">
+        <div class="knowledge-grid">
+          <div class="k-card orange span-2">
+            <strong>🔊 start sound</strong>
+            Phát âm thanh <em>một lần</em> — tiếng click, tiếng kêu… (nhóm Sound).
+          </div>
+          <div class="k-card purple span-2">
+            <strong>🎵 play sound until done</strong>
+            Phát âm thanh và <em>đợi</em> cho đến khi hết.
+          </div>
+          <div class="k-card blue span-2">
+            <strong>🎭 Thêm âm thanh</strong>
+            Tab <em>Sounds</em> → Choose a Sound. Nhạc nền ở <strong>Stage</strong>, tiếng nhân vật ở <strong>Sprite</strong>.
+          </div>
+          <div class="k-card green span-3">
+            <strong>👥 Nhiều sprite</strong>
+            Mỗi sprite có <em>code riêng</em> — thêm bằng Choose a Sprite. Dùng <code>say</code> + <code>wait</code> để hội thoại.
+          </div>
+          <div class="k-card red span-3">
+            <strong>🖱️ when this sprite clicked</strong>
+            Chạy code khi <em>click vào sprite</em> — dùng cho tiếng click + phản ứng.
+          </div>
+        </div>
+        <div class="highlight-box" style="margin-top:16px;">
+          💡 <strong>Nhớ:</strong> Âm thanh Stage và Sprite là <strong>riêng</strong> — chọn đúng chỗ khi thêm sound!
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4 -->
+  <section class="slide" data-index="3" aria-label="Ví dụ mẫu">
+    <div class="slide-main">
+      <span class="slide-tag">Ví dụ mẫu</span>
+      <h2>Mèo chào em có tiếng "Meow" 🐱</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <p style="margin-bottom:10px; font-weight:600;">Thêm sound Meow → ghép khối:</p>
+            <div class="blocks">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block looks indent">say "Xin chào!" for 2 seconds / nói "Xin chào!" trong 2 giây</div>
+              <div class="block sound indent">start sound Meow / phát âm thanh Meow</div>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:12px;">
+              <h3>🔍 Quan sát</h3>
+              <ul>
+                <li>Tab <strong>Sounds</strong> → Choose a Sound → Meow</li>
+                <li><code>say</code> hiện bong bóng thoại</li>
+                <li><code>start sound</code> phát tiếng kêu</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>✏️ Thử ngay</h3>
+              <ul>
+                <li>Chọn sprite Cat (Mèo)</li>
+                <li>Thêm âm thanh trong tab Sounds</li>
+                <li>Bấm cờ xanh ▶️ — nghe và xem!</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: TH1 -->
+  <section class="slide" data-index="4" aria-label="TH1">
+    <div class="slide-main">
+      <span class="slide-tag green">Thực hành</span>
+      <h2><span class="th-label">TH1</span> Nhạc nền + tiếng click 🔊</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <div class="highlight-box green" style="margin-top:0;">
+              <strong>Nhạc nền</strong> khi cờ xanh + <strong>tiếng riêng</strong> khi click sprite.
+            </div>
+            <p class="section-label">Yêu cầu</p>
+            <ul>
+              <li>Nhạc nền phát khi bấm <strong>cờ xanh</strong> (code ở Stage)</li>
+              <li>Click sprite → phát âm thanh khác + <code>say</code> 1 câu</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label">Gợi ý — Stage</p>
+            <div class="blocks" style="font-size:0.78rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block sound">start sound Dance Around / phát nhạc Dance Around</div>
+                </div>
+              </div>
+            </div>
+            <p class="section-label">Gợi ý — Sprite</p>
+            <div class="blocks" style="font-size:0.78rem;">
+              <div class="block event">when this sprite clicked / khi click vào sprite này</div>
+              <div class="block sound indent">start sound Pop / phát âm thanh Pop</div>
+              <div class="block looks indent">say "Ồ! Em click vào mình rồi!" for 2 seconds / nói "Ồ! Em click vào mình rồi!" trong 2 giây</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: TH1 checklist -->
+  <section class="slide" data-index="5" aria-label="TH1 checklist">
+    <div class="slide-main">
+      <span class="slide-tag green">Thực hành</span>
+      <h2><span class="th-label">TH1</span> Checklist tự kiểm</h2>
+      <div class="slide-body">
+        <ul class="checklist" data-checklist>
+          <li>Đã thêm âm thanh cho Stage (nhạc nền)</li>
+          <li>Đã thêm âm thanh riêng cho sprite</li>
+          <li>Bấm cờ xanh thì nhạc nền phát</li>
+          <li>Click sprite thì phát tiếng khác</li>
+          <li>Sprite <code>say</code> ít nhất 1 câu khi click</li>
+          <li>Đã lưu project</li>
+        </ul>
+        <div class="highlight-box orange" style="margin-top:20px;">
+          🙋 Xong TH1? Giơ tay cho cô biết!<br>
+          Tiếp theo: <strong>TH2</strong> — hội thoại 2 sprite.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: TH2 -->
+  <section class="slide" data-index="6" aria-label="TH2">
+    <div class="slide-main">
+      <span class="slide-tag green">Thực hành</span>
+      <h2><span class="th-label">TH2</span> Hội thoại 2 sprite 💬</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <div class="highlight-box green" style="margin-top:0;">
+              Hai nhân vật <strong>nói chuyện xen kẽ</strong> — dùng <code>wait</code> để không nói cùng lúc.
+            </div>
+            <p class="section-label">Yêu cầu</p>
+            <ul>
+              <li>Ít nhất <strong>2 sprite</strong> trên Stage</li>
+              <li>Mỗi sprite nói ít nhất <strong>2 câu</strong> (tổng ≥ 4 câu)</li>
+              <li>Bắt đầu khi bấm <strong>cờ xanh</strong></li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label">Gợi ý — Sprite Meo</p>
+            <div class="blocks" style="font-size:0.75rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block looks indent">say "Chào Cho! Hôm nay em học Scratch nhé!" for 3 seconds / nói "Chào Cho!..." trong 3 giây</div>
+              <div class="block control indent">wait 6 seconds / chờ 6 giây</div>
+              <div class="block looks indent">say "Đồng ý! Bắt đầu thôi!" for 2 seconds / nói "Đồng ý! Bắt đầu thôi!" trong 2 giây</div>
+            </div>
+            <p class="section-label">Gợi ý — Sprite Cho</p>
+            <div class="blocks" style="font-size:0.75rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block control indent">wait 3 seconds / chờ 3 giây</div>
+              <div class="block looks indent">say "Chào Meo! Scratch vui lắm!" for 3 seconds / nói "Chào Meo!..." trong 3 giây</div>
+              <div class="block control indent">wait 3 seconds / chờ 3 giây</div>
+              <div class="block looks indent">say "Mình cùng làm game nhé!" for 2 seconds / nói "Mình cùng làm game nhé!" trong 2 giây</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: TH2 checklist -->
+  <section class="slide" data-index="7" aria-label="TH2 checklist">
+    <div class="slide-main">
+      <span class="slide-tag green">Thực hành</span>
+      <h2><span class="th-label">TH2</span> Checklist tự kiểm</h2>
+      <div class="slide-body">
+        <ul class="checklist" data-checklist>
+          <li>Stage có ít nhất 2 sprite</li>
+          <li>Hội thoại bắt đầu khi bấm cờ xanh</li>
+          <li>Tổng cộng ít nhất 4 câu thoại</li>
+          <li>Hai nhân vật không nói cùng lúc (có <code>wait</code>)</li>
+        </ul>
+        <div class="cols" style="margin-top:20px;">
+          <div class="card">
+            <h3>💡 Gợi ý sáng tạo</h3>
+            <ul>
+              <li>Đổi tên sprite (Meo, Cho…)</li>
+              <li>Thêm <code>switch costume</code> khi nói</li>
+              <li>Thêm tiếng <code>start sound</code> mỗi câu</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>🎉 Hoàn thành!</h3>
+            <p style="line-height:1.6; font-weight:600;">Em đã biết làm project có âm thanh và nhiều nhân vật. Giờ nhận bài tập về nhà!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: Mẹo -->
+  <section class="slide" data-index="8" aria-label="Mẹo nhỏ">
+    <div class="slide-main">
+      <span class="slide-tag yellow">Mẹo nhỏ</span>
+      <h2>Gặp khó? Thử mẹo này!</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <div class="tip">
+              <span class="tip-icon">🔊</span>
+              <div><strong>Nhạc quá to?</strong><br>Dùng <code>set volume to 50 %</code> trước khi <code>start sound</code>.</div>
+            </div>
+            <div class="tip">
+              <span class="tip-icon">💬</span>
+              <div><strong>Hội thoại bị lệch?</strong><br>Viết thứ tự ra giấy: Meo nói → đợi → Cho nói → đợi…</div>
+            </div>
+          </div>
+          <div>
+            <div class="tip">
+              <span class="tip-icon">👗</span>
+              <div><strong>Muốn đổi mặt khi nói?</strong><br>Thêm <code>switch costume to</code> trước hoặc sau <code>say</code>.</div>
+            </div>
+            <div class="tip">
+              <span class="tip-icon">🎭</span>
+              <div><strong>Không có tiếng?</strong><br>Kiểm tra tab Sounds đã có âm thanh; chọn đúng tên trong khối <code>start sound</code>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: Quiz -->
+  <section class="slide" data-index="9" aria-label="Câu hỏi ôn">
+    <div class="slide-main">
+      <span class="slide-tag purple">Ôn tập</span>
+      <h2>Câu hỏi ôn — Em trả lời nhé!</h2>
+      <div class="slide-body">
+        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Cô click để xem đáp án gợi ý ↓</p>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">1</span>
+          <div>Em thêm nhạc nền vào Stage hay Sprite? Vì sao?
+            <div class="quiz-answer">→ Thường thêm vào <strong>Stage</strong> vì nhạc nền phát cho cả project, không gắn một nhân vật.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">2</span>
+          <div><code>start sound</code> và <code>play sound until done</code> khác nhau thế nào?
+            <div class="quiz-answer">→ <code>start sound</code> phát rồi chạy tiếp; <code>play sound until done</code> đợi hết âm thanh mới chạy khối sau.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">3</span>
+          <div>Làm sao để hai sprite không nói cùng một lúc?
+            <div class="quiz-answer">→ Dùng <code>wait</code> — sprite sau đợi đủ thời gian sprite trước nói xong.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">4</span>
+          <div><code>when this sprite clicked</code> dùng để làm gì?
+            <div class="quiz-answer">→ Chạy code khi em <strong>click vào sprite đó</strong> — phát tiếng, nói chuyện…</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">5</span>
+          <div>Mỗi sprite trong Scratch có code riêng hay dùng chung?
+            <div class="quiz-answer">→ Mỗi sprite có <strong>code riêng</strong> — giống mỗi nhân vật có kịch bản riêng.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: BTVN1 -->
+  <section class="slide" data-index="10" aria-label="BTVN1">
+    <div class="slide-main">
+      <span class="slide-tag red">Bài tập về nhà</span>
+      <h2><span class="th-label btvn-label">BTVN1</span> Click phát tiếng 🖱️</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <div class="highlight-box orange" style="margin-top:0;">
+              Click vào sprite → phát <strong>âm thanh</strong> + nhân vật <strong>phản ứng</strong> (nói hoặc đổi costume).
+            </div>
+            <p class="section-label">Yêu cầu</p>
+            <ul>
+              <li>1 sprite tự chọn</li>
+              <li>Click → <code>start sound</code> + <code>say</code> 1 câu</li>
+              <li>Click nhiều lần vẫn hoạt động</li>
+            </ul>
+            <ul class="checklist" data-checklist style="margin-top:12px;">
+              <li>Click sprite thì có tiếng</li>
+              <li>Click sprite thì có bong bóng thoại</li>
+              <li>Hoạt động khi click nhiều lần</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label">Gợi ý</p>
+            <div class="blocks">
+              <div class="block event">when this sprite clicked / khi click vào sprite này</div>
+              <div class="block sound indent">start sound Pop / phát âm thanh Pop</div>
+              <div class="block looks indent">say "Chào bạn!" for 2 seconds / nói "Chào bạn!" trong 2 giây</div>
+              <div class="block looks indent optional">next costume / trang phục kế tiếp (tuỳ chọn)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: BTVN2 -->
+  <section class="slide" data-index="11" aria-label="BTVN2">
+    <div class="slide-main">
+      <span class="slide-tag red">Bài tập về nhà</span>
+      <h2><span class="th-label btvn-label">BTVN2</span> Hội thoại 4 câu 📝</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Hội thoại <strong>4 câu</strong> giữa <strong>2 sprite</strong> — mỗi nhân vật nói 2 câu, có <code>wait</code>.
+        </div>
+        <div class="cols" style="margin-top:14px;">
+          <div>
+            <p class="section-label">Gợi ý từng bước</p>
+            <ol>
+              <li>Chọn 2 sprite (ví dụ: Cá và Chim)</li>
+              <li>Viết kịch bản 4 câu ra giấy trước</li>
+              <li>Sprite 1: câu 1 → <code>wait</code> → câu 4</li>
+              <li>Sprite 2: <code>wait</code> → câu 2 → <code>wait</code> → câu 3</li>
+              <li>Chạy thử, chỉnh <code>wait</code> cho khớp</li>
+            </ol>
+          </div>
+          <div>
+            <p class="section-label">Checklist</p>
+            <ul class="checklist" data-checklist>
+              <li>Có đúng 2 sprite</li>
+              <li>Có đúng 4 câu thoại</li>
+              <li>Không nói cùng lúc</li>
+              <li>Nội dung hội thoại em tự sáng tác</li>
+            </ul>
+          </div>
+        </div>
+        <div class="highlight-box" style="margin-top:14px;">
+          📌 Mang project đến <strong>Buổi 10 — Luyện Sound</strong> tuần sau để chữa bài!
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Tổng kết -->
+  <section class="slide title-slide" data-index="12" aria-label="Tổng kết">
+    <div class="slide-main">
+      <div class="title-emoji">🎵</div>
+      <h2 style="font-size:1.9rem; margin-bottom:16px;">Tổng kết buổi học</h2>
+      <ul style="font-size:1.05rem; line-height:2; text-align:left; font-weight:700; max-width:500px;">
+        <li>✅ <code>start sound</code> / <code>play sound until done</code></li>
+        <li>✅ Nhạc nền ở <strong>Stage</strong>, tiếng nhân vật ở <strong>Sprite</strong></li>
+        <li>✅ Mỗi sprite có <strong>code riêng</strong></li>
+        <li>✅ <code>say</code> + <code>wait</code> = hội thoại xen kẽ</li>
+        <li>✅ <code>when this sprite clicked</code> = phản ứng khi click</li>
+      </ul>
+      <p style="margin-top:24px; font-size:1.15rem; color:var(--scratch-orange); font-weight:800;">
+        Hẹn gặp lại ở Buổi 10! 👋
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 13</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Space · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let hasNavigated = false;
+
+  const progressBar = document.getElementById('progressBar');
+  const counter     = document.getElementById('counter');
+  const btnPrev     = document.getElementById('btnPrev');
+  const btnNext     = document.getElementById('btnNext');
+  const brandSub    = document.getElementById('brandSub');
+
+  function buildDots() {
+    const template = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+    document.getElementById('dots').innerHTML = template;
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.toggle('active', Number(dot.dataset.goto) === current);
+    });
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) {
+      hasNavigated = true;
+      document.body.classList.add('presenting');
+    }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total * 100);
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1
+      ? '· Scratch'
+      : '· Tuần 5 Buổi 9';
+    updateDots();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+
+  document.addEventListener('click', e => {
+    if (e.target.closest('button, .checklist li, .quiz-item, code, .global-topbar, .nav')) return;
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); next(); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  document.getElementById('btnFullscreen').addEventListener('click', e => {
+    e.stopPropagation();
+    toggleFullscreen();
+  });
+
+  document.getElementById('btnExitFs').addEventListener('click', e => {
+    e.stopPropagation();
+    exitFullscreen();
+  });
+
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
+  function toggleFullscreen() {
+    if (isFullscreen()) exitFullscreen();
+    else enterFullscreen();
+  }
+
+  function enterFullscreen() {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  }
+
+  function exitFullscreen() {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+
+  function onFullscreenChange() {
+    document.body.classList.toggle('is-fullscreen', isFullscreen());
+  }
+
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+  document.querySelectorAll('[data-checklist] li').forEach(li => {
+    li.addEventListener('click', e => {
+      e.stopPropagation();
+      li.classList.toggle('checked');
+    });
+  });
+
+  document.querySelectorAll('[data-quiz]').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      item.classList.toggle('revealed');
+    });
+  });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1));
+  }, { passive: true });
+
+  buildDots();
+  slides.forEach((s, i) => {
+    s.setAttribute('aria-hidden', i !== 0);
+    if (i === 0) s.classList.add('active');
+    else s.classList.add('next');
+  });
+  progressBar.style.width = (1 / total * 100) + '%';
+  btnPrev.disabled = true;
+</script>
+
+</body>
+</html>
