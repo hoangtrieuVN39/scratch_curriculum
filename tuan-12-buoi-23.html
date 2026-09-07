@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 12 — Buổi 23: My Blocks & debug</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+      
+      --slide-w: min(1100px, 94vw);
+      --slide-h: min(700px, 84vh);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1a2744 0%, #2d4a7a 50%, #1a2744 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--scratch-dark);
+      user-select: none;
+    }
+
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 4px; width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow));
+      transition: width 0.35s ease;
+      z-index: 200;
+    }
+
+    .deck { width: var(--slide-w); height: var(--slide-h); position: relative; margin-top: 56px; }
+
+    .slide {
+      position: absolute; inset: 0;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.38);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden;
+      transform: translateX(40px);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1; visibility: visible; transform: translateX(0);
+      pointer-events: auto; z-index: 10;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s;
+    }
+
+    .slide.prev { opacity: 0; visibility: hidden; transform: translateX(-40px); pointer-events: none; z-index: 0; }
+    .slide.next { opacity: 0; visibility: hidden; transform: translateX(40px); pointer-events: none; z-index: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .progress-bar { transition: none; }
+    }
+
+    .global-topbar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      width: var(--slide-w);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      z-index: 150;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.88rem; color: var(--scratch-dark); white-space: nowrap; }
+    .brand-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--scratch-orange), var(--scratch-blue));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .brand-sub { font-weight: 600; color: #7a8a9e; font-size: 0.78rem; }
+
+    .slide-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 360px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #d0d8e4; border: none; cursor: pointer; padding: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .dot:hover { transform: scale(1.25); background: #aab4c4; }
+    .dot.active { background: var(--scratch-orange); transform: scale(1.2); }
+
+    .topbar-actions { display: flex; gap: 6px; }
+    .icon-btn {
+      width: 34px; height: 34px;
+      border: 1px solid #dde3ec;
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      color: var(--scratch-dark);
+    }
+    .icon-btn:hover { background: var(--scratch-bg); }
+
+    .slide-main { flex: 1; display: flex; flex-direction: column; padding: 24px 40px 20px; min-height: 0; }
+    .title-slide .slide-main { justify-content: center; align-items: center; text-align: center; padding: 32px; }
+
+    .slide-tag {
+      display: inline-flex; align-items: center;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #fff; background: var(--scratch-blue);
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 10px;
+      align-self: flex-start;
+    }
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green { background: var(--scratch-green); }
+    .slide-tag.red { background: var(--scratch-red); }
+    .slide-tag.yellow { background: #c98a00; }
+
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.2; font-weight: 800; margin-bottom: 6px; }
+    h2 { font-size: clamp(1.3rem, 2.8vw, 1.75rem); font-weight: 800; margin-bottom: 14px; line-height: 1.25; }
+    .subtitle { font-size: 1.05rem; color: #5a6a7e; font-weight: 600; }
+
+    .slide-body { flex: 1; overflow-y: auto; padding-right: 6px; min-height: 0; }
+    .slide-body::-webkit-scrollbar { width: 5px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #c8d0da; border-radius: 4px; }
+
+    .title-slide { background: linear-gradient(160deg, #fff8f0 0%, #fff 55%, #f0f7ff 100%); }
+    .title-emoji { font-size: clamp(3rem, 8vw, 4.5rem); margin-bottom: 8px; line-height: 1; }
+    .title-slide h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .title-meta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .badge { background: #fff; border: 2px solid #dde3ec; border-radius: 12px; padding: 7px 16px; font-weight: 700; font-size: 0.9rem; }
+    .start-hint { margin-top: 28px; color: #7a8a9e; font-size: 0.88rem; font-weight: 600; animation: pulse 2.5s ease-in-out infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+    ul, ol { padding-left: 1.3em; line-height: 1.7; font-size: 1rem; font-weight: 600; }
+    li { margin-bottom: 4px; }
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.92em; font-weight: 700;
+      background: #eef2f7; color: #5b3ea8;
+      padding: 1px 7px; border-radius: 5px;
+    }
+    strong { font-weight: 800; }
+
+    .highlight-box {
+      background: #f0f7ff;
+      border-left: 4px solid var(--scratch-blue);
+      border-radius: 0 12px 12px 0;
+      padding: 14px 18px; margin: 12px 0;
+      font-size: 1rem; line-height: 1.6; font-weight: 600;
+    }
+    .highlight-box.orange { background: #fff8f0; border-color: var(--scratch-orange); }
+    .highlight-box.green { background: #f0fff4; border-color: var(--scratch-green); }
+    .highlight-box.purple { background: #f5f0ff; border-color: var(--scratch-purple); }
+    .highlight-box.red { background: #fff0f3; border-color: var(--scratch-red); }
+
+    /* Scratch block mockups - 100% Vietnamese */
+    .blocks { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin: 10px 0; font-size: 0.88rem; font-weight: 700; }
+    .block {
+      position: relative; display: inline-block;
+      padding: 7px 14px 7px 12px;
+      border-radius: 6px; color: #fff;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.18);
+      white-space: normal; line-height: 1.35; max-width: 100%;
+    }
+    .block::before {
+      content: ''; position: absolute; top: -3px; left: 10px;
+      width: 12px; height: 6px; background: inherit;
+      border-radius: 3px 3px 0 0; filter: brightness(0.92);
+    }
+    .block:first-child::before, .block.event::before, .block.define::before, .block.c-block::before { display: none; }
+
+    .block.event { background: #ffbf00; color: #422c00; border-radius: 14px 6px 6px 6px; padding-top: 9px; }
+    .block.define { background: #ff6680; color: #fff; border-radius: 14px 6px 6px 6px; padding-top: 9px; font-weight: 800; }
+    .block.myblock { background: #ff6680; color: #fff; font-weight: 800; }
+    .block.looks { background: #9966ff; }
+    .block.control { background: #ffab19; color: #422c00; }
+    .block.motion { background: #4c97ff; }
+    .block.sound { background: #cf63cf; }
+    .block.sensing { background: #5cb1d6; }
+    .block.variable { background: #ff8c1a; }
+    .block.operator { background: #59c059; }
+
+    .block.indent { margin-left: 20px; }
+    .block.indent-2 { margin-left: 40px; }
+    .block.optional { opacity: 0.65; font-style: italic; }
+
+    .block.c-block { border-radius: 6px 6px 4px 4px; padding-bottom: 4px; }
+    .c-body { display: flex; flex-direction: column; gap: 2px; margin: 4px 0 2px 8px; padding-left: 8px; border-left: 3px solid rgba(0,0,0,0.12); }
+
+    .blocks.compact { gap: 1px; margin: 6px 0; }
+    .blocks.compact .block { padding: 4px 10px 4px 8px; line-height: 1.2; }
+    .blocks.compact .c-body { margin: 2px 0 1px 6px; padding-left: 6px; gap: 1px; }
+
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 6px; }
+    .cols-60-40 { grid-template-columns: 1.15fr 0.85fr; }
+
+    @media (max-width: 720px) {
+      .cols, .cols-60-40 { grid-template-columns: 1fr; }
+      .slide-main { padding: 18px 22px 14px; }
+      .global-topbar { padding: 8px 12px; top: 8px; }
+      .slide-dots { display: none; }
+      .brand-sub { display: none; }
+    }
+
+    .card { background: var(--scratch-bg); border-radius: 12px; padding: 14px 16px; }
+    .card h3 { font-size: 0.95rem; font-weight: 800; color: var(--scratch-blue); margin-bottom: 8px; }
+    .card.purple h3 { color: var(--scratch-purple); }
+    .card.orange h3 { color: var(--scratch-orange); }
+    .card.red h3 { color: var(--scratch-red); }
+    .card.green h3 { color: #2e7d32; }
+
+    .section-label { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #7a8a9e; margin: 10px 0 6px; }
+
+    .knowledge-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+    .k-card { border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 0.88rem; line-height: 1.45; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .k-card > strong:first-child { display: block; font-size: 0.95rem; font-weight: 800; margin-bottom: 5px; }
+    .k-card.span-2 { grid-column: span 2; }
+    .k-card.span-3 { grid-column: span 3; }
+    .k-card.blue { background: var(--scratch-blue); }
+    .k-card.orange { background: var(--scratch-orange); color: #422c00; }
+    .k-card.purple { background: var(--scratch-purple); }
+    .k-card.green { background: var(--scratch-green); }
+    .k-card.red { background: var(--scratch-red); }
+
+    @media (max-width: 720px) {
+      .knowledge-grid { grid-template-columns: 1fr; }
+      .k-card.span-2, .k-card.span-3 { grid-column: span 1; }
+    }
+
+    /* Steps list */
+    .steps-list { display: flex; flex-direction: column; gap: 8px; }
+    .step-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--scratch-bg); padding: 10px 14px; border-radius: 10px;
+      font-weight: 700; font-size: 0.92rem; line-height: 1.4;
+    }
+    .step-badge {
+      background: var(--scratch-blue); color: #fff;
+      font-weight: 800; font-size: 0.78rem;
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .step-badge.red { background: var(--scratch-red); }
+    .step-badge.orange { background: var(--scratch-orange); }
+
+    /* Quiz */
+    .quiz-item {
+      background: var(--scratch-bg); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-weight: 700; font-size: 0.96rem;
+      display: flex; gap: 12px; align-items: flex-start;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .quiz-item:hover { background: #e4eaf2; }
+    .quiz-num {
+      background: var(--scratch-purple); color: #fff;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.82rem; flex-shrink: 0;
+    }
+    .quiz-answer { display: none; margin-top: 8px; padding: 8px 12px; background: #e8f4e8; border-radius: 8px; font-size: 0.9rem; font-weight: 700; color: #2d6a3a; }
+    .quiz-item.revealed .quiz-answer { display: block; }
+    .quiz-item.revealed { background: #eef6ee; }
+
+    .tip {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: #fffbe6; border: 2px dashed var(--scratch-yellow);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-size: 0.94rem; line-height: 1.55; font-weight: 600;
+    }
+    .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    .th-label {
+      display: inline-block; background: var(--scratch-green); color: #fff;
+      font-weight: 800; font-size: 0.72rem; padding: 3px 9px; border-radius: 6px;
+      margin-right: 4px; vertical-align: middle; letter-spacing: 0.03em;
+    }
+
+    .emoji-row { font-size: 1.6rem; letter-spacing: 6px; margin: 10px 0; }
+
+    /* Custom table */
+    .table-custom {
+      width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.88rem;
+    }
+    .table-custom th, .table-custom td {
+      border: 1px solid #dbe3ed; padding: 8px 12px; text-align: left;
+    }
+    .table-custom th {
+      background: #eef4fc; font-weight: 800; color: var(--scratch-dark);
+    }
+    .table-custom tr:nth-child(even) td { background: #fafbfc; }
+
+    .nav { position: fixed; bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 100; }
+    .nav button {
+      background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.38);
+      color: #fff; width: 46px; height: 46px; border-radius: 50%;
+      font-size: 1.2rem; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(8px);
+    }
+    .nav button:hover:not(:disabled) { background: rgba(255,255,255,0.28); transform: scale(1.07); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+
+    .slide-counter { color: rgba(255,255,255,0.9); font-size: 0.88rem; font-weight: 800; min-width: 56px; text-align: center; }
+
+    .hint { position: fixed; bottom: 76px; color: rgba(255,255,255,0.42); font-size: 0.74rem; font-weight: 600; transition: opacity 0.4s; }
+
+    html:fullscreen, html:-webkit-full-screen { width: 100%; height: 100%; }
+    html:fullscreen body, html:-webkit-full-screen body { width: 100%; height: 100%; min-height: 100%; background: #1a2744; padding: 0; }
+    html:fullscreen .deck, html:-webkit-full-screen .deck { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0; }
+    html:fullscreen .slide, html:-webkit-full-screen .slide { border-radius: 0; box-shadow: none; }
+    html:fullscreen .global-topbar, html:-webkit-full-screen .global-topbar { display: none; }
+    html:fullscreen .hint, html:-webkit-full-screen .hint { display: none; }
+    html:fullscreen .nav, html:-webkit-full-screen .nav { bottom: 16px; opacity: 0.35; transition: opacity 0.25s; }
+    html:fullscreen .nav:hover, html:-webkit-full-screen .nav:hover { opacity: 1; }
+    html:fullscreen .progress-bar, html:-webkit-full-screen .progress-bar { height: 3px; }
+
+    .fs-exit {
+      display: none; position: fixed; top: 12px; right: 12px; z-index: 300;
+      background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.35);
+      color: #fff; width: 40px; height: 40px; border-radius: 10px;
+      cursor: pointer; font-size: 1rem; backdrop-filter: blur(6px);
+      transition: background 0.15s;
+    }
+    .fs-exit:hover { background: rgba(0,0,0,0.65); }
+    html:fullscreen .fs-exit, html:-webkit-full-screen .fs-exit {
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    @media print {
+      body { background: #fff; overflow: visible; }
+      .nav, .hint, .progress-bar, .global-topbar { display: none !important; }
+      .deck { width: 100%; height: auto; }
+      .slide {
+        position: relative; opacity: 1 !important; transform: none !important;
+        page-break-after: always; box-shadow: none; border: 1px solid #ccc;
+        margin-bottom: 20px; min-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="12" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🐱</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1: Tiêu đề -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji">🧩</div>
+      <h1>Khối tự tạo &amp; Sửa lỗi</h1>
+      <p class="subtitle">Lập trình Scratch — Tháng 3 · Logic nâng cao</p>
+      <div class="title-meta">
+        <span class="badge">📅 Tuần 12</span>
+        <span class="badge">📘 Buổi 23 — Học</span>
+        <span class="badge">🎯 7–10 tuổi</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Phím cách để bắt đầu</p>
+    </div>
+  </section>
+
+  <!-- Slide 2: Mục tiêu -->
+  <section class="slide" data-index="1" aria-label="Mục tiêu">
+    <div class="slide-main">
+      <span class="slide-tag purple">🎯 Mục tiêu bài học</span>
+      <h2>Hôm nay em học gì?</h2>
+      <div class="slide-body">
+        <div class="highlight-box red">
+          Hôm nay em học cách tạo <strong>Khối của tôi (My Blocks)</strong> để gom nhiều dòng lệnh lặp lại thành <strong>một khối riêng</strong> gọn gàng, và làm chủ kỹ năng <strong>tìm - sửa lỗi (Debug)</strong> khi chương trình chạy không như ý muốn! 🧩🔧
+        </div>
+        <div class="emoji-row">🧩 📦 🔧 🐞</div>
+        <ul>
+          <li><strong>Khối tự tạo là gì?</strong> Hiểu nguyên lý đóng gói logic để tái sử dụng nhiều lần.</li>
+          <li><strong>Cách định nghĩa &amp; gọi khối:</strong> Phân biệt rõ giữa khối <code>định nghĩa</code> và khối được gọi ra thực thi.</li>
+          <li><strong>Quy trình Debug 6 bước:</strong> Phương pháp chuẩn để cô lập và xử lý lỗi như lập trình viên chuyên nghiệp.</li>
+          <li><strong>Khắc phục các lỗi phổ biến:</strong> Xử lý lỗi trôi lệnh, sai tên biến, quên lặp liên tục, lỗi clone...</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Kiến thức mới 1 - My Blocks -->
+  <section class="slide" data-index="2" aria-label="Khối của tôi">
+    <div class="slide-main">
+      <span class="slide-tag red">📘 Kiến thức mới</span>
+      <h2>1. Khối của tôi (My Blocks) &amp; Cách tạo 🧩</h2>
+      <div class="slide-body">
+        <div class="knowledge-grid">
+          <div class="k-card red span-3">
+            <strong>🧩 Khối tự tạo là gì?</strong>
+            Là khối lệnh do <strong>chính em tự đặt tên</strong> và gắn nội dung bên trong. Giúp gom một chuỗi hành động dài thành 1 khối duy nhất.
+          </div>
+          <div class="k-card blue span-3">
+            <strong>⚙️ 4 bước tạo khối mới</strong>
+            1. Vào nhóm <strong>Khối của tôi</strong> (màu hồng) ➡️ 2. Bấm <strong>Tạo một khối</strong> ➡️ 3. Đặt tên gợi nhớ ➡️ 4. Gắn lệnh vào khối <code>định nghĩa</code>.
+          </div>
+          <div class="k-card orange span-3">
+            <strong>🏷️ Khối định nghĩa (define)</strong>
+            Nơi chứa toàn bộ câu lệnh chi tiết cần thực hiện khi khối được gọi. Khối này <strong>chỉ cần viết 1 lần duy nhất</strong>.
+          </div>
+          <div class="k-card green span-3">
+            <strong>📞 Khối gọi thực thi</strong>
+            Khối có tên do em vừa tạo. Đặt khối này ở bất kỳ đâu em muốn chạy toàn bộ đoạn lệnh trong khối định nghĩa.
+          </div>
+        </div>
+        <div class="highlight-box orange" style="margin-top:12px;">
+          💡 <strong>Ví dụ thực tế:</strong> Khối <code>khoi_tao_game</code> (đưa nhân vật về giữa màn hình, đặt lại điểm = 0), khối <code>tang_diem</code> (tăng điểm + phát âm thanh), khối <code>thua_cuoc</code> (nói điểm + dừng lại).
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: Kiến thức mới 2 - Quy trình Debug -->
+  <section class="slide" data-index="3" aria-label="Quy trình Debug">
+    <div class="slide-main">
+      <span class="slide-tag orange">🔧 Kỹ năng lập trình</span>
+      <h2>2. Quy trình 6 bước tìm và sửa lỗi (Debug) 🔍</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div class="steps-list">
+            <div class="step-item">
+              <span class="step-badge">1</span>
+              <div><strong>Đọc và quan sát triệu chứng:</strong> Nhân vật đứng yên? Điểm không đổi? Quan sát kỹ hành vi bất thường trên màn hình.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-badge">2</span>
+              <div><strong>Chạy thử từng phần:</strong> Tách riêng từng đoạn lệnh hoặc bấm thử từng khối để kiểm tra xem đoạn nào chạy đúng.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-badge">3</span>
+              <div><strong>Kiểm tra tên gọi:</strong> Tên biến, tên tin nhắn thông báo (broadcast) có <strong>khớp chính xác 100%</strong> không?</div>
+            </div>
+          </div>
+          <div class="steps-list">
+            <div class="step-item">
+              <span class="step-badge red">4</span>
+              <div><strong>Kiểm tra thứ tự lệnh:</strong> Đã đặt giá trị ban đầu trước khi thay đổi chưa? Khối nhận tin nhắn đã tồn tại chưa?</div>
+            </div>
+            <div class="step-item">
+              <span class="step-badge red">5</span>
+              <div><strong>Dùng khối "nói" để kiểm tra (say test):</strong> Tạm gắn khối <code>nói</code> vào giữa đoạn lệnh để xem máy tính có chạy tới đó không.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-badge red">6</span>
+              <div><strong>Hỏi bạn bè / Thầy cô:</strong> Nếu sau khi đã thử các bước mà vẫn chưa tìm ra, hãy trao đổi cùng bạn hoặc nhờ thầy cô gợi ý.</div>
+            </div>
+          </div>
+        </div>
+        <div class="highlight-box green" style="margin-top:12px;">
+          👨‍⚕️ <strong>Tư duy bác sĩ máy tính:</strong> Đừng đoán mò hoặc bấm sửa lung tung nhiều chỗ cùng lúc. Hãy kiểm tra từng phần một cách có hệ thống!
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: Cẩm nang Bug thường gặp -->
+  <section class="slide" data-index="4" aria-label="Lỗi thường gặp">
+    <div class="slide-main">
+      <span class="slide-tag red">🐞 Cẩm nang sửa lỗi</span>
+      <h2>3. Các lỗi thường gặp nhất trong Scratch</h2>
+      <div class="slide-body">
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th style="width: 42%;">Hiện tượng lỗi (Triệu chứng)</th>
+              <th style="width: 58%;">Nguyên nhân cốt lõi &amp; Hướng xử lý</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>🚶 Nhân vật không di chuyển / không kiểm tra va chạm</strong></td>
+              <td>Quên lồng trong khối <code>liên tục (forever)</code>, hoặc lệnh đang được gắn nhầm ở nhân vật khác.</td>
+            </tr>
+            <tr>
+              <td><strong>🏆 Điểm số không tăng khi chạm vào vật phẩm</strong></td>
+              <td>Dùng nhầm <code>đặt điểm thành</code> thay vì <code>thay đổi điểm một lượng</code>; hoặc viết sai tên biến; hoặc quên gọi khối tự tạo.</td>
+            </tr>
+            <tr>
+              <td><strong>📡 Tin nhắn thông báo (Broadcast) không phản hồi</strong></td>
+              <td>Tên tin ở khối <code>phát tin</code> và khối <code>khi nhận tin</code> không trùng khớp nhau (lệch chữ hoa, chữ thường hoặc dấu cách).</td>
+            </tr>
+            <tr>
+              <td><strong>🐌 Trò chơi càng lúc càng giật lag, chậm dần</strong></td>
+              <td>Tạo bản sao (clone) liên tục trong vòng lặp nhưng quên dùng khối <code>xóa bản sao này</code> khi kết thúc.</td>
+            </tr>
+            <tr>
+              <td><strong>👻 Nhân vật biến mất khi bấm cờ xanh</strong></td>
+              <td>Trước đó nhân vật đã bị <code>ẩn</code> nhưng lúc bấm cờ xanh lại quên đặt khối <code>hiện</code> ở đầu chương trình.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Ví dụ mẫu 1 -->
+  <section class="slide" data-index="5" aria-label="Ví dụ mẫu 1">
+    <div class="slide-main">
+      <span class="slide-tag red">💡 Ví dụ mẫu 1</span>
+      <h2>Đóng gói lệnh thành khối <code>đặt lại điểm</code> 🔄</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <p style="margin-bottom:8px; font-weight:700;">1. Định nghĩa khối tự tạo:</p>
+            <div class="blocks">
+              <div class="block define">định nghĩa đặt lại điểm</div>
+              <div class="block variable indent">đặt [điểm] thành (0)</div>
+            </div>
+            <p style="margin:14px 0 8px; font-weight:700;">2. Gọi khối khi bắt đầu chương trình:</p>
+            <div class="blocks">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block myblock indent">đặt lại điểm</div>
+            </div>
+          </div>
+          <div>
+            <div class="card purple" style="margin-bottom:10px;">
+              <h3>🔍 Điểm cần ghi nhớ</h3>
+              <ul>
+                <li>Khối <code>định nghĩa</code> là bản hướng dẫn gốc, Scratch sẽ đọc nó khi khối được gọi.</li>
+                <li>Khối gọi <code>đặt lại điểm</code> có thể đặt ở nhiều sự kiện khác nhau (khi bấm cờ xanh, khi qua màn, khi thua).</li>
+                <li>Muốn thêm hành động reset? Chỉ cần sửa một nơi duy nhất trong khối <code>định nghĩa</code>!</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>✨ Lợi ích vượt trội</h3>
+              <p style="font-weight:600; line-height:1.5;">Code ngắn gọn, dễ quản lý và không bị trùng lặp nhiều khối giống nhau.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: Ví dụ mẫu 2 & Tư duy -->
+  <section class="slide" data-index="6" aria-label="Ví dụ mẫu 2">
+    <div class="slide-main">
+      <span class="slide-tag orange">💡 Ví dụ mẫu 2</span>
+      <h2>Kỹ thuật Debug bằng khối <code>nói</code> &amp; Dự đoán 🤔</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <p class="section-label" style="margin-top:0;">Chèn khối "nói" tạm thời để tìm vị trí lỗi:</p>
+            <div class="blocks compact">
+              <div class="block control c-block">
+                nếu &lt;đang chạm [Ngôi sao] ?&gt; thì
+                <div class="c-body">
+                  <div class="block looks optional">nói [Đã chạm sao rồi!] trong (1) giây 💬 (khối kiểm tra tạm thời)</div>
+                  <div class="block variable">thay đổi [điểm] một lượng (1)</div>
+                  <div class="block sound">bắt đầu âm thanh [Collect]</div>
+                </div>
+              </div>
+            </div>
+            <ul style="font-size:0.86rem; margin-top:8px;">
+              <li><strong>Nếu không thấy bóng nói:</strong> Lỗi nằm ở điều kiện <code>đang chạm</code> (chưa va chạm hoặc sai tên nhân vật).</li>
+              <li><strong>Nếu có bóng nói nhưng điểm không tăng:</strong> Lỗi nằm ở khối <code>thay đổi điểm</code> hoặc nhầm tên biến!</li>
+            </ul>
+          </div>
+          <div class="card orange">
+            <h3>🤔 Em đoán xem?</h3>
+            <p style="line-height:1.6; font-weight:600;">
+              Nếu em đã tạo khối <code>tăng điểm</code> (bên trong có lệnh cộng 1 điểm), nhưng ở vị trí chạm vào ngôi sao em <strong>quên kéo khối gọi `tăng điểm` vào</strong>, thì khi chạm sao điểm có tăng không?
+            </p>
+            <div class="highlight-box red" style="margin-top:10px; font-size:0.9rem;">
+              👉 <strong>Đáp án:</strong> Điểm hoàn toàn không tăng! Vì Scratch chỉ chạy nội dung bên trong định nghĩa khi có khối mang tên nó được gọi ra!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: TH1 (Nâng cao) -->
+  <section class="slide" data-index="7" aria-label="TH1">
+    <div class="slide-main">
+      <span class="slide-tag green">✍️ Thực hành 1</span>
+      <h2><span class="th-label">TH1</span> Tạo khối "khởi tạo game" đa nhiệm 🔄</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <div class="highlight-box green" style="margin-top:0;">
+              <strong>Nhiệm vụ:</strong> Em hãy tự tạo một khối có tên <strong><code>khoi_tao_game</code></strong> để thiết lập lại toàn bộ trạng thái của trò chơi mỗi khi bấm cờ xanh bắt đầu ván mới.
+            </div>
+            <p class="section-label">Yêu cầu cần đạt</p>
+            <ul>
+              <li>Quản lý đồng thời <strong>2 biến số</strong>: đưa <code>điểm</code> về 0 và <code>thời gian</code> về 30 (hoặc <code>mạng</code> về 3).</li>
+              <li>Đưa nhân vật chính về đúng toạ độ xuất phát (ví dụ: x: 0, y: -100).</li>
+              <li>Chuyển nhân vật về trang phục mặc định đầu tiên và đảm bảo nhân vật ở trạng thái <code>hiện</code>.</li>
+              <li>Khi bấm cờ xanh ➡️ gọi khối <code>khoi_tao_game</code>.</li>
+              <li>Lưu dự án với tên: <code>TH1-khoi-tao-game</code>.</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý luồng tư duy</p>
+            <div class="card purple" style="font-size:0.86rem; line-height:1.6;">
+              <strong>Các nhóm khối lệnh cần phối hợp:</strong>
+              <ul style="padding-left:1.1em; margin-top:6px;">
+                <li>Nhóm <strong>Các biến số</strong>: để đặt lại giá trị cho cả 2 biến.</li>
+                <li>Nhóm <strong>Chuyển động</strong>: để đặt vị trí ban đầu.</li>
+                <li>Nhóm <strong>Hiển thị</strong>: để chọn trang phục và trạng thái hiển thị.</li>
+                <li>Nhóm <strong>Khối của tôi</strong>: chứa khối <code>định nghĩa khoi_tao_game</code> và khối gọi tương ứng.</li>
+              </ul>
+              <p style="margin-top:8px; color:#5b3ea8; font-weight:800;">👉 Tự sắp xếp thứ tự các khối lệnh hợp lý bên trong khối định nghĩa!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: TH2 (Nâng cao) -->
+  <section class="slide" data-index="8" aria-label="TH2">
+    <div class="slide-main">
+      <span class="slide-tag green">✍️ Thực hành 2</span>
+      <h2><span class="th-label">TH2</span> Khối "xử lý thưởng" kết hợp logic điều kiện 🏆</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <div class="highlight-box green" style="margin-top:0;">
+              <strong>Nhiệm vụ:</strong> Tiếp tục dự án TH1. Thêm các vật phẩm (Ngôi sao, Đồng xu). Tạo khối <strong><code>xu_ly_thuong</code></strong> có kiểm tra điều kiện nâng cao khi thu thập.
+            </div>
+            <p class="section-label">Yêu cầu cần đạt</p>
+            <ul>
+              <li>Khối <code>xu_ly_thuong</code>: tăng biến <code>điểm</code> thêm 1 và phát âm thanh tương ứng.</li>
+              <li><strong>Nâng cao:</strong> Lồng khối điều kiện kiểm tra <code>nếu điểm &gt; 4 thì</code> kích hoạt hiệu ứng thưởng đặc biệt (như đổi màu nhân vật hoặc phóng to kích thước).</li>
+              <li>Sử dụng khối <code>xu_ly_thuong</code> ở ít nhất <strong>2 vật phẩm/tình huống</strong> khác nhau khi mèo chạm trúng.</li>
+              <li>Vật phẩm sau khi bị bắt tự đổi tới vị trí ngẫu nhiên bằng <code>lấy ngẫu nhiên</code>.</li>
+              <li>Lưu dự án với tên: <code>TH2-xu-ly-thuong</code>.</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý cấu trúc logic</p>
+            <div class="card orange" style="font-size:0.86rem; line-height:1.6;">
+              <strong>Luồng xử lý trong `xu_ly_thuong`:</strong>
+              <ol style="padding-left:1.2em; margin-top:4px;">
+                <li>Cộng điểm + Phát âm thanh.</li>
+                <li>Dùng phép so sánh trong nhóm <strong>Các phép toán</strong> để kiểm tra điểm mốc thưởng.</li>
+              </ol>
+              <div style="margin-top:8px; border-top:1px solid #dcdcdc; padding-top:6px;">
+                <strong>Trên từng nhân vật vật phẩm:</strong>
+                <p>Dùng vòng lặp <code>liên tục</code> + cảm biến <code>đang chạm</code> ➡️ gọi khối <code>xu_ly_thuong</code> ➡️ đưa vật phẩm đến toạ độ x, y ngẫu nhiên.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: Thử thách tối ưu & Mẹo -->
+  <section class="slide" data-index="9" aria-label="Thử thách & Mẹo">
+    <div class="slide-main">
+      <span class="slide-tag orange">🤝 Thử thách &amp; Mẹo nhỏ</span>
+      <h2>Tối ưu hóa mã lệnh &amp; Kinh nghiệm thực chiến 💡</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <div class="card purple" style="margin-bottom:10px;">
+              <h3>👥 Thử thách tối ưu (Refactor)</h3>
+              <p style="font-weight:600; line-height:1.5;">
+                Hãy quan sát toàn bộ chương trình của em: Có đoạn lệnh nào đang bị lặp đi lặp lại ở nhiều nơi không?
+              </p>
+              <p style="font-weight:600; margin-top:6px; color:#5b3ea8;">
+                👉 Hãy tạo một khối tự tạo mới để gom toàn bộ đoạn lệnh đó lại, sau đó thay thế bằng 1 khối gọi duy nhất. Kiểm tra xem chương trình có chạy mượt mà và gọn gàng hơn không!
+              </p>
+            </div>
+          </div>
+          <div>
+            <div class="tip">
+              <span class="tip-icon">💡</span>
+              <div><strong>Đặt tên khối rõ ràng:</strong> Đặt tên thể hiện đúng chức năng: <code>khoi_tao_game</code>, <code>tang_diem</code>, <code>ket_thuc</code> để nhìn vào là hiểu ngay.</div>
+            </div>
+            <div class="tip">
+              <span class="tip-icon">🎯</span>
+              <div><strong>Nguyên tắc 1 khối - 1 nhiệm vụ:</strong> Mỗi khối tự tạo chỉ nên đảm nhận một công việc cụ thể, tránh nhồi nhét quá nhiều việc không liên quan.</div>
+            </div>
+            <div class="tip">
+              <span class="tip-icon">💾</span>
+              <div><strong>Lưu bản sao dự phòng:</strong> Trước khi sửa đổi lớn hoặc thử nghiệm logic mới, luôn vào mục <em>Tập tin ➡️ Lưu bản sao</em> để tránh mất dữ liệu cũ.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: Ôn tập & Đố vui tương tác -->
+  <section class="slide" data-index="10" aria-label="Ôn tập">
+    <div class="slide-main">
+      <span class="slide-tag purple">🎉 Ôn tập &amp; Thử tài kiến thức</span>
+      <h2>Trạm tiếp sức trả lời — Thử tài ghi nhớ!</h2>
+      <div class="slide-body">
+        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Nhấp chuột vào từng câu hỏi để mở đáp án kiểm tra kết quả ↓</p>
+        
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">1</span>
+          <div>Khối của tôi (My Blocks) mang lại lợi ích lớn nhất gì khi lập trình?
+            <div class="quiz-answer">→ Giúp gom nhiều dòng lệnh lặp lại thành một khối có tên riêng, làm cho chương trình ngắn gọn, dễ đọc, dễ sửa đổi và tái sử dụng.</div>
+          </div>
+        </div>
+
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">2</span>
+          <div>Khối `định nghĩa` và khối mang tên do em tạo ra khác nhau thế nào?
+            <div class="quiz-answer">→ Khối `định nghĩa` là nơi chứa các câu lệnh chi tiết cần chạy (chỉ viết 1 lần); khối mang tên là khối được gọi ra ở các sự kiện để chạy đoạn lệnh đó.</div>
+          </div>
+        </div>
+
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">3</span>
+          <div>Em tạo khối lệnh mới ở đâu trong thanh công cụ Scratch?
+            <div class="quiz-answer">→ Vào danh mục màu hồng **Khối của tôi** ở cột bên trái và nhấp vào nút **Tạo một khối**.</div>
+          </div>
+        </div>
+
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">4</span>
+          <div>Phương pháp dùng khối "nói" (say test) giúp ích gì khi tìm lỗi?
+            <div class="quiz-answer">→ Giúp kiểm tra xem máy tính có chạy tới được vị trí đó trong chương trình hay không, từ đó xác định lỗi nằm ở trước hay sau khối đó.</div>
+          </div>
+        </div>
+
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">5</span>
+          <div>Nếu tạo khối tự tạo xong nhưng quên gắn câu lệnh vào bên trong khối `định nghĩa` thì sao?
+            <div class="quiz-answer">→ Khi gọi khối ra thực thi, sẽ không có hành động nào xảy ra vì nội dung bên trong khối định nghĩa đang bị để trống!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: Tổng kết -->
+  <section class="slide title-slide" data-index="11" aria-label="Tổng kết">
+    <div class="slide-main">
+      <div class="title-emoji">🧩</div>
+      <h2 style="font-size:1.9rem; margin-bottom:16px;">Tổng kết Buổi 23</h2>
+      <ul style="font-size:1.05rem; line-height:2; text-align:left; font-weight:700; max-width:560px;">
+        <li>✅ Hiểu bản chất và cách tạo <strong>Khối của tôi (My Blocks)</strong></li>
+        <li>✅ Nắm vững sự phối hợp giữa khối <code>định nghĩa</code> và khối gọi thực thi</li>
+        <li>✅ Thành thạo <strong>Quy trình Debug 6 bước</strong> để tự tìm và sửa lỗi</li>
+        <li>✅ Nhận diện và xử lý các lỗi thường gặp trong lập trình Scratch</li>
+        <li>✅ Hoàn thành <strong>TH1</strong> (khởi tạo game) và <strong>TH2</strong> (xử lý thưởng đa điều kiện)</li>
+      </ul>
+      <p style="margin-top:24px; font-size:1.15rem; color:var(--scratch-orange); font-weight:800;">
+        Hẹn gặp lại ở Buổi 24 — Hoàn thiện Game mini hoàn chỉnh! 🎮👋
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 12</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Phím cách · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let hasNavigated = false;
+
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
+
+  function buildDots() {
+    const template = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+    document.getElementById('dots').innerHTML = template;
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.toggle('active', Number(dot.dataset.goto) === current);
+    });
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) {
+      hasNavigated = true;
+      document.body.classList.add('presenting');
+    }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1
+      ? '· Scratch'
+      : '· Tuần 12 Buổi 23';
+    updateDots();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, .quiz-item, code, .global-topbar, .nav')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); next(); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  document.getElementById('btnFullscreen').addEventListener('click', e => {
+    e.stopPropagation();
+    toggleFullscreen();
+  });
+
+  document.getElementById('btnExitFs').addEventListener('click', e => {
+    e.stopPropagation();
+    exitFullscreen();
+  });
+
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
+  function toggleFullscreen() {
+    if (isFullscreen()) exitFullscreen();
+    else enterFullscreen();
+  }
+
+  function enterFullscreen() {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  }
+
+  function exitFullscreen() {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+
+  function onFullscreenChange() {
+    document.body.classList.toggle('is-fullscreen', isFullscreen());
+  }
+
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+  document.querySelectorAll('[data-quiz]').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      item.classList.toggle('revealed');
+    });
+  });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1));
+  }, { passive: true });
+
+  buildDots();
+  slides.forEach((s, i) => {
+    s.setAttribute('aria-hidden', i !== 0);
+    if (i === 0) s.classList.add('active');
+    else s.classList.add('next');
+  });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 9 — Buổi 18: Luyện Operators</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+      --slide-w: min(1100px, 94vw);
+      --slide-h: min(700px, 84vh);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1a2744 0%, #2d4a7a 50%, #1a2744 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--scratch-dark);
+      user-select: none;
+    }
+
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 4px; width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow));
+      transition: width 0.35s ease;
+      z-index: 200;
+    }
+
+    .deck { width: var(--slide-w); height: var(--slide-h); position: relative; margin-top: 56px; }
+
+    .slide {
+      position: absolute; inset: 0;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.38);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden;
+      transform: translateX(40px);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1; visibility: visible; transform: translateX(0);
+      pointer-events: auto; z-index: 10;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s;
+    }
+
+    .slide.prev { opacity: 0; visibility: hidden; transform: translateX(-40px); pointer-events: none; z-index: 0; }
+    .slide.next { opacity: 0; visibility: hidden; transform: translateX(40px); pointer-events: none; z-index: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .progress-bar { transition: none; }
+    }
+
+    .global-topbar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      width: var(--slide-w);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      z-index: 150;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.88rem; color: var(--scratch-dark); white-space: nowrap; }
+    .brand-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--scratch-orange), var(--scratch-blue));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .brand-sub { font-weight: 600; color: #7a8a9e; font-size: 0.78rem; }
+
+    .slide-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 360px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #d0d8e4; border: none; cursor: pointer; padding: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .dot:hover { transform: scale(1.25); background: #aab4c4; }
+    .dot.active { background: var(--scratch-orange); transform: scale(1.2); }
+
+    .topbar-actions { display: flex; gap: 6px; }
+    .icon-btn {
+      width: 34px; height: 34px;
+      border: 1px solid #dde3ec;
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      color: var(--scratch-dark);
+    }
+    .icon-btn:hover { background: var(--scratch-bg); }
+
+    .slide-main { flex: 1; display: flex; flex-direction: column; padding: 24px 40px 20px; min-height: 0; }
+    .title-slide .slide-main { justify-content: center; align-items: center; text-align: center; padding: 32px; }
+
+    .slide-tag {
+      display: inline-flex; align-items: center;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #fff; background: var(--scratch-blue);
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 10px;
+      align-self: flex-start;
+    }
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green { background: var(--scratch-green); }
+    .slide-tag.red { background: var(--scratch-red); }
+    .slide-tag.yellow { background: #c98a00; }
+
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.2; font-weight: 800; margin-bottom: 6px; }
+    h2 { font-size: clamp(1.3rem, 2.8vw, 1.75rem); font-weight: 800; margin-bottom: 14px; line-height: 1.25; }
+    .subtitle { font-size: 1.05rem; color: #5a6a7e; font-weight: 600; }
+
+    .slide-body { flex: 1; overflow-y: auto; padding-right: 6px; min-height: 0; }
+    .slide-body::-webkit-scrollbar { width: 5px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #c8d0da; border-radius: 4px; }
+
+    .title-slide { background: linear-gradient(160deg, #fff8f0 0%, #fff 55%, #f0f7ff 100%); }
+    .title-emoji { font-size: clamp(3rem, 8vw, 4.5rem); margin-bottom: 8px; line-height: 1; }
+    .title-slide h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-blue));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .title-meta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .badge { background: #fff; border: 2px solid #dde3ec; border-radius: 12px; padding: 7px 16px; font-weight: 700; font-size: 0.9rem; }
+    .start-hint { margin-top: 28px; color: #7a8a9e; font-size: 0.88rem; font-weight: 600; animation: pulse 2.5s ease-in-out infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+    ul, ol { padding-left: 1.3em; line-height: 1.7; font-size: 1rem; font-weight: 600; }
+    li { margin-bottom: 4px; }
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.92em; font-weight: 700;
+      background: #eef2f7; color: #5b3ea8;
+      padding: 1px 7px; border-radius: 5px;
+    }
+    strong { font-weight: 800; }
+
+    .highlight-box {
+      background: #f0f7ff;
+      border-left: 4px solid var(--scratch-blue);
+      border-radius: 0 12px 12px 0;
+      padding: 14px 18px; margin: 12px 0;
+      font-size: 1rem; line-height: 1.6; font-weight: 600;
+    }
+    .highlight-box.orange { background: #fff8f0; border-color: var(--scratch-orange); }
+    .highlight-box.green { background: #f0fff4; border-color: var(--scratch-green); }
+    .highlight-box.purple { background: #f5f0ff; border-color: var(--scratch-purple); }
+
+    .blocks { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin: 10px 0; font-size: 0.88rem; font-weight: 700; }
+    .block {
+      position: relative; display: inline-block;
+      padding: 7px 14px 7px 12px;
+      border-radius: 6px; color: #fff;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.18);
+      white-space: normal; line-height: 1.35; max-width: 100%;
+    }
+    .block::before {
+      content: ''; position: absolute; top: -3px; left: 10px;
+      width: 12px; height: 6px; background: inherit;
+      border-radius: 3px 3px 0 0; filter: brightness(0.92);
+    }
+    .block:first-child::before, .block.event::before, .block.c-block::before { display: none; }
+
+    .block.event { background: #ffbf00; color: #422c00; border-radius: 14px 6px 6px 6px; padding-top: 9px; }
+    .block.looks { background: #9966ff; }
+    .block.control { background: #ffab19; color: #422c00; }
+    .block.motion { background: #4c97ff; }
+    .block.sound { background: #cf63cf; }
+    .block.sensing { background: #5cb1d6; }
+    .block.variable { background: #ff8c1a; }
+    .block.pen { background: #0fbd8c; }
+
+    .block.indent { margin-left: 20px; }
+    .block.indent-2 { margin-left: 40px; }
+    .block.optional { opacity: 0.65; font-style: italic; }
+
+    .block.c-block { border-radius: 6px 6px 4px 4px; padding-bottom: 4px; }
+    .c-body { display: flex; flex-direction: column; gap: 2px; margin: 4px 0 2px 8px; padding-left: 8px; border-left: 3px solid rgba(0,0,0,0.12); }
+
+    .blocks.compact { gap: 1px; margin: 6px 0; }
+    .blocks.compact .block { padding: 4px 10px 4px 8px; line-height: 1.2; }
+    .blocks.compact .c-body { margin: 2px 0 1px 6px; padding-left: 6px; gap: 1px; }
+
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 6px; }
+    .cols-60-40 { grid-template-columns: 1.1fr 0.9fr; }
+
+    @media (max-width: 720px) {
+      .cols, .cols-60-40 { grid-template-columns: 1fr; }
+      .slide-main { padding: 18px 22px 14px; }
+      .global-topbar { padding: 8px 12px; top: 8px; }
+      .slide-dots { display: none; }
+      .brand-sub { display: none; }
+    }
+
+    .card { background: var(--scratch-bg); border-radius: 12px; padding: 14px 16px; }
+    .card h3 { font-size: 0.95rem; font-weight: 800; color: var(--scratch-blue); margin-bottom: 8px; }
+
+    .section-label { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #7a8a9e; margin: 10px 0 6px; }
+
+    .knowledge-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+    .k-card { border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 0.88rem; line-height: 1.45; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .k-card > strong:first-child { display: block; font-size: 0.95rem; font-weight: 800; margin-bottom: 5px; }
+    .k-card.span-2 { grid-column: span 2; }
+    .k-card.span-3 { grid-column: span 3; }
+    .k-card.blue { background: var(--scratch-blue); }
+    .k-card.orange { background: var(--scratch-orange); color: #422c00; }
+    .k-card.purple { background: var(--scratch-purple); }
+    .k-card.green { background: var(--scratch-green); }
+    .k-card.red { background: var(--scratch-red); }
+
+    @media (max-width: 720px) {
+      .knowledge-grid { grid-template-columns: 1fr; }
+      .k-card.span-2, .k-card.span-3 { grid-column: span 1; }
+    }
+
+    .quiz-item {
+      background: var(--scratch-bg); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-weight: 700; font-size: 0.96rem;
+      display: flex; gap: 12px; align-items: flex-start;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .quiz-item:hover { background: #e4eaf2; }
+    .quiz-num {
+      background: var(--scratch-purple); color: #fff;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.82rem; flex-shrink: 0;
+    }
+    .quiz-answer { display: none; margin-top: 8px; padding: 8px 12px; background: #e8f4e8; border-radius: 8px; font-size: 0.9rem; font-weight: 700; color: #2d6a3a; }
+    .quiz-item.revealed .quiz-answer { display: block; }
+    .quiz-item.revealed { background: #eef6ee; }
+
+    .tip {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: #fffbe6; border: 2px dashed var(--scratch-yellow);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-size: 0.94rem; line-height: 1.55; font-weight: 600;
+    }
+    .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    .th-label {
+      display: inline-block; background: var(--scratch-green); color: #fff;
+      font-weight: 800; font-size: 0.72rem; padding: 3px 9px; border-radius: 6px;
+      margin-right: 4px; vertical-align: middle; letter-spacing: 0.03em;
+    }
+    .btvn-label { background: var(--scratch-red); }
+    .th-label.level-b { background: var(--scratch-blue); }
+    .th-label.level-c { background: var(--scratch-purple); }
+
+    .emoji-row { font-size: 1.6rem; letter-spacing: 6px; margin: 10px 0; }
+
+    .nav { position: fixed; bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 100; }
+    .nav button {
+      background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.38);
+      color: #fff; width: 46px; height: 46px; border-radius: 50%;
+      font-size: 1.2rem; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(8px);
+    }
+    .nav button:hover:not(:disabled) { background: rgba(255,255,255,0.28); transform: scale(1.07); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+
+    .slide-counter { color: rgba(255,255,255,0.9); font-size: 0.88rem; font-weight: 800; min-width: 56px; text-align: center; }
+
+    .hint { position: fixed; bottom: 76px; color: rgba(255,255,255,0.42); font-size: 0.74rem; font-weight: 600; transition: opacity 0.4s; }
+
+    html:fullscreen, html:-webkit-full-screen { width: 100%; height: 100%; }
+    html:fullscreen body, html:-webkit-full-screen body { width: 100%; height: 100%; min-height: 100%; background: #1a2744; padding: 0; }
+    html:fullscreen .deck, html:-webkit-full-screen .deck { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0; }
+    html:fullscreen .slide, html:-webkit-full-screen .slide { border-radius: 0; box-shadow: none; }
+    html:fullscreen .global-topbar, html:-webkit-full-screen .global-topbar { display: none; }
+    html:fullscreen .hint, html:-webkit-full-screen .hint { display: none; }
+    html:fullscreen .nav, html:-webkit-full-screen .nav { bottom: 16px; opacity: 0.35; transition: opacity 0.25s; }
+    html:fullscreen .nav:hover, html:-webkit-full-screen .nav:hover { opacity: 1; }
+    html:fullscreen .progress-bar, html:-webkit-full-screen .progress-bar { height: 3px; }
+
+    .fs-exit {
+      display: none; position: fixed; top: 12px; right: 12px; z-index: 300;
+      background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.35);
+      color: #fff; width: 40px; height: 40px; border-radius: 10px;
+      cursor: pointer; font-size: 1rem; backdrop-filter: blur(6px);
+      transition: background 0.15s;
+    }
+    .fs-exit:hover { background: rgba(0,0,0,0.65); }
+    html:fullscreen .fs-exit, html:-webkit-full-screen .fs-exit {
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    @media print {
+      body { background: #fff; overflow: visible; }
+      .nav, .hint, .progress-bar, .global-topbar { display: none !important; }
+      .deck { width: 100%; height: auto; }
+      .slide {
+        position: relative; opacity: 1 !important; transform: none !important;
+        page-break-after: always; box-shadow: none; border: 1px solid #ccc;
+        margin-bottom: 20px; min-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🐱</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1 -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji">🎲</div>
+      <h1>Luyện Operators</h1>
+      <p class="subtitle">Lập trình Scratch — Tháng 3 · Logic nâng cao</p>
+      <div class="title-meta">
+        <span class="badge">📅 Tuần 9</span>
+        <span class="badge">✏️ Buổi 18 — Bài tập</span>
+        <span class="badge">🎯 7–10 tuổi</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Space để bắt đầu</p>
+    </div>
+  </section>
+
+  <!-- Slide 2: Khởi động ôn tập -->
+  <section class="slide" data-index="1" aria-label="Khởi động ôn tập">
+    <div class="slide-main">
+      <span class="slide-tag purple">🎬 Khởi động ôn tập</span>
+      <h2>Đúng hay Sai?</h2>
+      <div class="slide-body">
+        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Cô đọc từng câu, cả lớp giơ ngón cái lên (Đúng) hoặc xuống (Sai) — rồi click để xem đáp án ↓</p>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">1</span>
+          <div>"<code>pick random 1 to 6</code> luôn cho ra cùng một số mỗi lần."
+            <div class="quiz-answer">→ Sai — đó là số ngẫu nhiên, có thể khác nhau mỗi lần.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">2</span>
+          <div>"<code>set điểm to 0</code> làm điểm cộng thêm 1."
+            <div class="quiz-answer">→ Sai — <code>set</code> là đặt lại giá trị mới, không phải cộng thêm.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">3</span>
+          <div>"<code>change thời gian by -1</code> làm biến thời gian giảm 1."
+            <div class="quiz-answer">→ Đúng.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">4</span>
+          <div>"Một game chỉ được có tối đa 1 biến."
+            <div class="quiz-answer">→ Sai — một game có thể có nhiều biến cùng lúc.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">5</span>
+          <div>"<code>join</code> giúp nối chữ và số lại với nhau để hiển thị."
+            <div class="quiz-answer">→ Đúng.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Ôn nhanh -->
+  <section class="slide" data-index="2" aria-label="Ôn nhanh">
+    <div class="slide-main">
+      <span class="slide-tag orange">🔁 Ôn nhanh</span>
+      <h2>Nhớ lại Operators &amp; biến</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Hôm nay em luyện lại <strong>pick random</strong> và <strong>nhiều biến cùng lúc</strong> ngay tại lớp, rồi tự chọn 1 bài mở rộng từ xúc xắc đến game gom điểm có thời gian!
+        </div>
+        <div class="emoji-row">🎲 📊 🔁 ⏱️</div>
+        <div class="knowledge-grid" style="margin-top:14px;">
+          <div class="k-card orange span-2">
+            <strong>🎲 Operators</strong>
+            <code style="background:rgba(255,255,255,0.2); color:#fff;">pick random</code> · <code style="background:rgba(255,255,255,0.2); color:#fff;">join</code> · so sánh <code style="background:rgba(255,255,255,0.2); color:#fff;">&gt; &lt; =</code>
+          </div>
+          <div class="k-card blue span-2">
+            <strong>📊 Nhiều biến</strong>
+            Mỗi biến một việc: <code style="background:rgba(255,255,255,0.2); color:#fff;">điểm</code>, <code style="background:rgba(255,255,255,0.2); color:#fff;">thời gian</code>...
+          </div>
+          <div class="k-card green span-2">
+            <strong>🔁 set vs change</strong>
+            <code style="background:rgba(255,255,255,0.2); color:#fff;">set</code> = gán giá trị mới; <code style="background:rgba(255,255,255,0.2); color:#fff;">change</code> = cộng/trừ thêm — luôn reset khi cờ xanh!
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: LT1 -->
+  <section class="slide" data-index="3" aria-label="Luyện tập 1">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
+      <h2><span class="th-label btvn-label">LT1</span> Xúc xắc khi nhấn phím 🎲</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Em luyện làm xúc xắc: mỗi lần nhấn phím <strong>Space</strong> thì tung xúc xắc — hiện số mới và sprite phản ứng, làm ngay tại lớp có giáo viên hỗ trợ!
+        </div>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Biến <code>số xúc xắc</code> hiển thị trên Stage</li>
+              <li>Nhấn Space → <code>set</code> số ngẫu nhiên 1–6 → <code>say</code> kết quả</li>
+              <li>Nhấn nhiều lần liên tiếp vẫn hoạt động (không cần bấm cờ xanh lại)</li>
+            </ul>
+            <div class="tip" style="margin-top:12px;">
+              <span class="tip-icon">🔄</span>
+              <div><strong>Đổi máy 2 phút:</strong> xong bài, đổi máy với bạn bên cạnh để cùng kiểm tra.</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.76rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set số xúc xắc to 1 / gán số xúc xắc = 1</div>
+              <div class="block event">when space key pressed / khi nhấn phím Space</div>
+              <div class="block variable indent">set số xúc xắc to (pick random 1 to 6) / gán số ngẫu nhiên 1–6</div>
+              <div class="block looks indent">say join "🎲 " số xúc xắc for 1.5 secs / nói kết quả</div>
+              <div class="block sound indent optional">start sound Pop / phát tiếng (tùy chọn)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: LT2 -->
+  <section class="slide" data-index="4" aria-label="Luyện tập 2">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
+      <h2><span class="th-label btvn-label">LT2</span> Đếm ngược thời gian ⏳</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Em luyện làm đồng hồ <strong>đếm ngược</strong>: bắt đầu từ 10, mỗi giây giảm 1, về 0 thì sprite nói "Hết giờ!" và dừng — làm ngay tại lớp, có khó khăn cứ hỏi giáo viên.
+        </div>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Biến <code>thời gian</code> hiển thị trên Stage</li>
+              <li>Cờ xanh: <code>set thời gian to 10</code></li>
+              <li>Mỗi giây <code>change thời gian by -1</code></li>
+              <li>Về 0 → <code>say</code> "Hết giờ!" → <code>stop all</code></li>
+            </ul>
+            <div class="tip" style="margin-top:12px;">
+              <span class="tip-icon">🩹</span>
+              <div><strong>Đếm quá nhanh/chậm?</strong> Kiểm tra có <code>wait 1 seconds</code> trong vòng lặp chưa.</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.78rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set thời gian to 10 / gán thời gian = 10</div>
+              <div class="block control c-block indent">
+                repeat until &lt;thời gian = 0&gt; / lặp đến khi hết giờ
+                <div class="c-body">
+                  <div class="block control">wait 1 seconds / chờ 1 giây</div>
+                  <div class="block variable">change thời gian by -1 / giảm thời gian</div>
+                </div>
+              </div>
+              <div class="block looks indent">say "⏰ Hết giờ!" for 2 secs / báo hết giờ</div>
+              <div class="block control indent">stop all / dừng toàn bộ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Giới thiệu bài mở rộng -->
+  <section class="slide" data-index="5" aria-label="Giới thiệu bài mở rộng">
+    <div class="slide-main">
+      <span class="slide-tag green">🎯 Giới thiệu bài mở rộng</span>
+      <h2>Em chọn 1 bài để làm</h2>
+      <div class="slide-body">
+        <div class="highlight-box green" style="margin-top:0;">
+          Giáo viên demo nhanh bài <strong>A1 "Xúc xắc"</strong> — chỉ rõ cách thêm costume/âm thanh khi tung. Sau đó em chọn <strong>1 mức</strong> A, B hoặc C, rồi chọn <strong>1 trong 2 bài</strong> của mức đó. Mỗi bài có 1 slide riêng — bấm chấm phía trên để tới bài em chọn.
+        </div>
+        <div class="knowledge-grid" style="margin-top:14px;">
+          <div class="k-card green span-2">
+            <strong>🅰️ Mức A — Cơ bản</strong>
+            🎲 Xúc xắc (A1) hoặc 🪙 tung đồng xu (A2) — luyện <code style="background:rgba(255,255,255,0.2); color:#fff;">pick random</code> + biến.
+          </div>
+          <div class="k-card blue span-2">
+            <strong>🅱️ Mức B — Trung bình</strong>
+            🔮 Đoán số (B1) hoặc 📊 đoán cao/thấp (B2) — luyện <code style="background:rgba(255,255,255,0.2); color:#fff;">ask</code> + so sánh số.
+          </div>
+          <div class="k-card purple span-2">
+            <strong>🅲 Mức C — Thử thách</strong>
+            ⏱️ Game 60 giây (C1) hoặc ⏳ game 30 giây (C2) — game gom điểm có giới hạn thời gian!
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: A1 -->
+  <section class="slide" data-index="6" aria-label="A1">
+    <div class="slide-main">
+      <span class="slide-tag green">Bài mở rộng · Mức A</span>
+      <h2><span class="th-label">A1</span> Xúc xắc 🎲</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Lớp học sắp tổ chức hội chợ trò chơi — em được giao nhiệm vụ làm gian hàng "xúc xắc may mắn"! Em làm xúc xắc <strong>đẹp hơn</strong>: có costume/emoji đổi theo số (1–6), tung bằng Space, có âm thanh.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Biến <code>số xúc xắc</code></li>
+              <li>Space tung random 1–6</li>
+              <li><code>say</code> kết quả</li>
+              <li>≥ 1 âm thanh khi tung</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Đếm số lần tung ra 6 bằng biến <code>lần may mắn</code>, và khi đạt 3 lần may mắn liên tiếp thì sprite ăn mừng bằng hiệu ứng đổi màu (<code>change color effect</code>) + âm thanh chiến thắng riêng</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.74rem;">
+              <div class="block event">when space key pressed / khi nhấn phím Space</div>
+              <div class="block variable indent">set số xúc xắc to (pick random 1 to 6) / gán số ngẫu nhiên</div>
+              <div class="block looks indent">say join "🎲 " số xúc xắc for 1.5 secs / nói kết quả</div>
+              <div class="block sound indent">start sound Pop / phát tiếng tung</div>
+              <div class="block control c-block indent optional">
+                if &lt;số xúc xắc = 6&gt; then / nếu ra số 6
+                <div class="c-body">
+                  <div class="block variable">change lần may mắn by 1 / tăng lần may mắn</div>
+                  <div class="block looks">say "May mắn!" / báo may mắn</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: A2 -->
+  <section class="slide" data-index="7" aria-label="A2">
+    <div class="slide-main">
+      <span class="slide-tag green">Bài mở rộng · Mức A</span>
+      <h2><span class="th-label">A2</span> Tung đồng xu Heads/Tails 🪙</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Ở gian hàng bên cạnh, bạn em làm trò "tung đồng xu đoán may rủi". Em làm tung đồng xu: mỗi lần bấm Space, random <strong>Heads</strong> (Ngửa) hoặc <strong>Tails</strong> (Sấp).</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Biến <code>đồng xu</code></li>
+              <li>Space → random 1 hoặc 2</li>
+              <li><code>if</code> hiển thị Ngửa/Sấp</li>
+              <li>Có <code>say</code> hoặc đổi costume</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Biến <code>số lần ngửa</code> — đếm mỗi khi ra Heads, và thêm biến <code>tổng lượt tung</code> để cuối cùng <code>say</code> tỉ lệ ra Heads (ví dụ "Ngửa 6/10 lần") giúp em thấy random không phải lúc nào cũng chia đều 50/50</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.74rem;">
+              <div class="block event">when space key pressed / khi nhấn phím Space</div>
+              <div class="block variable indent">set đồng xu to (pick random 1 to 2) / gán ngẫu nhiên 1 hoặc 2</div>
+              <div class="block control c-block indent">
+                if &lt;đồng xu = 1&gt; then / nếu ra 1
+                <div class="c-body">
+                  <div class="block looks">say "Ngửa (Heads)!" / báo Ngửa</div>
+                </div>
+              </div>
+              <div class="block control c-block indent">
+                else / còn không thì
+                <div class="c-body">
+                  <div class="block looks">say "Sấp (Tails)!" / báo Sấp</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: B1 -->
+  <section class="slide" data-index="8" aria-label="B1">
+    <div class="slide-main">
+      <span class="slide-tag">Bài mở rộng · Mức B</span>
+      <h2><span class="th-label level-b">B1</span> Đoán số 🔮</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Em trở thành "nhà tiên tri nhỏ" của lớp — thử thách bạn bè đoán đúng con số bí mật! Máy bốc số bí mật từ 1 đến 10, em dùng <code>ask</code> để đoán — đúng thì thắng, sai thì gợi ý lớn hơn hoặc nhỏ hơn.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Biến <code>số bí mật</code></li>
+              <li>Cờ xanh bốc random 1–10</li>
+              <li><code>ask</code> đoán</li>
+              <li><code>if</code> so sánh <code>answer</code> với <code>số bí mật</code>, có <code>else</code> gợi ý</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Biến <code>lượt đoán</code> — đoán tối đa 5 lần, hết 5 lần chưa đúng thì sprite tự tiết lộ đáp án và mời chơi lại; đoán đúng trong ≤ 3 lượt thì hiện thêm lời khen "Siêu trí tuệ!"</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.68rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set số bí mật to (pick random 1 to 10) / gán số bí mật</div>
+              <div class="block sensing indent">ask "Đoán số từ 1 đến 10?" and wait / hỏi đoán số</div>
+              <div class="block control c-block indent">
+                if &lt;answer = số bí mật&gt; then / nếu đoán đúng
+                <div class="c-body">
+                  <div class="block looks">say "Đúng!" / báo thắng</div>
+                </div>
+              </div>
+              <div class="block control c-block indent">
+                else / còn không thì
+                <div class="c-body">
+                  <div class="block control c-block">
+                    if &lt;answer &lt; số bí mật&gt; then / nếu đoán nhỏ hơn
+                    <div class="c-body">
+                      <div class="block looks">say "Thử số lớn hơn!" / gợi ý lớn hơn</div>
+                    </div>
+                  </div>
+                  <div class="block control c-block">
+                    else / còn lại
+                    <div class="c-body">
+                      <div class="block looks">say "Thử số nhỏ hơn!" / gợi ý nhỏ hơn</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: B2 -->
+  <section class="slide" data-index="9" aria-label="B2">
+    <div class="slide-main">
+      <span class="slide-tag">Bài mở rộng · Mức B</span>
+      <h2><span class="th-label level-b">B2</span> Đoán cao/thấp 2 số random 📊</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Hai đội chơi mini-game so tài: máy bốc <strong>2 số ngẫu nhiên</strong> từ 1 đến 10, đại diện mỗi đội đoán xem số nào <strong>lớn hơn</strong>.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Biến <code>số A</code> và <code>số B</code></li>
+              <li>Cờ xanh bốc 2 số random</li>
+              <li><code>ask</code> "Số nào lớn hơn? (A hay B)"</li>
+              <li><code>if</code> so sánh <code>answer</code> với số lớn hơn, có <code>else</code> báo đáp án đúng</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Nếu <code>số A = số B</code> → <code>say</code> "Hòa! Bốc lại nhé!" và bốc lại tự động; thêm biến <code>số lần thắng</code> đếm qua nhiều ván liên tiếp để biết ai "may mắn" hơn trong 5 ván</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.64rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set số A to (pick random 1 to 10) / gán số A</div>
+              <div class="block variable indent">set số B to (pick random 1 to 10) / gán số B</div>
+              <div class="block looks indent">say join "A = " số A for 1 secs / hiện số A</div>
+              <div class="block looks indent">say join "B = " số B for 1 secs / hiện số B</div>
+              <div class="block sensing indent">ask "Số nào lớn hơn? (A hay B)" and wait / hỏi đoán</div>
+              <div class="block control c-block indent">
+                if &lt;số A &gt; số B&gt; then / nếu A lớn hơn
+                <div class="c-body">
+                  <div class="block control c-block">
+                    if &lt;answer = A&gt; then / nếu đoán A
+                    <div class="c-body">
+                      <div class="block looks">say "Đúng! A lớn hơn." / báo đúng</div>
+                    </div>
+                  </div>
+                  <div class="block control c-block">
+                    else / còn lại
+                    <div class="c-body">
+                      <div class="block looks">say "Sai rồi, A lớn hơn." / báo đáp án</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="block control c-block indent optional">
+                else / nếu B lớn hơn (tương tự, đảo A/B)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: C1 -->
+  <section class="slide" data-index="10" aria-label="C1">
+    <div class="slide-main">
+      <span class="slide-tag purple">Bài mở rộng · Mức C</span>
+      <h2><span class="th-label level-c">C1</span> Game 60 giây ⏱️</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Đây là gian hàng "hot" nhất hội chợ lớp: trong <strong>60 giây</strong>, em click vào sprite càng nhiều càng tốt để gom điểm, ai đạt hạng "Giỏi" sẽ được ghi tên lên bảng vàng của lớp!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Biến <code>điểm</code> và <code>thời gian</code></li>
+              <li>Reset cờ xanh (<code>điểm</code> = 0, <code>thời gian</code> = 60)</li>
+              <li>Click +1 điểm; đếm ngược thời gian</li>
+              <li>Hết giờ <code>say</code> điểm + <code>if</code> xếp hạng</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Sprite di chuyển random mỗi khi click — khó bắt hơn! Thêm 2 mức xếp hạng nữa (ví dụ &lt; 15 = "Cố lên!", 15–29 = "Khá", ≥ 30 = "Giỏi lắm!") để mọi bạn đều nhận được lời động viên phù hợp</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.68rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set điểm to 0 / gán điểm = 0</div>
+              <div class="block variable indent">set thời gian to 60 / gán thời gian = 60</div>
+              <div class="block control c-block indent">
+                repeat until &lt;thời gian = 0&gt; / lặp đến khi hết giờ
+                <div class="c-body">
+                  <div class="block control">wait 1 seconds / chờ 1 giây</div>
+                  <div class="block variable">change thời gian by -1 / giảm thời gian</div>
+                </div>
+              </div>
+              <div class="block looks indent">say join "Hết giờ! Điểm: " điểm / báo tổng điểm</div>
+              <div class="block control c-block indent">
+                if &lt;điểm &gt;= 30&gt; then / nếu đủ 30 điểm
+                <div class="c-body">
+                  <div class="block looks">say "Giỏi lắm!" / khen thưởng</div>
+                </div>
+              </div>
+              <div class="block event">when this sprite clicked / khi bấm vào sprite</div>
+              <div class="block variable indent">change điểm by 1 / tăng điểm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: C2 -->
+  <section class="slide" data-index="11" aria-label="C2">
+    <div class="slide-main">
+      <span class="slide-tag purple">Bài mở rộng · Mức C</span>
+      <h2><span class="th-label level-c">C2</span> Game 30 giây countdown ⏳</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Phiên bản "tốc độ" của gian hàng gom điểm — chỉ <strong>30 giây</strong>, nhanh hơn, căng hơn, đòi hỏi phản xạ nhanh!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Biến <code>điểm</code> và <code>thời gian</code></li>
+              <li>Reset cờ xanh (<code>điểm</code> = 0, <code>thời gian</code> = 30)</li>
+              <li>Click +1 điểm; đếm ngược thời gian</li>
+              <li>Hết giờ <code>say</code> điểm + <code>if</code> xếp hạng + <code>stop all</code></li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Sprite nhỏ dần mỗi 10 giây (<code>change size by</code> -10) — khó click hơn! Thêm biến <code>điểm cao nhất</code> lưu lại kỷ lục của lần chơi tốt nhất trong buổi, để em thi đấu với chính mình ở các lượt chơi sau</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.66rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set điểm to 0 / gán điểm = 0</div>
+              <div class="block variable indent">set thời gian to 30 / gán thời gian = 30</div>
+              <div class="block control c-block indent">
+                repeat until &lt;thời gian = 0&gt; / lặp đến khi hết giờ
+                <div class="c-body">
+                  <div class="block control">wait 1 seconds / chờ 1 giây</div>
+                  <div class="block variable">change thời gian by -1 / giảm thời gian</div>
+                </div>
+              </div>
+              <div class="block looks indent">say join "Hết giờ! Điểm: " điểm / báo tổng điểm</div>
+              <div class="block control c-block indent">
+                if &lt;điểm &gt;= 15&gt; then / nếu đủ 15 điểm
+                <div class="c-body">
+                  <div class="block looks">say "Giỏi lắm!" / khen thưởng</div>
+                </div>
+              </div>
+              <div class="block control indent">stop all / dừng toàn bộ</div>
+              <div class="block event">when this sprite clicked / khi bấm vào sprite</div>
+              <div class="block variable indent">change điểm by 1 / tăng điểm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Tổng kết -->
+  <section class="slide title-slide" data-index="12" aria-label="Tổng kết">
+    <div class="slide-main">
+      <div class="title-emoji">🎲</div>
+      <h2 style="font-size:1.9rem; margin-bottom:16px;">Showcase &amp; Tổng kết buổi Bài tập</h2>
+      <ul style="font-size:1.05rem; line-height:2; text-align:left; font-weight:700; max-width:560px;">
+        <li>✅ Đã hoàn thành <strong>Luyện tập 1</strong> (xúc xắc phím Space) và <strong>Luyện tập 2</strong> (đếm ngược) ngay tại lớp</li>
+        <li>✅ Đã chọn 1 bài mở rộng A / B / C — từ xúc xắc đến game gom điểm có thời gian</li>
+        <li>🖼️ Showcase: gallery walk xem project bạn, 2–3 bạn trình chiếu</li>
+      </ul>
+      <p style="margin-top:24px; font-size:1.15rem; color:var(--scratch-orange); font-weight:800;">
+        Hẹn gặp lại ở Buổi 19 — Broadcast, gửi tin nhắn giữa các sprite! 👋
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 13</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Space · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let hasNavigated = false;
+
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
+
+  function buildDots() {
+    const template = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+    document.getElementById('dots').innerHTML = template;
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.toggle('active', Number(dot.dataset.goto) === current);
+    });
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) {
+      hasNavigated = true;
+      document.body.classList.add('presenting');
+    }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1
+      ? '· Scratch'
+      : '· Tuần 9 Buổi 18';
+    updateDots();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, .quiz-item, code, .global-topbar, .nav')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); next(); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  document.getElementById('btnFullscreen').addEventListener('click', e => {
+    e.stopPropagation();
+    toggleFullscreen();
+  });
+
+  document.getElementById('btnExitFs').addEventListener('click', e => {
+    e.stopPropagation();
+    exitFullscreen();
+  });
+
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
+  function toggleFullscreen() {
+    if (isFullscreen()) exitFullscreen();
+    else enterFullscreen();
+  }
+
+  function enterFullscreen() {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  }
+
+  function exitFullscreen() {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+
+  function onFullscreenChange() {
+    document.body.classList.toggle('is-fullscreen', isFullscreen());
+  }
+
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+  document.querySelectorAll('[data-quiz]').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      item.classList.toggle('revealed');
+    });
+  });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1));
+  }, { passive: true });
+
+  buildDots();
+  slides.forEach((s, i) => {
+    s.setAttribute('aria-hidden', i !== 0);
+    if (i === 0) s.classList.add('active');
+    else s.classList.add('next');
+  });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
+</html>

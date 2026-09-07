@@ -757,7 +757,7 @@
 </head>
 <body>
 
-<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1"></div>
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="15" aria-valuenow="1"></div>
 
 <header class="global-topbar">
   <div class="brand">
@@ -781,7 +781,7 @@
       <div class="title-meta">
         <span class="badge">📅 Tuần 3</span>
         <span class="badge">📖 Buổi 5 — Học</span>
-        <span class="badge">🎯 8–10 tuổi</span>
+        <span class="badge">🎯 7–10 tuổi</span>
       </div>
       <p class="start-hint">Nhấn → hoặc Space để bắt đầu</p>
     </div>
@@ -807,10 +807,30 @@
     </div>
   </section>
 
-  <!-- Slide 3 -->
-  <section class="slide" data-index="2" aria-label="Kiến thức mới">
+  <!-- Slide 3: Khởi động -->
+  <section class="slide" data-index="2" aria-label="Khởi động">
     <div class="slide-main">
-      <span class="slide-tag purple">Kiến thức mới</span>
+      <span class="slide-tag purple">🎬 Khởi động (10 phút)</span>
+      <h2>Trò chơi "Diễn hoạt hình sống"</h2>
+      <div class="slide-body">
+        <div class="highlight-box purple">
+          Cả lớp đứng dậy. Giáo viên hô liên tiếp <strong>3 "dáng"</strong> theo đúng thứ tự và một nhịp đều — ví dụ: "Dáng 1: giơ tay!" → "Dáng 2: cúi người!" → "Dáng 3: nhảy lên!" — lặp lại 2 vòng cho quen nhịp.
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <h3>💭 Hỏi cả lớp</h3>
+          <p style="font-weight:600; line-height:1.6;">"Nếu cô đổi thứ tự 3 dáng này, các em nhìn có còn giống điệu nhảy cũ không?"</p>
+        </div>
+        <div class="highlight-box orange" style="margin-top:14px;">
+          → Hoạt hình chính là nhiều "costume" (dáng) nối tiếp nhau <strong>đúng thứ tự</strong> — đổi liên tục tạo cảm giác chuyển động. Buổi trước (Buổi 4) mình cho sprite <em>di chuyển</em>; hôm nay mình học cách làm sprite <em>"diễn"</em>!
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4 -->
+  <section class="slide" data-index="3" aria-label="Kiến thức mới">
+    <div class="slide-main">
+      <span class="slide-tag purple">Kiến thức mới (20 phút)</span>
       <h2>5 khối lệnh quan trọng</h2>
       <div class="slide-body">
         <div class="knowledge-grid">
@@ -838,14 +858,17 @@
         <div class="highlight-box" style="margin-top:16px;">
           💡 <strong>Nhớ:</strong> Hoạt hình = chuỗi lệnh + <code>wait</code> + đổi costume!
         </div>
+        <div class="highlight-box orange" style="margin-top:12px;">
+          <strong>Vì sao quan trọng?</strong> Hoạt hình là thứ khiến nhân vật Scratch trông "sống động" thay vì đứng im — gần như mọi game và câu chuyện em làm sau này đều cần đổi costume, <code>say</code>, <code>wait</code> đúng nhịp để tạo cảm xúc cho nhân vật.
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 4 -->
-  <section class="slide" data-index="3" aria-label="Ví dụ mẫu">
+  <!-- Slide 5 -->
+  <section class="slide" data-index="4" aria-label="Ví dụ mẫu 1">
     <div class="slide-main">
-      <span class="slide-tag">Ví dụ mẫu</span>
+      <span class="slide-tag">Ví dụ mẫu 1</span>
       <h2>Nhảy và nói 🐱</h2>
       <div class="slide-body">
         <div class="cols">
@@ -882,8 +905,35 @@
     </div>
   </section>
 
-  <!-- Slide 5: TH1 -->
-  <section class="slide" data-index="4" aria-label="TH1">
+  <!-- Slide 6 -->
+  <section class="slide" data-index="5" aria-label="Ví dụ mẫu 2">
+    <div class="slide-main">
+      <span class="slide-tag">Ví dụ mẫu 2</span>
+      <h2>Nói thầm rồi biến mất 👻</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <p style="margin-bottom:10px; font-weight:600;">Cùng dùng <code>wait</code> để tạo nhịp, nhưng lần này dùng <code>think</code> thay vì <code>say</code>, và thêm <code>hide</code>:</p>
+            <div class="blocks">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block looks indent">think "Mình sẽ biến mất nhé…" for 1 seconds / nghĩ trong 1 giây</div>
+              <div class="block control indent">wait 0.5 seconds / chờ 0.5 giây</div>
+              <div class="block looks indent">hide / ẩn đi</div>
+            </div>
+            <p style="margin-top:10px; font-size:0.92rem; color:#5a6a7e; font-weight:600;">Looks có nhiều khối khác nhau để tạo cảm xúc cho nhân vật!</p>
+          </div>
+          <div class="card">
+            <h3>🤔 Em đoán xem?</h3>
+            <p style="line-height:1.6; font-weight:600;">Nếu sprite dùng <code>hide</code> mà không có <code>show</code> ở sau, khi em bấm cờ xanh chạy lại <strong>lần 2</strong>, em đoán sprite có tự xuất hiện lại không?</p>
+            <p style="margin-top:8px; font-size:0.9rem; color:#5a6a7e; font-weight:700;">Đoán trước, rồi thử ngay trên Scratch để kiểm tra!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: TH1 -->
+  <section class="slide" data-index="6" aria-label="TH1">
     <div class="slide-main">
       <span class="slide-tag green">Thực hành</span>
       <h2><span class="th-label">TH1</span> Nhảy 3 bước 🦘</h2>
@@ -917,8 +967,8 @@
     </div>
   </section>
 
-  <!-- Slide 6: TH1 checklist -->
-  <section class="slide" data-index="5" aria-label="TH1 checklist">
+  <!-- Slide 8: TH1 checklist -->
+  <section class="slide" data-index="7" aria-label="TH1 checklist">
     <div class="slide-main">
       <span class="slide-tag green">Thực hành</span>
       <h2><span class="th-label">TH1</span> Checklist tự kiểm</h2>
@@ -930,14 +980,30 @@
         </ul>
         <div class="highlight-box orange" style="margin-top:24px;">
           🙋 Xong TH1? Giơ tay cho cô biết!<br>
-          Tiếp theo: <strong>TH2</strong> — kể chuyện 2 cảnh.
+          Tiếp theo: giải lao vận động, rồi <strong>TH2</strong> — kể chuyện 2 cảnh.
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 7: TH2 -->
-  <section class="slide" data-index="6" aria-label="TH2">
+  <!-- Slide 9: Giải lao vận động -->
+  <section class="slide" data-index="8" aria-label="Giải lao vận động">
+    <div class="slide-main">
+      <span class="slide-tag orange">🤸 Giải lao vận động (5 phút)</span>
+      <h2>Trò chơi "Costume sống"</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange">
+          Cả lớp đứng dậy. Giáo viên hô "Costume 1!" → cả lớp làm dáng A; "Costume 2!" → dáng B; "Costume 3!" → dáng C; "Wait!" → đứng im tuyệt đối 1 giây.
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <p style="font-weight:600; line-height:1.6;">Tăng dần tốc độ đổi dáng để cả lớp cảm nhận rõ: đổi dáng càng nhanh, càng giống hoạt hình mượt!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: TH2 -->
+  <section class="slide" data-index="9" aria-label="TH2">
     <div class="slide-main">
       <span class="slide-tag green">Thực hành</span>
       <h2><span class="th-label">TH2</span> Câu chuyện 2 cảnh 📖</h2>
@@ -969,8 +1035,8 @@
     </div>
   </section>
 
-  <!-- Slide 8: TH2 checklist -->
-  <section class="slide" data-index="7" aria-label="TH2 checklist">
+  <!-- Slide 11: TH2 checklist -->
+  <section class="slide" data-index="10" aria-label="TH2 checklist">
     <div class="slide-main">
       <span class="slide-tag green">Thực hành</span>
       <h2><span class="th-label">TH2</span> Checklist tự kiểm</h2>
@@ -991,15 +1057,41 @@
           </div>
           <div class="card">
             <h3>🎉 Hoàn thành!</h3>
-            <p style="line-height:1.6; font-weight:600;">Em đã biết tạo hoạt hình và kể chuyện. Giờ ôn lại và nhận bài tập về nhà!</p>
+            <p style="line-height:1.6; font-weight:600;">Em đã biết tạo hoạt hình và kể chuyện. Giờ đến thử thách nhóm với bạn!</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 9: Mẹo -->
-  <section class="slide" data-index="8" aria-label="Mẹo nhỏ">
+  <!-- Slide 12: Thử thách nhóm/sáng tạo -->
+  <section class="slide" data-index="11" aria-label="Thử thách nhóm">
+    <div class="slide-main">
+      <span class="slide-tag orange">🤝 Thử thách nhóm/sáng tạo (15 phút)</span>
+      <h2>Nối tiếp câu chuyện của bạn</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange">
+          Ghép cặp 2 bạn. Bạn A cho bạn B xem <strong>2 câu <code>say</code></strong> trong câu chuyện của mình ở TH2.
+        </div>
+        <div class="cols" style="margin-top:14px;">
+          <div class="card">
+            <h3>🗣️ Bạn B đoán</h3>
+            <p style="line-height:1.6; font-weight:600;">Nói to 1 câu <code>say</code> thứ 3 có thể tiếp nối câu chuyện đó một cách hợp lý (hoặc hài hước)!</p>
+          </div>
+          <div class="card">
+            <h3>🔄 Đổi vai</h3>
+            <p style="line-height:1.6; font-weight:600;">Nếu thích, bạn A có thể thêm luôn câu đó vào project. Đổi vai, thử với câu chuyện của bạn B.</p>
+          </div>
+        </div>
+        <div class="highlight-box" style="margin-top:14px;">
+          🙋 Giáo viên mời 1–2 cặp kể lại câu chuyện đã "nối" trước lớp!
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Mẹo -->
+  <section class="slide" data-index="12" aria-label="Mẹo nhỏ">
     <div class="slide-main">
       <span class="slide-tag yellow">Mẹo nhỏ</span>
       <h2>Gặp khó? Thử mẹo này!</h2>
@@ -1030,13 +1122,13 @@
     </div>
   </section>
 
-  <!-- Slide 10: Quiz -->
-  <section class="slide" data-index="9" aria-label="Câu hỏi ôn">
+  <!-- Slide 14: Ôn tập trò chơi -->
+  <section class="slide" data-index="13" aria-label="Tổng kết & Ôn tập trò chơi">
     <div class="slide-main">
-      <span class="slide-tag purple">Ôn tập</span>
-      <h2>Câu hỏi ôn — Em trả lời nhé!</h2>
+      <span class="slide-tag purple">🎉 Tổng kết & Ôn tập trò chơi (10 phút)</span>
+      <h2>Giơ tay trả lời nhanh — 2 đội thi đua!</h2>
       <div class="slide-body">
-        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Cô click để xem đáp án gợi ý ↓</p>
+        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Đội nào giơ tay trước được trả lời — đúng ghi 1 điểm. Cô click để xem đáp án gợi ý ↓</p>
         <div class="quiz-item" data-quiz>
           <span class="quiz-num">1</span>
           <div>Scratch chạy khối lệnh theo thứ tự nào?
@@ -1067,86 +1159,15 @@
             <div class="quiz-answer">→ <code>hide</code> (nhóm Looks). Muốn hiện lại dùng <code>show</code>.</div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 11: BTVN1 -->
-  <section class="slide" data-index="10" aria-label="BTVN1">
-    <div class="slide-main">
-      <span class="slide-tag red">Bài tập về nhà</span>
-      <h2><span class="th-label btvn-label">BTVN1</span> Nhảy 5 lần</h2>
-      <div class="slide-body">
-        <div class="cols">
-          <div>
-            <div class="highlight-box orange" style="margin-top:0;">
-              Lặp đổi costume + <code>wait</code> để nhảy <strong>5 lần</strong>.
-            </div>
-            <p class="section-label">Yêu cầu</p>
-            <ul>
-              <li>Ít nhất <strong>5 chu kỳ</strong> đổi costume</li>
-              <li>Có <code>wait</code> mỗi lần</li>
-            </ul>
-            <ul class="checklist" data-checklist style="margin-top:12px;">
-              <li>5 lần nhảy / đổi costume</li>
-              <li>Có wait</li>
-              <li>Hoạt hình mượt</li>
-            </ul>
-          </div>
-          <div>
-            <p class="section-label">Gợi ý</p>
-            <div class="blocks">
-              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
-              <div class="block control c-block indent">
-                repeat 5 / lặp 5 lần
-                <div class="c-body">
-                  <div class="block looks">next costume / trang phục kế tiếp</div>
-                  <div class="block control">wait 0.3 seconds / chờ 0.3 giây</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 12: BTVN2 -->
-  <section class="slide" data-index="11" aria-label="BTVN2">
-    <div class="slide-main">
-      <span class="slide-tag red">Bài tập về nhà</span>
-      <h2><span class="th-label btvn-label">BTVN2</span> Câu chuyện 3 cảnh 📚</h2>
-      <div class="slide-body">
-        <div class="highlight-box orange" style="margin-top:0;">
-          Kể chuyện <strong>3 cảnh</strong>, mỗi cảnh có <code>say</code> ít nhất 1 câu.
-        </div>
-        <div class="cols" style="margin-top:14px;">
-          <div>
-            <p class="section-label">Gợi ý từng bước</p>
-            <ol>
-              <li><strong>Cảnh 1:</strong> backdrop + <code>say</code> mở đầu</li>
-              <li><strong>Cảnh 2:</strong> đổi costume + <code>say</code> giữa</li>
-              <li><strong>Cảnh 3:</strong> đổi backdrop + <code>say</code> kết</li>
-            </ol>
-          </div>
-          <div>
-            <p class="section-label">Checklist</p>
-            <ul class="checklist" data-checklist>
-              <li>3 cảnh</li>
-              <li>3+ câu <code>say</code></li>
-              <li>Có <code>wait</code> giữa các cảnh</li>
-            </ul>
-          </div>
-        </div>
         <div class="highlight-box" style="margin-top:14px;">
-          📌 Mang project đến <strong>Buổi 6 — Luyện Looks</strong> tuần sau để chữa bài!
+          🙋 Mời 1–2 em chiếu màn hình kể lại câu chuyện 2 cảnh của mình ở TH2!
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 13: Tổng kết -->
-  <section class="slide title-slide" data-index="12" aria-label="Tổng kết">
+  <!-- Slide 15: Tổng kết -->
+  <section class="slide title-slide" data-index="14" aria-label="Tổng kết">
     <div class="slide-main">
       <div class="title-emoji">🎬</div>
       <h2 style="font-size:1.9rem; margin-bottom:16px;">Tổng kết buổi học</h2>
@@ -1158,7 +1179,7 @@
         <li>✅ <code>show</code> / <code>hide</code> = hiện / ẩn</li>
       </ul>
       <p style="margin-top:24px; font-size:1.15rem; color:var(--scratch-orange); font-weight:800;">
-        Hẹn gặp lại ở Buổi 6! 👋
+        Hẹn gặp lại ở buổi Bài tập tuần này để làm Luyện tập 1, 2 và bài mở rộng! 👋
       </p>
     </div>
   </section>
@@ -1167,7 +1188,7 @@
 
 <nav class="nav" aria-label="Điều hướng slide">
   <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
-  <span class="slide-counter" id="counter" aria-live="polite">1 / 13</span>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 15</span>
   <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
 </nav>
 <p class="hint" id="hint">← → hoặc Space · F toàn màn hình · Esc thoát · click hai bên màn hình</p>

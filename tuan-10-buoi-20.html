@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 10 — Buổi 20: Trạng thái game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+      --slide-w: min(1100px, 94vw);
+      --slide-h: min(700px, 84vh);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1a2744 0%, #2d4a7a 50%, #1a2744 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--scratch-dark);
+      user-select: none;
+    }
+
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 4px; width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow));
+      transition: width 0.35s ease;
+      z-index: 200;
+    }
+
+    .deck { width: var(--slide-w); height: var(--slide-h); position: relative; margin-top: 56px; }
+
+    .slide {
+      position: absolute; inset: 0;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.38);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden;
+      transform: translateX(40px);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1; visibility: visible; transform: translateX(0);
+      pointer-events: auto; z-index: 10;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s;
+    }
+
+    .slide.prev { opacity: 0; visibility: hidden; transform: translateX(-40px); pointer-events: none; z-index: 0; }
+    .slide.next { opacity: 0; visibility: hidden; transform: translateX(40px); pointer-events: none; z-index: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .progress-bar { transition: none; }
+    }
+
+    .global-topbar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      width: var(--slide-w);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      z-index: 150;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.88rem; color: var(--scratch-dark); white-space: nowrap; }
+    .brand-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--scratch-orange), var(--scratch-blue));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .brand-sub { font-weight: 600; color: #7a8a9e; font-size: 0.78rem; }
+
+    .slide-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 360px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #d0d8e4; border: none; cursor: pointer; padding: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .dot:hover { transform: scale(1.25); background: #aab4c4; }
+    .dot.active { background: var(--scratch-orange); transform: scale(1.2); }
+
+    .topbar-actions { display: flex; gap: 6px; }
+    .icon-btn {
+      width: 34px; height: 34px;
+      border: 1px solid #dde3ec;
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      color: var(--scratch-dark);
+    }
+    .icon-btn:hover { background: var(--scratch-bg); }
+
+    .slide-main { flex: 1; display: flex; flex-direction: column; padding: 24px 40px 20px; min-height: 0; }
+    .title-slide .slide-main { justify-content: center; align-items: center; text-align: center; padding: 32px; }
+
+    .slide-tag {
+      display: inline-flex; align-items: center;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #fff; background: var(--scratch-blue);
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 10px;
+      align-self: flex-start;
+    }
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green { background: var(--scratch-green); }
+    .slide-tag.red { background: var(--scratch-red); }
+    .slide-tag.yellow { background: #c98a00; }
+
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.2; font-weight: 800; margin-bottom: 6px; }
+    h2 { font-size: clamp(1.3rem, 2.8vw, 1.75rem); font-weight: 800; margin-bottom: 14px; line-height: 1.25; }
+    .subtitle { font-size: 1.05rem; color: #5a6a7e; font-weight: 600; }
+
+    .slide-body { flex: 1; overflow-y: auto; padding-right: 6px; min-height: 0; }
+    .slide-body::-webkit-scrollbar { width: 5px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #c8d0da; border-radius: 4px; }
+
+    .title-slide { background: linear-gradient(160deg, #fff8f0 0%, #fff 55%, #f0f7ff 100%); }
+    .title-emoji { font-size: clamp(3rem, 8vw, 4.5rem); margin-bottom: 8px; line-height: 1; }
+    .title-slide h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-blue));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .title-meta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .badge { background: #fff; border: 2px solid #dde3ec; border-radius: 12px; padding: 7px 16px; font-weight: 700; font-size: 0.9rem; }
+    .start-hint { margin-top: 28px; color: #7a8a9e; font-size: 0.88rem; font-weight: 600; animation: pulse 2.5s ease-in-out infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+    ul, ol { padding-left: 1.3em; line-height: 1.7; font-size: 1rem; font-weight: 600; }
+    li { margin-bottom: 4px; }
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.92em; font-weight: 700;
+      background: #eef2f7; color: #5b3ea8;
+      padding: 1px 7px; border-radius: 5px;
+    }
+    strong { font-weight: 800; }
+
+    .highlight-box {
+      background: #f0f7ff;
+      border-left: 4px solid var(--scratch-blue);
+      border-radius: 0 12px 12px 0;
+      padding: 14px 18px; margin: 12px 0;
+      font-size: 1rem; line-height: 1.6; font-weight: 600;
+    }
+    .highlight-box.orange { background: #fff8f0; border-color: var(--scratch-orange); }
+    .highlight-box.green { background: #f0fff4; border-color: var(--scratch-green); }
+    .highlight-box.purple { background: #f5f0ff; border-color: var(--scratch-purple); }
+
+    .blocks { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin: 10px 0; font-size: 0.88rem; font-weight: 700; }
+    .block {
+      position: relative; display: inline-block;
+      padding: 7px 14px 7px 12px;
+      border-radius: 6px; color: #fff;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.18);
+      white-space: normal; line-height: 1.35; max-width: 100%;
+    }
+    .block::before {
+      content: ''; position: absolute; top: -3px; left: 10px;
+      width: 12px; height: 6px; background: inherit;
+      border-radius: 3px 3px 0 0; filter: brightness(0.92);
+    }
+    .block:first-child::before, .block.event::before, .block.c-block::before { display: none; }
+
+    .block.event { background: #ffbf00; color: #422c00; border-radius: 14px 6px 6px 6px; padding-top: 9px; }
+    .block.looks { background: #9966ff; }
+    .block.control { background: #ffab19; color: #422c00; }
+    .block.motion { background: #4c97ff; }
+    .block.sound { background: #cf63cf; }
+    .block.sensing { background: #5cb1d6; }
+    .block.variable { background: #ff8c1a; }
+    .block.pen { background: #0fbd8c; }
+
+    .block.indent { margin-left: 20px; }
+    .block.indent-2 { margin-left: 40px; }
+    .block.optional { opacity: 0.65; font-style: italic; }
+
+    .block.c-block { border-radius: 6px 6px 4px 4px; padding-bottom: 4px; }
+    .c-body { display: flex; flex-direction: column; gap: 2px; margin: 4px 0 2px 8px; padding-left: 8px; border-left: 3px solid rgba(0,0,0,0.12); }
+
+    .blocks.compact { gap: 1px; margin: 6px 0; }
+    .blocks.compact .block { padding: 4px 10px 4px 8px; line-height: 1.2; }
+    .blocks.compact .c-body { margin: 2px 0 1px 6px; padding-left: 6px; gap: 1px; }
+
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 6px; }
+    .cols-60-40 { grid-template-columns: 1.1fr 0.9fr; }
+
+    @media (max-width: 720px) {
+      .cols, .cols-60-40 { grid-template-columns: 1fr; }
+      .slide-main { padding: 18px 22px 14px; }
+      .global-topbar { padding: 8px 12px; top: 8px; }
+      .slide-dots { display: none; }
+      .brand-sub { display: none; }
+    }
+
+    .card { background: var(--scratch-bg); border-radius: 12px; padding: 14px 16px; }
+    .card h3 { font-size: 0.95rem; font-weight: 800; color: var(--scratch-blue); margin-bottom: 8px; }
+
+    .section-label { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #7a8a9e; margin: 10px 0 6px; }
+
+    .knowledge-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+    .k-card { border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 0.88rem; line-height: 1.45; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .k-card > strong:first-child { display: block; font-size: 0.95rem; font-weight: 800; margin-bottom: 5px; }
+    .k-card.span-2 { grid-column: span 2; }
+    .k-card.span-3 { grid-column: span 3; }
+    .k-card.blue { background: var(--scratch-blue); }
+    .k-card.orange { background: var(--scratch-orange); color: #422c00; }
+    .k-card.purple { background: var(--scratch-purple); }
+    .k-card.green { background: var(--scratch-green); }
+    .k-card.red { background: var(--scratch-red); }
+
+    @media (max-width: 720px) {
+      .knowledge-grid { grid-template-columns: 1fr; }
+      .k-card.span-2, .k-card.span-3 { grid-column: span 1; }
+    }
+
+    .quiz-item {
+      background: var(--scratch-bg); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-weight: 700; font-size: 0.96rem;
+      display: flex; gap: 12px; align-items: flex-start;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .quiz-item:hover { background: #e4eaf2; }
+    .quiz-num {
+      background: var(--scratch-purple); color: #fff;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.82rem; flex-shrink: 0;
+    }
+    .quiz-answer { display: none; margin-top: 8px; padding: 8px 12px; background: #e8f4e8; border-radius: 8px; font-size: 0.9rem; font-weight: 700; color: #2d6a3a; }
+    .quiz-item.revealed .quiz-answer { display: block; }
+    .quiz-item.revealed { background: #eef6ee; }
+
+    .tip {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: #fffbe6; border: 2px dashed var(--scratch-yellow);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-size: 0.94rem; line-height: 1.55; font-weight: 600;
+    }
+    .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    .th-label {
+      display: inline-block; background: var(--scratch-green); color: #fff;
+      font-weight: 800; font-size: 0.72rem; padding: 3px 9px; border-radius: 6px;
+      margin-right: 4px; vertical-align: middle; letter-spacing: 0.03em;
+    }
+    .btvn-label { background: var(--scratch-red); }
+    .th-label.level-b { background: var(--scratch-blue); }
+    .th-label.level-c { background: var(--scratch-purple); }
+
+    .emoji-row { font-size: 1.6rem; letter-spacing: 6px; margin: 10px 0; }
+
+    .nav { position: fixed; bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 100; }
+    .nav button {
+      background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.38);
+      color: #fff; width: 46px; height: 46px; border-radius: 50%;
+      font-size: 1.2rem; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(8px);
+    }
+    .nav button:hover:not(:disabled) { background: rgba(255,255,255,0.28); transform: scale(1.07); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+
+    .slide-counter { color: rgba(255,255,255,0.9); font-size: 0.88rem; font-weight: 800; min-width: 56px; text-align: center; }
+
+    .hint { position: fixed; bottom: 76px; color: rgba(255,255,255,0.42); font-size: 0.74rem; font-weight: 600; transition: opacity 0.4s; }
+
+    html:fullscreen, html:-webkit-full-screen { width: 100%; height: 100%; }
+    html:fullscreen body, html:-webkit-full-screen body { width: 100%; height: 100%; min-height: 100%; background: #1a2744; padding: 0; }
+    html:fullscreen .deck, html:-webkit-full-screen .deck { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0; }
+    html:fullscreen .slide, html:-webkit-full-screen .slide { border-radius: 0; box-shadow: none; }
+    html:fullscreen .global-topbar, html:-webkit-full-screen .global-topbar { display: none; }
+    html:fullscreen .hint, html:-webkit-full-screen .hint { display: none; }
+    html:fullscreen .nav, html:-webkit-full-screen .nav { bottom: 16px; opacity: 0.35; transition: opacity 0.25s; }
+    html:fullscreen .nav:hover, html:-webkit-full-screen .nav:hover { opacity: 1; }
+    html:fullscreen .progress-bar, html:-webkit-full-screen .progress-bar { height: 3px; }
+
+    .fs-exit {
+      display: none; position: fixed; top: 12px; right: 12px; z-index: 300;
+      background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.35);
+      color: #fff; width: 40px; height: 40px; border-radius: 10px;
+      cursor: pointer; font-size: 1rem; backdrop-filter: blur(6px);
+      transition: background 0.15s;
+    }
+    .fs-exit:hover { background: rgba(0,0,0,0.65); }
+    html:fullscreen .fs-exit, html:-webkit-full-screen .fs-exit {
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    @media print {
+      body { background: #fff; overflow: visible; }
+      .nav, .hint, .progress-bar, .global-topbar { display: none !important; }
+      .deck { width: 100%; height: auto; }
+      .slide {
+        position: relative; opacity: 1 !important; transform: none !important;
+        page-break-after: always; box-shadow: none; border: 1px solid #ccc;
+        margin-bottom: 20px; min-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🐱</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1 -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji">🎮</div>
+      <h1>Trạng thái game</h1>
+      <p class="subtitle">Lập trình Scratch — Tháng 3 · Logic nâng cao</p>
+      <div class="title-meta">
+        <span class="badge">📅 Tuần 10</span>
+        <span class="badge">✏️ Buổi 20 — Bài tập</span>
+        <span class="badge">🎯 7–10 tuổi</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Space để bắt đầu</p>
+    </div>
+  </section>
+
+  <!-- Slide 2: Khởi động ôn tập -->
+  <section class="slide" data-index="1" aria-label="Khởi động ôn tập">
+    <div class="slide-main">
+      <span class="slide-tag purple">🎬 Khởi động ôn tập</span>
+      <h2>Đúng hay Sai?</h2>
+      <div class="slide-body">
+        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Cô đọc từng câu, cả lớp giơ ngón cái lên (Đúng) hoặc xuống (Sai) — rồi click để xem đáp án ↓</p>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">1</span>
+          <div>"<code>broadcast</code> chỉ gửi tin cho 1 sprite duy nhất."
+            <div class="quiz-answer">→ Sai — mọi sprite có <code>when I receive</code> cùng tên đều nhận được.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">2</span>
+          <div>"Tên tin nhắn ở <code>broadcast</code> và <code>when I receive</code> phải giống hệt nhau."
+            <div class="quiz-answer">→ Đúng.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">3</span>
+          <div>"Game luôn chỉ có đúng 1 trạng thái duy nhất."
+            <div class="quiz-answer">→ Sai — thường có Chờ, Đang chơi, Kết thúc (có khi thêm Đếm ngược).</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">4</span>
+          <div>"<code>stop all</code> chỉ dừng 1 sprite, các sprite khác vẫn chạy."
+            <div class="quiz-answer">→ Sai — <code>stop all</code> dừng toàn bộ project.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">5</span>
+          <div>"<code>broadcast and wait</code> chờ script nhận tin chạy xong mới chạy tiếp."
+            <div class="quiz-answer">→ Đúng.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Ôn nhanh -->
+  <section class="slide" data-index="2" aria-label="Ôn nhanh">
+    <div class="slide-main">
+      <span class="slide-tag orange">🔁 Ôn nhanh</span>
+      <h2>Nhớ lại Broadcast &amp; trạng thái</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Hôm nay em luyện lại <strong>broadcast</strong> và <strong>trạng thái game</strong> ngay tại lớp, rồi tự chọn 1 bài mở rộng để làm game có màn chờ, đếm ngược, thậm chí Pause và nhiều màn!
+        </div>
+        <div class="emoji-row">📡 🎮 ⏳ 🛑</div>
+        <div class="knowledge-grid" style="margin-top:14px;">
+          <div class="k-card orange span-2">
+            <strong>📡 Broadcast</strong>
+            <code style="background:rgba(255,255,255,0.2); color:#fff;">broadcast</code> gửi tin, <code style="background:rgba(255,255,255,0.2); color:#fff;">when I receive</code> nhận tin
+          </div>
+          <div class="k-card blue span-2">
+            <strong>🎮 Trạng thái game</strong>
+            Chờ → Đang chơi → Kết thúc (có khi thêm Đếm ngược)
+          </div>
+          <div class="k-card green span-2">
+            <strong>🛑 stop all</strong>
+            Dừng <strong>toàn bộ</strong> script khi Game Over — nhiều sprite cùng nghe 1 tin!
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: LT1 -->
+  <section class="slide" data-index="3" aria-label="Luyện tập 1">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
+      <h2><span class="th-label btvn-label">LT1</span> Nút Play tự khóa ▶️🔒</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Em luyện làm nút Play — nhưng lần này nút Play biết "tự khóa": ngay khi game bắt đầu chạy, nút tự ẩn đi để không ai bấm lại giữa ván, chỉ hiện lại khi bấm cờ xanh!
+        </div>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Sprite nút Play, click → <code>broadcast start</code></li>
+              <li>Nhân vật ẩn/đứng yên khi chưa Start; <code>when I receive start</code> → hiện + di chuyển</li>
+              <li><strong>Nút Play tự <code>hide</code></strong> ngay khi nhận <code>start</code>, tự <code>show</code> lại khi bấm cờ xanh</li>
+            </ul>
+            <div class="tip" style="margin-top:12px;">
+              <span class="tip-icon">🔄</span>
+              <div><strong>Đổi máy 2 phút:</strong> kiểm tra chéo xem tên broadcast của bạn có gõ đúng và giống nhau ở cả hai đầu không.</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.7rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh (Nút Play)</div>
+              <div class="block looks indent">show / hiện nút Play</div>
+              <div class="block event">when this sprite clicked / khi bấm Nút Play</div>
+              <div class="block event indent">broadcast start / phát tin bắt đầu</div>
+              <div class="block event">when I receive start / khi Nút Play nhận tin</div>
+              <div class="block looks indent">hide / tự ẩn, khóa không cho bấm lại</div>
+              <div class="block event">when green flag clicked / khi bấm cờ xanh (Cat)</div>
+              <div class="block looks indent">hide / ẩn Cat</div>
+              <div class="block event">when I receive start / khi Cat nhận tin</div>
+              <div class="block looks indent">show / hiện Cat</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block motion">move 5 steps / di chuyển</div>
+                  <div class="block motion">if on edge, bounce / chạm biên thì quay đầu</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: LT2 -->
+  <section class="slide" data-index="4" aria-label="Luyện tập 2">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
+      <h2><span class="th-label btvn-label">LT2</span> Game 4 trạng thái có đếm ngược 🎮⏳</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Em luyện làm game có 4 trạng thái rõ ràng: <strong>Chờ</strong> → <strong>Đếm ngược</strong> ("3, 2, 1") → <strong>Đang chơi</strong> → <strong>Kết thúc</strong> — giống một trận thi đấu thật!
+        </div>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Biến <code>trạng thái</code> nhận 4 giá trị: <code>chờ</code>, <code>đếm ngược</code>, <code>chơi</code>, <code>kết thúc</code></li>
+              <li>Nút Play → <code>broadcast countdown</code> → đếm "3,2,1" → <code>broadcast start</code></li>
+              <li>Khi <code>trạng thái = chơi</code>: điều khiển + gom điểm</li>
+              <li>Thua → <code>broadcast game over</code> → <code>set trạng thái to kết thúc</code></li>
+            </ul>
+            <div class="tip" style="margin-top:12px;">
+              <span class="tip-icon">🩹</span>
+              <div><strong>Đếm ngược không hiện?</strong> Kiểm tra <code>say</code> có đủ <code>wait</code> giữa mỗi số không.</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.66rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set trạng thái to "chờ" / gán trạng thái = chờ</div>
+              <div class="block variable indent">set điểm to 0 / gán điểm = 0</div>
+              <div class="block event">when this sprite clicked / khi bấm Nút Play</div>
+              <div class="block event indent">broadcast countdown / phát tin đếm ngược</div>
+              <div class="block variable indent">set trạng thái to "đếm ngược" / gán trạng thái</div>
+              <div class="block event">when I receive countdown / khi nhận tin đếm ngược</div>
+              <div class="block looks indent">say "3" for 1 secs / nói 3</div>
+              <div class="block looks indent">say "2" for 1 secs / nói 2</div>
+              <div class="block looks indent">say "1" for 1 secs / nói 1</div>
+              <div class="block event indent">broadcast start / phát tin bắt đầu</div>
+              <div class="block variable indent">set trạng thái to "chơi" / gán trạng thái = chơi</div>
+              <div class="block event">when I receive start / khi nhận tin bắt đầu</div>
+              <div class="block control c-block indent optional">
+                forever / lặp mãi (điều khiển + gom điểm)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Giới thiệu bài mở rộng -->
+  <section class="slide" data-index="5" aria-label="Giới thiệu bài mở rộng">
+    <div class="slide-main">
+      <span class="slide-tag green">🎯 Giới thiệu bài mở rộng</span>
+      <h2>Em chọn 1 bài để làm</h2>
+      <div class="slide-body">
+        <div class="highlight-box green" style="margin-top:0;">
+          Giáo viên demo nhanh bài <strong>A1 "Nút Start đếm ngược"</strong> — chỉ rõ cách chọn backdrop menu và chuỗi broadcast countdown → start. Sau đó em chọn <strong>1 mức</strong> A, B hoặc C, rồi chọn <strong>1 trong 2 bài</strong> của mức đó. Mỗi bài có 1 slide riêng — bấm chấm phía trên để tới bài em chọn.
+        </div>
+        <div class="knowledge-grid" style="margin-top:14px;">
+          <div class="k-card green span-2">
+            <strong>🅰️ Mức A — Cơ bản</strong>
+            ▶️⏳ Nút Start đếm ngược (A1) hoặc ⏸️🎟️ Pause có giới hạn lượt (A2).
+          </div>
+          <div class="k-card blue span-2">
+            <strong>🅱️ Mức B — Trung bình</strong>
+            🎯 Game 3 màn, màn cuối kết hợp cả hai (B1) hoặc 🆙 Level up nhân tốc độ (B2).
+          </div>
+          <div class="k-card purple span-2">
+            <strong>🅲 Mức C — Thử thách</strong>
+            ❤️✨ Game có mạng + bất tử ngắn (C1) hoặc 👫📊 Hai người chơi, điểm chung và riêng (C2).
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: A1 -->
+  <section class="slide" data-index="6" aria-label="A1">
+    <div class="slide-main">
+      <span class="slide-tag green">Bài mở rộng · Mức A</span>
+      <h2><span class="th-label">A1</span> Nút Start đếm ngược ▶️⏳</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Mọi game hay đều cần một "cánh cửa mở màn" ấn tượng — em làm màn hình chờ đẹp: backdrop menu, nút START to, click → không bắt đầu ngay mà đếm ngược "3... 2... 1..." rồi mới thật sự vào game, giống các trận đấu thể thao thực thụ!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Backdrop menu; sprite nút START</li>
+              <li>Click → <code>broadcast countdown</code> → <code>say</code> "3","2","1" → <code>broadcast start</code></li>
+              <li>Nhân vật chờ đến khi nhận <code>start</code></li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm âm thanh "tíc" mỗi số đếm ngược, và thêm hiệu ứng chữ số phóng to/thu nhỏ mỗi lần đổi để màn chờ sống động hơn</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.76rem;">
+              <div class="block event">when this sprite clicked / khi bấm nút START</div>
+              <div class="block event indent">broadcast countdown / phát tin đếm ngược</div>
+              <div class="block event">when I receive countdown / khi nhận tin đếm ngược</div>
+              <div class="block looks indent">say "3" for 1 secs / nói 3</div>
+              <div class="block looks indent">say "2" for 1 secs / nói 2</div>
+              <div class="block looks indent">say "1" for 1 secs / nói 1</div>
+              <div class="block event indent">broadcast start / phát tin bắt đầu</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: A2 -->
+  <section class="slide" data-index="7" aria-label="A2">
+    <div class="slide-main">
+      <span class="slide-tag green">Bài mở rộng · Mức A</span>
+      <h2><span class="th-label">A2</span> Pause có giới hạn lượt ⏸️🎟️</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Có lúc đang chơi giữa chừng thì cần tạm dừng — nhưng để giữ trận đấu công bằng, em chỉ được Pause tối đa <strong>3 lần</strong> mỗi ván! Hết 3 lượt thì nút Pause không còn tác dụng.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Nút Start + nút Pause; <code>broadcast pause</code> và <code>broadcast resume</code></li>
+              <li>Biến <code>số lần pause</code> (bắt đầu = 0, +1 mỗi lần Pause)</li>
+              <li>Đủ 3 lần → nút Pause không <code>broadcast</code> nữa, <code>say</code> "Hết lượt pause!"</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Khi Pause, backdrop đổi màu xám (<code>change color effect</code>), và hiển thị biến <code>số lần pause</code> trên Stage như "còn 2/3 lượt"</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.68rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set số lần pause to 0 / gán số lần pause = 0</div>
+              <div class="block event">when this sprite clicked / khi bấm nút PAUSE</div>
+              <div class="block control c-block indent">
+                if &lt;số lần pause &lt; 3&gt; then / nếu còn lượt
+                <div class="c-body">
+                  <div class="block variable">change số lần pause by 1 / tăng số lần pause</div>
+                  <div class="block event">broadcast pause / phát tin tạm dừng</div>
+                </div>
+              </div>
+              <div class="block control c-block indent">
+                else / hết lượt rồi
+                <div class="c-body">
+                  <div class="block looks">say "Hết lượt pause!" / báo hết lượt</div>
+                </div>
+              </div>
+              <div class="block event">when I receive pause / khi nhân vật nhận tin</div>
+              <div class="block control indent">stop other scripts in sprite / dừng script di chuyển</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: B1 -->
+  <section class="slide" data-index="8" aria-label="B1">
+    <div class="slide-main">
+      <span class="slide-tag">Bài mở rộng · Mức B</span>
+      <h2><span class="th-label level-b">B1</span> Game 3 màn, màn cuối kết hợp cả hai 🎯</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Em thiết kế một hành trình phiêu lưu 3 chặng: màn 1 bắt sao, màn 2 né địch, và màn 3 phải làm <strong>CẢ HAI cùng lúc</strong> — giống màn boss cuối trong một trò chơi thực thụ!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Đúng 3 backdrop/màn; <code>broadcast</code> chuyển màn</li>
+              <li>Màn 1 = bắt sao; Màn 2 = né địch</li>
+              <li>Màn 3 = kết hợp cả bắt sao <strong>và</strong> né địch cùng lúc</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Hiển thị biến <code>màn hiện tại</code> trên Stage, và thêm màn hình "Chúc mừng qua màn!" mỗi khi chuyển màn</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.68rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi (Màn 1)
+                <div class="c-body">
+                  <div class="block control c-block">
+                    if &lt;điểm = 5&gt; then / nếu đủ 5 sao
+                    <div class="c-body">
+                      <div class="block event">broadcast màn 2 / phát tin sang màn 2</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="block event">when I receive màn 2 / khi vào màn 2</div>
+              <div class="block looks indent">switch backdrop to Màn 2 / đổi backdrop</div>
+              <div class="block control c-block indent optional">
+                (né địch 15 giây rồi broadcast màn 3)
+              </div>
+              <div class="block event">when I receive màn 3 / khi vào màn 3</div>
+              <div class="block looks indent">switch backdrop to Màn 3 / đổi backdrop</div>
+              <div class="block control c-block indent optional">
+                (sao và địch cùng xuất hiện)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: B2 -->
+  <section class="slide" data-index="9" aria-label="B2">
+    <div class="slide-main">
+      <span class="slide-tag">Bài mở rộng · Mức B</span>
+      <h2><span class="th-label level-b">B2</span> Level up nhân tốc độ 🆙</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Game của em tự "lên level" khi người chơi đủ giỏi: đủ 10 điểm → <code>broadcast level up</code> → tốc độ địch = <strong>tốc độ gốc × level</strong> (level 2 nhanh gấp đôi, level 3 gấp ba!) — nhưng dừng lại ở level 3.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Biến <code>điểm</code>, <code>level</code>, <code>tốc độ gốc</code></li>
+              <li><code>if điểm &gt;= 10 and level &lt; 3</code> → <code>broadcast level up</code></li>
+              <li><code>when I receive level up</code> → <code>change level by 1</code> → <code>set tốc độ địch to (tốc độ gốc × level)</code> + reset điểm</li>
+              <li>Đạt level 3 → <code>say</code> "Em là bậc thầy!" và dừng tăng</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Level 3: thêm 1 sprite địch di chuyển ngang thứ hai để tăng độ khó thực sự, không chỉ tăng tốc độ</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.64rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set level to 1 / gán level = 1</div>
+              <div class="block variable indent">set tốc độ gốc to 3 / gán tốc độ gốc = 3</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block control c-block">
+                    if &lt;điểm &gt;= 10&gt; and &lt;level &lt; 3&gt; then / nếu đủ điểm và chưa max level
+                    <div class="c-body">
+                      <div class="block event">broadcast level up / phát tin lên level</div>
+                      <div class="block variable">set điểm to 0 / reset điểm</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="block event">when I receive level up / khi nhận tin lên level</div>
+              <div class="block variable indent">change level by 1 / tăng level</div>
+              <div class="block variable indent">set tốc độ địch to (tốc độ gốc × level) / cập nhật tốc độ</div>
+              <div class="block control c-block indent">
+                if &lt;level = 3&gt; then / nếu đạt max
+                <div class="c-body">
+                  <div class="block looks">say "Em là bậc thầy!" / khen thưởng</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: C1 -->
+  <section class="slide" data-index="10" aria-label="C1">
+    <div class="slide-main">
+      <span class="slide-tag purple">Bài mở rộng · Mức C</span>
+      <h2><span class="th-label level-c">C1</span> Game có mạng + bất tử ngắn ❤️✨</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Không phải lúc nào cũng "chết" ngay lần va chạm đầu! Chạm địch → mất 1 mạng + có <strong>1 giây bất tử</strong> (nhấp nháy, không tính va chạm) để không bị mất liền 2-3 mạng cùng lúc.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Biến <code>mạng</code> (bắt đầu = 3); có nút Start</li>
+              <li>Chạm địch → <code>change mạng by -1</code> + <code>ghost</code> effect + <strong>1 giây bất tử</strong></li>
+              <li>Trong lúc bất tử, không kiểm tra va chạm; <code>if mạng = 0</code> → <code>broadcast game over</code></li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Đổi hiệu ứng bất tử thành nhấp nháy liên tục (đổi ghost effect qua lại) thay vì mờ đứng yên, để nhìn rõ hơn là nhân vật đang bất tử</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.66rem;">
+              <div class="block event">when I receive start / khi nhận tin bắt đầu</div>
+              <div class="block variable indent">set mạng to 3 / gán mạng = 3</div>
+              <div class="block variable indent">set bất tử to 0 / gán bất tử = 0 (0 = không, 1 = có)</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block control c-block">
+                    if &lt;touching Địch?&gt; and &lt;bất tử = 0&gt; then / nếu chạm địch và chưa bất tử
+                    <div class="c-body">
+                      <div class="block variable">change mạng by -1 / trừ 1 mạng</div>
+                      <div class="block variable">set bất tử to 1 / bật bất tử</div>
+                      <div class="block looks">set ghost effect to 50 / nhấp nháy mờ</div>
+                      <div class="block control">wait 1 seconds / chờ 1 giây bất tử</div>
+                      <div class="block looks">set ghost effect to 0 / trở lại bình thường</div>
+                      <div class="block variable">set bất tử to 0 / tắt bất tử</div>
+                    </div>
+                  </div>
+                  <div class="block control c-block">
+                    if &lt;mạng = 0&gt; then / nếu hết mạng
+                    <div class="c-body">
+                      <div class="block event">broadcast game over / phát tin thua</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: C2 -->
+  <section class="slide" data-index="11" aria-label="C2">
+    <div class="slide-main">
+      <span class="slide-tag purple">Bài mở rộng · Mức C</span>
+      <h2><span class="th-label level-c">C2</span> Hai người chơi, điểm chung và riêng 👫📊</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Rủ bạn cùng bàn chơi chung! 2 sprite — người 1 dùng phím mũi tên, người 2 dùng W A S D. Cả hai cùng bắt sao và chung biến <code>điểm</code> — nhưng mỗi người còn có điểm <strong>riêng</strong> để biết ai đóng góp nhiều hơn!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>2 sprite điều khiển khác nhau; biến <code>điểm</code> (For all sprites)</li>
+              <li>Biến <code>điểm P1</code> và <code>điểm P2</code> riêng cho từng người</li>
+              <li>Chạm sao → +1 <code>điểm</code> chung <strong>và</strong> +1 điểm riêng của người đó</li>
+              <li>Có nút Start; hết 30 giây → <code>say</code> tổng điểm chung + điểm riêng</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Hiển thị <code>say</code> tên người bắt được sao cuối cùng, và thêm 1 "sao vàng" hiếm +3 điểm để tạo thời điểm gay cấn tranh giành</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.64rem;">
+              <div class="block event">when I receive start / khi nhận tin bắt đầu</div>
+              <div class="block variable indent">set điểm to 0 / gán điểm chung = 0</div>
+              <div class="block variable indent">set điểm P1 to 0 / gán điểm P1 = 0</div>
+              <div class="block variable indent">set điểm P2 to 0 / gán điểm P2 = 0</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi (đặt trên Sao)
+                <div class="c-body">
+                  <div class="block control c-block">
+                    if &lt;touching Cat?&gt; then / nếu chạm người chơi 1
+                    <div class="c-body">
+                      <div class="block variable">change điểm by 1 / tăng điểm chung</div>
+                      <div class="block variable">change điểm P1 by 1 / tăng điểm P1</div>
+                    </div>
+                  </div>
+                  <div class="block control c-block">
+                    if &lt;touching Dog?&gt; then / nếu chạm người chơi 2
+                    <div class="c-body">
+                      <div class="block variable">change điểm by 1 / tăng điểm chung</div>
+                      <div class="block variable">change điểm P2 by 1 / tăng điểm P2</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="block looks indent">say join "Chung: " điểm / báo tổng điểm cuối trận</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Tổng kết -->
+  <section class="slide title-slide" data-index="12" aria-label="Tổng kết">
+    <div class="slide-main">
+      <div class="title-emoji">🎮</div>
+      <h2 style="font-size:1.9rem; margin-bottom:16px;">Showcase &amp; Tổng kết buổi Bài tập</h2>
+      <ul style="font-size:1.05rem; line-height:2; text-align:left; font-weight:700; max-width:560px;">
+        <li>✅ Đã hoàn thành <strong>Luyện tập 1</strong> (nút Play tự khóa) và <strong>Luyện tập 2</strong> (4 trạng thái có đếm ngược) ngay tại lớp</li>
+        <li>✅ Đã chọn 1 bài mở rộng A / B / C — từ đếm ngược, Pause đến game nhiều màn và 2 người chơi</li>
+        <li>🖼️ Showcase: gallery walk xem project bạn, đặc biệt để ý các bài mức C có 2 người chơi</li>
+      </ul>
+      <p style="margin-top:24px; font-size:1.15rem; color:var(--scratch-orange); font-weight:800;">
+        Hẹn gặp lại ở Buổi 21 — Clone, tạo hàng loạt bản sao cho mưa, sao rơi, bong bóng bay! 👋
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 13</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Space · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let hasNavigated = false;
+
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
+
+  function buildDots() {
+    const template = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+    document.getElementById('dots').innerHTML = template;
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.toggle('active', Number(dot.dataset.goto) === current);
+    });
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) {
+      hasNavigated = true;
+      document.body.classList.add('presenting');
+    }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1
+      ? '· Scratch'
+      : '· Tuần 10 Buổi 20';
+    updateDots();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, .quiz-item, code, .global-topbar, .nav')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); next(); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  document.getElementById('btnFullscreen').addEventListener('click', e => {
+    e.stopPropagation();
+    toggleFullscreen();
+  });
+
+  document.getElementById('btnExitFs').addEventListener('click', e => {
+    e.stopPropagation();
+    exitFullscreen();
+  });
+
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
+  function toggleFullscreen() {
+    if (isFullscreen()) exitFullscreen();
+    else enterFullscreen();
+  }
+
+  function enterFullscreen() {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  }
+
+  function exitFullscreen() {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+
+  function onFullscreenChange() {
+    document.body.classList.toggle('is-fullscreen', isFullscreen());
+  }
+
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+  document.querySelectorAll('[data-quiz]').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      item.classList.toggle('revealed');
+    });
+  });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1));
+  }, { passive: true });
+
+  buildDots();
+  slides.forEach((s, i) => {
+    s.setAttribute('aria-hidden', i !== 0);
+    if (i === 0) s.classList.add('active');
+    else s.classList.add('next');
+  });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
+</html>

@@ -328,6 +328,30 @@
 
     strong { font-weight: 800; }
 
+    /* Dòng tiếng Anh (song ngữ) */
+    .en {
+      display: block;
+      font-size: 0.82em;
+      font-weight: 600;
+      font-style: italic;
+      color: #8a97a8;
+      line-height: 1.4;
+      margin-top: 1px;
+    }
+
+    h1 .en, h2 .en {
+      font-size: 0.55em;
+      font-weight: 700;
+      -webkit-text-fill-color: #8a97a8;
+    }
+
+    .k-card .en { color: rgba(255,255,255,0.85); }
+    .k-card.orange .en { color: rgba(66,44,0,0.7); }
+    .checklist li .en, .quiz-item .en { margin-top: 0; }
+    .badge .en, .slide-tag .en { display: inline; font-size: 1em; font-style: normal; margin: 0; }
+    .slide-tag .en { color: rgba(255,255,255,0.85); }
+    .slide-tag.yellow .en { color: rgba(255,255,255,0.85); }
+
     .highlight-box {
       background: #f0f7ff;
       border-left: 4px solid var(--scratch-blue);
@@ -857,34 +881,35 @@
   <section class="slide title-slide active" data-index="0" aria-label="Khai giảng">
     <div class="slide-main">
       <div class="title-emoji">🎉</div>
-      <h1>Khai giảng khóa Scratch</h1>
-      <p class="subtitle">InnoMind — Lập trình Scratch 4 tháng</p>
+      <h1>Khai giảng khóa Scratch <span class="en">Scratch Course Opening Day</span></h1>
+      <p class="subtitle">InnoMind — Lập trình Scratch 4 tháng <span class="en">InnoMind — 4-Month Scratch Programming Course</span></p>
       <div class="title-meta">
-        <span class="badge">🎓 Khai giảng</span>
-        <span class="badge">📅 Tuần 1 · Buổi 1</span>
-        <span class="badge">🎯 8–10 tuổi</span>
+        <span class="badge">🎓 Khai giảng <span class="en">· Opening</span></span>
+        <span class="badge">📅 Tuần 1 · Buổi 1 <span class="en">· Week 1 · Session 1</span></span>
+        <span class="badge">🎯 8–10 tuổi <span class="en">· Ages 8–10</span></span>
       </div>
-      <p class="start-hint">Nhấn → hoặc Space để bắt đầu</p>
+      <p class="start-hint">Nhấn → hoặc Space để bắt đầu <span class="en">Press → or Space to start</span></p>
     </div>
   </section>
 
   <!-- Slide 2: Khóa học là gì -->
   <section class="slide" data-index="1" aria-label="Khóa học">
     <div class="slide-main">
-      <span class="slide-tag orange">Khai giảng</span>
-      <h2>Em sẽ làm được gì sau khóa học?</h2>
+      <span class="slide-tag orange">Khai giảng <span class="en">· Opening</span></span>
+      <h2>Em sẽ làm được gì sau khóa học? <span class="en">What will you be able to do after this course?</span></h2>
       <div class="slide-body">
         <div class="highlight-box orange">
           Khóa học <strong>4 tháng</strong> (16 tuần, 32 buổi) — em từng bước làm quen lập trình và cuối khóa <strong>tự thiết kế game</strong> riêng!
+          <span class="en">A <strong>4-month</strong> course (16 weeks, 32 sessions) — you'll learn coding step by step and <strong>design your own game</strong> by the end!</span>
         </div>
         <ul>
-          <li>Dùng thành thạo Scratch: Stage, Sprite, Backdrop, khối lệnh</li>
-          <li>Cho nhân vật di chuyển, đổi hình, nói chuyện và phản ứng khi bấm phím</li>
-          <li>Thêm âm thanh, quiz tương tác và nhiều nhân vật cùng lúc</li>
-          <li>Dùng vòng lặp, điều kiện, biến để làm game có điểm số</li>
-          <li>Dùng broadcast, clone và My Blocks để code gọn hơn</li>
-          <li>Tự làm và hoàn thiện <strong>một game</strong> theo ý thích</li>
-          <li>Thuyết trình game trước lớp 2–3 phút</li>
+          <li>Dùng thành thạo Scratch: Stage, Sprite, Backdrop, khối lệnh <span class="en">Master Scratch: Stage, Sprites, Backdrops and code blocks</span></li>
+          <li>Cho nhân vật di chuyển, đổi hình, nói chuyện và phản ứng khi bấm phím <span class="en">Make characters move, change costumes, talk and react to key presses</span></li>
+          <li>Thêm âm thanh, quiz tương tác và nhiều nhân vật cùng lúc <span class="en">Add sounds, interactive quizzes and many characters at once</span></li>
+          <li>Dùng vòng lặp, điều kiện, biến để làm game có điểm số <span class="en">Use loops, conditions and variables to build games with scores</span></li>
+          <li>Dùng broadcast, clone và My Blocks để code gọn hơn <span class="en">Use broadcast, clones and My Blocks to keep your code tidy</span></li>
+          <li>Tự làm và hoàn thiện <strong>một game</strong> theo ý thích <span class="en">Create and polish <strong>your own game</strong></span></li>
+          <li>Thuyết trình game trước lớp 2–3 phút <span class="en">Present your game to the class in 2–3 minutes</span></li>
         </ul>
       </div>
     </div>
@@ -893,42 +918,43 @@
   <!-- Slide 3: Lộ trình 4 giai đoạn -->
   <section class="slide" data-index="2" aria-label="Lộ trình">
     <div class="slide-main">
-      <span class="slide-tag orange">Khai giảng</span>
-      <h2>Lộ trình 4 tháng học</h2>
+      <span class="slide-tag orange">Khai giảng <span class="en">· Opening</span></span>
+      <h2>Lộ trình 4 tháng học <span class="en">Your 4-month learning path</span></h2>
       <div class="slide-body">
         <table class="stage-table">
           <thead>
             <tr>
-              <th>Giai đoạn</th>
-              <th>Tuần</th>
-              <th>Em học gì</th>
+              <th>Giai đoạn <span class="en">Stage</span></th>
+              <th>Tuần <span class="en">Weeks</span></th>
+              <th>Em học gì <span class="en">What you'll learn</span></th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>Nội dung cơ bản (1)</strong></td>
+              <td><strong>Nội dung cơ bản (1)</strong> <span class="en">Basics (part 1)</span></td>
               <td>1–4</td>
-              <td>Làm quen Scratch, di chuyển, hoạt hình, điều khiển phím</td>
+              <td>Làm quen Scratch, di chuyển, hoạt hình, điều khiển phím <span class="en">Getting started: movement, animation, keyboard control</span></td>
             </tr>
             <tr>
-              <td><strong>Nội dung cơ bản (2)</strong></td>
+              <td><strong>Nội dung cơ bản (2)</strong> <span class="en">Basics (part 2)</span></td>
               <td>5–8</td>
-              <td>Âm thanh, cảm biến, vòng lặp, điều kiện, biến</td>
+              <td>Âm thanh, cảm biến, vòng lặp, điều kiện, biến <span class="en">Sound, sensing, loops, conditions, variables</span></td>
             </tr>
             <tr>
-              <td><strong>Logic nâng cao</strong></td>
+              <td><strong>Logic nâng cao</strong> <span class="en">Advanced logic</span></td>
               <td>9–12</td>
-              <td>Biến phức tạp, broadcast, clone, My Blocks</td>
+              <td>Biến phức tạp, broadcast, clone, My Blocks <span class="en">Complex variables, broadcast, clones, My Blocks</span></td>
             </tr>
             <tr>
-              <td><strong>Dự án game</strong></td>
+              <td><strong>Dự án game</strong> <span class="en">Game project</span></td>
               <td>13–16</td>
-              <td>Lên kế hoạch → làm game → thuyết trình</td>
+              <td>Lên kế hoạch → làm game → thuyết trình <span class="en">Plan → build your game → present it</span></td>
             </tr>
           </tbody>
         </table>
         <div class="highlight-box" style="margin-top:14px;">
           🗓️ Cả khóa: <strong>16 tuần · 48 buổi</strong> · Công cụ: <a href="https://scratch.mit.edu" target="_blank" rel="noopener">Scratch 3.0</a> (miễn phí)
+          <span class="en">Full course: <strong>16 weeks · 48 sessions</strong> · Tool: Scratch 3.0 (free)</span>
         </div>
       </div>
     </div>
@@ -937,29 +963,30 @@
   <!-- Slide 4: Cách học mỗi tuần -->
   <section class="slide" data-index="3" aria-label="Cách học">
     <div class="slide-main">
-      <span class="slide-tag orange">Khai giảng</span>
-      <h2>Cách học mỗi tuần</h2>
+      <span class="slide-tag orange">Khai giảng <span class="en">· Opening</span></span>
+      <h2>Cách học mỗi tuần <span class="en">How we learn each week</span></h2>
       <div class="slide-body">
         <div class="cols">
           <div class="card">
-            <h3>📖 Buổi Học (H)</h3>
+            <h3>📖 Buổi Học (H) <span class="en">Learning session</span></h3>
             <ul>
-              <li>Học kiến thức mới</li>
-              <li>Thực hành tại lớp: <strong>TH1</strong>, <strong>TH2</strong></li>
-              <li>Nhận bài tập về nhà: <strong>BTVN1</strong>, <strong>BTVN2</strong></li>
+              <li>Học kiến thức mới <span class="en">Learn new concepts</span></li>
+              <li>Thực hành tại lớp: <strong>TH1</strong>, <strong>TH2</strong> <span class="en">In-class practice: TH1, TH2</span></li>
+              <li>Nhận bài tập về nhà: <strong>BTVN1</strong>, <strong>BTVN2</strong> <span class="en">Homework: BTVN1, BTVN2</span></li>
             </ul>
           </div>
           <div class="card">
-            <h3>✏️ Buổi Bài tập (BT)</h3>
+            <h3>✏️ Buổi Bài tập (BT) <span class="en">Practice session</span></h3>
             <ul>
-              <li>Chữa 2 BTVN tuần trước</li>
-              <li>Chọn <strong>1 bài</strong> mở rộng mức A, B hoặc C</li>
-              <li>Luyện tập thêm tại lớp</li>
+              <li>Chữa 2 BTVN tuần trước <span class="en">Review last week's 2 homework tasks</span></li>
+              <li>Chọn <strong>1 bài</strong> mở rộng mức A, B hoặc C <span class="en">Pick <strong>1 extension task</strong>: level A, B or C</span></li>
+              <li>Luyện tập thêm tại lớp <span class="en">Extra practice in class</span></li>
             </ul>
           </div>
         </div>
         <div class="highlight-box green" style="margin-top:14px;">
           Mỗi tuần: <strong>2 buổi Học + 2 buổi BT</strong> · Mỗi buổi H có checklist — em tự đánh dấu khi xong!
+          <span class="en">Each week: <strong>2 Learning + 2 Practice sessions</strong> · Every Learning session has a checklist — tick it off when you're done!</span>
         </div>
       </div>
     </div>
@@ -968,24 +995,25 @@
   <!-- Slide 5: Giảng viên -->
   <section class="slide" data-index="4" aria-label="Giảng viên">
     <div class="slide-main">
-      <span class="slide-tag orange">Khai giảng</span>
-      <h2>Giới thiệu giảng viên</h2>
+      <span class="slide-tag orange">Khai giảng <span class="en">· Opening</span></span>
+      <h2>Giới thiệu giảng viên <span class="en">Meet your teacher</span></h2>
       <div class="slide-body">
         <div class="instructor-wrap">
           <div class="instructor-avatar" aria-hidden="true">PT</div>
           <div class="instructor-info">
             <h3>Phạm Hoàng Triều</h3>
-            <p class="instructor-role">Lập trình viên · Giảng viên Scratch — InnoMind</p>
+            <p class="instructor-role">Lập trình viên · Giảng viên Scratch — InnoMind <span class="en">Software developer · Scratch instructor — InnoMind</span></p>
             <ul>
-              <li>Lập trình viên, yêu thích dạy lập trình cho trẻ em</li>
-              <li>Đang học thạc sĩ — Trường Đại học Kinh tế, Đại học Đà Nẵng</li>
-              <li>Có 1 bài báo khoa học hội nghị <strong>COMBELT 2026</strong></li>
+              <li>Lập trình viên, yêu thích dạy lập trình cho trẻ em <span class="en">A developer who loves teaching kids to code</span></li>
+              <li>Đang học thạc sĩ — Trường Đại học Kinh tế, Đại học Đà Nẵng <span class="en">Master's student — University of Economics, University of Danang</span></li>
+              <li>Có 1 bài báo khoa học hội nghị <strong>COMBELT 2026</strong> <span class="en">Author of a paper at the <strong>COMBELT 2026</strong> conference</span></li>
             </ul>
-            <div class="instructor-contact">📞 Liên hệ: <strong>0523 683 725</strong></div>
+            <div class="instructor-contact">📞 Liên hệ / Contact: <strong>0523 683 725</strong></div>
           </div>
         </div>
         <div class="highlight-box purple" style="margin-top:18px;">
           💬 Bí không hiểu? Cứ giơ tay hỏi thầy — không có câu hỏi nào là "ngu" cả!
+          <span class="en">Stuck or confused? Just raise your hand and ask — there are no "silly" questions!</span>
         </div>
       </div>
     </div>

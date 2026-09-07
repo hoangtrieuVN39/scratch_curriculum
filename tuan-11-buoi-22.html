@@ -1,0 +1,1071 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 11 — Buổi 22: Luyện Clone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+      --slide-w: min(1100px, 94vw);
+      --slide-h: min(700px, 84vh);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1a2744 0%, #2d4a7a 50%, #1a2744 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--scratch-dark);
+      user-select: none;
+    }
+
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 4px; width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow));
+      transition: width 0.35s ease;
+      z-index: 200;
+    }
+
+    .deck { width: var(--slide-w); height: var(--slide-h); position: relative; margin-top: 56px; }
+
+    .slide {
+      position: absolute; inset: 0;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.38);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden;
+      transform: translateX(40px);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1; visibility: visible; transform: translateX(0);
+      pointer-events: auto; z-index: 10;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s;
+    }
+
+    .slide.prev { opacity: 0; visibility: hidden; transform: translateX(-40px); pointer-events: none; z-index: 0; }
+    .slide.next { opacity: 0; visibility: hidden; transform: translateX(40px); pointer-events: none; z-index: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .progress-bar { transition: none; }
+    }
+
+    .global-topbar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      width: var(--slide-w);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      z-index: 150;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.88rem; color: var(--scratch-dark); white-space: nowrap; }
+    .brand-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--scratch-orange), var(--scratch-blue));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .brand-sub { font-weight: 600; color: #7a8a9e; font-size: 0.78rem; }
+
+    .slide-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 360px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #d0d8e4; border: none; cursor: pointer; padding: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .dot:hover { transform: scale(1.25); background: #aab4c4; }
+    .dot.active { background: var(--scratch-orange); transform: scale(1.2); }
+
+    .topbar-actions { display: flex; gap: 6px; }
+    .icon-btn {
+      width: 34px; height: 34px;
+      border: 1px solid #dde3ec;
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      color: var(--scratch-dark);
+    }
+    .icon-btn:hover { background: var(--scratch-bg); }
+
+    .slide-main { flex: 1; display: flex; flex-direction: column; padding: 24px 40px 20px; min-height: 0; }
+    .title-slide .slide-main { justify-content: center; align-items: center; text-align: center; padding: 32px; }
+
+    .slide-tag {
+      display: inline-flex; align-items: center;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #fff; background: var(--scratch-blue);
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 10px;
+      align-self: flex-start;
+    }
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green { background: var(--scratch-green); }
+    .slide-tag.red { background: var(--scratch-red); }
+    .slide-tag.yellow { background: #c98a00; }
+
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.2; font-weight: 800; margin-bottom: 6px; }
+    h2 { font-size: clamp(1.3rem, 2.8vw, 1.75rem); font-weight: 800; margin-bottom: 14px; line-height: 1.25; }
+    .subtitle { font-size: 1.05rem; color: #5a6a7e; font-weight: 600; }
+
+    .slide-body { flex: 1; overflow-y: auto; padding-right: 6px; min-height: 0; }
+    .slide-body::-webkit-scrollbar { width: 5px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #c8d0da; border-radius: 4px; }
+
+    .title-slide { background: linear-gradient(160deg, #fff8f0 0%, #fff 55%, #f0f7ff 100%); }
+    .title-emoji { font-size: clamp(3rem, 8vw, 4.5rem); margin-bottom: 8px; line-height: 1; }
+    .title-slide h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-blue));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .title-meta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .badge { background: #fff; border: 2px solid #dde3ec; border-radius: 12px; padding: 7px 16px; font-weight: 700; font-size: 0.9rem; }
+    .start-hint { margin-top: 28px; color: #7a8a9e; font-size: 0.88rem; font-weight: 600; animation: pulse 2.5s ease-in-out infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+    ul, ol { padding-left: 1.3em; line-height: 1.7; font-size: 1rem; font-weight: 600; }
+    li { margin-bottom: 4px; }
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.92em; font-weight: 700;
+      background: #eef2f7; color: #5b3ea8;
+      padding: 1px 7px; border-radius: 5px;
+    }
+    strong { font-weight: 800; }
+
+    .highlight-box {
+      background: #f0f7ff;
+      border-left: 4px solid var(--scratch-blue);
+      border-radius: 0 12px 12px 0;
+      padding: 14px 18px; margin: 12px 0;
+      font-size: 1rem; line-height: 1.6; font-weight: 600;
+    }
+    .highlight-box.orange { background: #fff8f0; border-color: var(--scratch-orange); }
+    .highlight-box.green { background: #f0fff4; border-color: var(--scratch-green); }
+    .highlight-box.purple { background: #f5f0ff; border-color: var(--scratch-purple); }
+
+    .blocks { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin: 10px 0; font-size: 0.88rem; font-weight: 700; }
+    .block {
+      position: relative; display: inline-block;
+      padding: 7px 14px 7px 12px;
+      border-radius: 6px; color: #fff;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.18);
+      white-space: normal; line-height: 1.35; max-width: 100%;
+    }
+    .block::before {
+      content: ''; position: absolute; top: -3px; left: 10px;
+      width: 12px; height: 6px; background: inherit;
+      border-radius: 3px 3px 0 0; filter: brightness(0.92);
+    }
+    .block:first-child::before, .block.event::before, .block.c-block::before { display: none; }
+
+    .block.event { background: #ffbf00; color: #422c00; border-radius: 14px 6px 6px 6px; padding-top: 9px; }
+    .block.looks { background: #9966ff; }
+    .block.control { background: #ffab19; color: #422c00; }
+    .block.motion { background: #4c97ff; }
+    .block.sound { background: #cf63cf; }
+    .block.sensing { background: #5cb1d6; }
+    .block.variable { background: #ff8c1a; }
+    .block.pen { background: #0fbd8c; }
+
+    .block.indent { margin-left: 20px; }
+    .block.indent-2 { margin-left: 40px; }
+    .block.optional { opacity: 0.65; font-style: italic; }
+
+    .block.c-block { border-radius: 6px 6px 4px 4px; padding-bottom: 4px; }
+    .c-body { display: flex; flex-direction: column; gap: 2px; margin: 4px 0 2px 8px; padding-left: 8px; border-left: 3px solid rgba(0,0,0,0.12); }
+
+    .blocks.compact { gap: 1px; margin: 6px 0; }
+    .blocks.compact .block { padding: 4px 10px 4px 8px; line-height: 1.2; }
+    .blocks.compact .c-body { margin: 2px 0 1px 6px; padding-left: 6px; gap: 1px; }
+
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 6px; }
+    .cols-60-40 { grid-template-columns: 1.1fr 0.9fr; }
+
+    @media (max-width: 720px) {
+      .cols, .cols-60-40 { grid-template-columns: 1fr; }
+      .slide-main { padding: 18px 22px 14px; }
+      .global-topbar { padding: 8px 12px; top: 8px; }
+      .slide-dots { display: none; }
+      .brand-sub { display: none; }
+    }
+
+    .card { background: var(--scratch-bg); border-radius: 12px; padding: 14px 16px; }
+    .card h3 { font-size: 0.95rem; font-weight: 800; color: var(--scratch-blue); margin-bottom: 8px; }
+
+    .section-label { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #7a8a9e; margin: 10px 0 6px; }
+
+    .knowledge-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+    .k-card { border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 0.88rem; line-height: 1.45; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .k-card > strong:first-child { display: block; font-size: 0.95rem; font-weight: 800; margin-bottom: 5px; }
+    .k-card.span-2 { grid-column: span 2; }
+    .k-card.span-3 { grid-column: span 3; }
+    .k-card.blue { background: var(--scratch-blue); }
+    .k-card.orange { background: var(--scratch-orange); color: #422c00; }
+    .k-card.purple { background: var(--scratch-purple); }
+    .k-card.green { background: var(--scratch-green); }
+    .k-card.red { background: var(--scratch-red); }
+
+    @media (max-width: 720px) {
+      .knowledge-grid { grid-template-columns: 1fr; }
+      .k-card.span-2, .k-card.span-3 { grid-column: span 1; }
+    }
+
+    .quiz-item {
+      background: var(--scratch-bg); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-weight: 700; font-size: 0.96rem;
+      display: flex; gap: 12px; align-items: flex-start;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .quiz-item:hover { background: #e4eaf2; }
+    .quiz-num {
+      background: var(--scratch-purple); color: #fff;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.82rem; flex-shrink: 0;
+    }
+    .quiz-answer { display: none; margin-top: 8px; padding: 8px 12px; background: #e8f4e8; border-radius: 8px; font-size: 0.9rem; font-weight: 700; color: #2d6a3a; }
+    .quiz-item.revealed .quiz-answer { display: block; }
+    .quiz-item.revealed { background: #eef6ee; }
+
+    .tip {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: #fffbe6; border: 2px dashed var(--scratch-yellow);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-size: 0.94rem; line-height: 1.55; font-weight: 600;
+    }
+    .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    .th-label {
+      display: inline-block; background: var(--scratch-green); color: #fff;
+      font-weight: 800; font-size: 0.72rem; padding: 3px 9px; border-radius: 6px;
+      margin-right: 4px; vertical-align: middle; letter-spacing: 0.03em;
+    }
+    .btvn-label { background: var(--scratch-red); }
+    .th-label.level-b { background: var(--scratch-blue); }
+    .th-label.level-c { background: var(--scratch-purple); }
+
+    .emoji-row { font-size: 1.6rem; letter-spacing: 6px; margin: 10px 0; }
+
+    .nav { position: fixed; bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 100; }
+    .nav button {
+      background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.38);
+      color: #fff; width: 46px; height: 46px; border-radius: 50%;
+      font-size: 1.2rem; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(8px);
+    }
+    .nav button:hover:not(:disabled) { background: rgba(255,255,255,0.28); transform: scale(1.07); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+
+    .slide-counter { color: rgba(255,255,255,0.9); font-size: 0.88rem; font-weight: 800; min-width: 56px; text-align: center; }
+
+    .hint { position: fixed; bottom: 76px; color: rgba(255,255,255,0.42); font-size: 0.74rem; font-weight: 600; transition: opacity 0.4s; }
+
+    html:fullscreen, html:-webkit-full-screen { width: 100%; height: 100%; }
+    html:fullscreen body, html:-webkit-full-screen body { width: 100%; height: 100%; min-height: 100%; background: #1a2744; padding: 0; }
+    html:fullscreen .deck, html:-webkit-full-screen .deck { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0; }
+    html:fullscreen .slide, html:-webkit-full-screen .slide { border-radius: 0; box-shadow: none; }
+    html:fullscreen .global-topbar, html:-webkit-full-screen .global-topbar { display: none; }
+    html:fullscreen .hint, html:-webkit-full-screen .hint { display: none; }
+    html:fullscreen .nav, html:-webkit-full-screen .nav { bottom: 16px; opacity: 0.35; transition: opacity 0.25s; }
+    html:fullscreen .nav:hover, html:-webkit-full-screen .nav:hover { opacity: 1; }
+    html:fullscreen .progress-bar, html:-webkit-full-screen .progress-bar { height: 3px; }
+
+    .fs-exit {
+      display: none; position: fixed; top: 12px; right: 12px; z-index: 300;
+      background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.35);
+      color: #fff; width: 40px; height: 40px; border-radius: 10px;
+      cursor: pointer; font-size: 1rem; backdrop-filter: blur(6px);
+      transition: background 0.15s;
+    }
+    .fs-exit:hover { background: rgba(0,0,0,0.65); }
+    html:fullscreen .fs-exit, html:-webkit-full-screen .fs-exit {
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    @media print {
+      body { background: #fff; overflow: visible; }
+      .nav, .hint, .progress-bar, .global-topbar { display: none !important; }
+      .deck { width: 100%; height: auto; }
+      .slide {
+        position: relative; opacity: 1 !important; transform: none !important;
+        page-break-after: always; box-shadow: none; border: 1px solid #ccc;
+        margin-bottom: 20px; min-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🐱</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1 -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji">👥</div>
+      <h1>Luyện Clone</h1>
+      <p class="subtitle">Lập trình Scratch — Tháng 3 · Logic nâng cao</p>
+      <div class="title-meta">
+        <span class="badge">📅 Tuần 11</span>
+        <span class="badge">✏️ Buổi 22 — Bài tập</span>
+        <span class="badge">🎯 7–10 tuổi</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Space để bắt đầu</p>
+    </div>
+  </section>
+
+  <!-- Slide 2: Khởi động ôn tập -->
+  <section class="slide" data-index="1" aria-label="Khởi động ôn tập">
+    <div class="slide-main">
+      <span class="slide-tag purple">🎬 Khởi động ôn tập</span>
+      <h2>Đúng hay Sai?</h2>
+      <div class="slide-body">
+        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Cô đọc từng câu, cả lớp giơ ngón cái lên (Đúng) hoặc xuống (Sai) — rồi click để xem đáp án ↓</p>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">1</span>
+          <div>"Clone có hình dạng khác hoàn toàn so với bản gốc."
+            <div class="quiz-answer">→ Sai — clone giống hệt hình dạng, âm thanh của bản gốc.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">2</span>
+          <div>"<code>when I start as a clone</code> chạy trên bản gốc."
+            <div class="quiz-answer">→ Sai — chỉ chạy trên clone mới tạo, không chạy trên bản gốc.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">3</span>
+          <div>"Không xóa clone thì game có thể bị chậm dần."
+            <div class="quiz-answer">→ Đúng.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">4</span>
+          <div>"Một sprite chỉ được tạo tối đa 1 clone."
+            <div class="quiz-answer">→ Sai — có thể tạo rất nhiều clone cùng lúc.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">5</span>
+          <div>"Clone kế thừa costume của bản gốc tại thời điểm nó được tạo ra."
+            <div class="quiz-answer">→ Đúng.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Ôn nhanh -->
+  <section class="slide" data-index="2" aria-label="Ôn nhanh">
+    <div class="slide-main">
+      <span class="slide-tag orange">🔁 Ôn nhanh</span>
+      <h2>Nhớ lại Clone</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Hôm nay em luyện lại <strong>clone</strong> ngay tại lớp, rồi tự chọn 1 bài mở rộng để làm mưa rơi, bong bóng bay hoặc game bắt đồ rơi có điểm!
+        </div>
+        <div class="emoji-row">👥 🌧️ ⭐ 🗑️</div>
+        <div class="knowledge-grid" style="margin-top:14px;">
+          <div class="k-card orange span-2">
+            <strong>👥 create clone of myself</strong>
+            Tạo 1 bản sao giống hệt hình, âm thanh của bản gốc
+          </div>
+          <div class="k-card blue span-2">
+            <strong>🆕 when I start as a clone</strong>
+            Code chạy trên <strong>mỗi clone mới</strong>, không chạy trên bản gốc
+          </div>
+          <div class="k-card green span-2">
+            <strong>🗑️ delete this clone</strong>
+            Xóa clone — <strong>luôn xóa</strong> khi không cần nữa, không thì game chậm dần!
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: LT1 -->
+  <section class="slide" data-index="3" aria-label="Luyện tập 1">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
+      <h2><span class="th-label btvn-label">LT1</span> Xóa clone đúng cách 🗑️</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Em luyện làm hiệu ứng nhiều hạt rơi (mưa, tuyết, lá...) và đảm bảo mỗi clone <strong>tự xóa</strong> khi chạm đáy màn hình — game không bị chậm!
+        </div>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Bản gốc tạo clone liên tục (<code>forever</code> + <code>wait</code>)</li>
+              <li>Clone rơi từ trên xuống</li>
+              <li><strong>Bắt buộc</strong> có <code>delete this clone</code> khi clone ra khỏi màn hình</li>
+            </ul>
+            <div class="tip" style="margin-top:12px;">
+              <span class="tip-icon">🔄</span>
+              <div><strong>Đổi máy 2 phút:</strong> chơi thử project của bạn 1 phút xem có bị chậm dần không (dấu hiệu quên xóa clone).</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.76rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block looks indent">hide / ẩn bản gốc</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block control">create clone of myself / tạo 1 clone</div>
+                  <div class="block control">wait 0.3 seconds / chờ 0.3 giây</div>
+                </div>
+              </div>
+              <div class="block control">when I start as a clone / khi 1 clone mới xuất hiện</div>
+              <div class="block looks indent">show / hiện clone</div>
+              <div class="block motion indent">go to x: pick random y: 180 / vị trí random trên cùng</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block motion">change y by -5 / rơi xuống</div>
+                  <div class="block control c-block">
+                    if &lt;y &lt; -180&gt; then / nếu ra khỏi màn hình
+                    <div class="c-body">
+                      <div class="block control">delete this clone / xóa clone này</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: LT2 -->
+  <section class="slide" data-index="4" aria-label="Luyện tập 2">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
+      <h2><span class="th-label btvn-label">LT2</span> Sao rơi ⭐</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Em luyện làm sao rơi từ trên xuống. Nhân vật chính bắt sao (chạm clone) để <strong>+1 điểm</strong>. Sao chạm đáy thì biến mất.
+        </div>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Sao (clone) rơi liên tục từ trên</li>
+              <li>Nhân vật điều khiển 4 phím</li>
+              <li>Chạm sao → +1 điểm + <code>delete this clone</code></li>
+              <li>Biến <code>điểm</code> hiển thị trên Stage</li>
+            </ul>
+            <div class="tip" style="margin-top:12px;">
+              <span class="tip-icon">🩹</span>
+              <div><strong>Sao không xóa?</strong> Kiểm tra <code>delete this clone</code> nằm trong code clone, không phải bản gốc.</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.68rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh (Star)</div>
+              <div class="block looks indent">hide / ẩn bản gốc</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block control">create clone of myself / tạo 1 sao</div>
+                  <div class="block control">wait 0.5 seconds / chờ 0.5 giây</div>
+                </div>
+              </div>
+              <div class="block control">when I start as a clone / khi 1 sao mới xuất hiện</div>
+              <div class="block looks indent">show / hiện sao</div>
+              <div class="block motion indent">go to x: pick random y: 180 / vị trí random trên cùng</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block motion">change y by -5 / rơi xuống</div>
+                  <div class="block control c-block">
+                    if &lt;touching Cat?&gt; then / nếu chạm nhân vật
+                    <div class="c-body">
+                      <div class="block variable">change điểm by 1 / tăng điểm</div>
+                      <div class="block control">delete this clone / xóa sao</div>
+                    </div>
+                  </div>
+                  <div class="block control c-block">
+                    if &lt;y &lt; -180&gt; then / nếu chạm đáy
+                    <div class="c-body">
+                      <div class="block control">delete this clone / xóa sao</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Giới thiệu bài mở rộng -->
+  <section class="slide" data-index="5" aria-label="Giới thiệu bài mở rộng">
+    <div class="slide-main">
+      <span class="slide-tag green">🎯 Giới thiệu bài mở rộng</span>
+      <h2>Em chọn 1 bài để làm</h2>
+      <div class="slide-body">
+        <div class="highlight-box green" style="margin-top:0;">
+          Giáo viên demo nhanh bài <strong>A1 "Mưa emoji"</strong> — chỉ rõ cách đổi emoji và backdrop cho hợp không khí. Sau đó em chọn <strong>1 mức</strong> A, B hoặc C, rồi chọn <strong>1 trong 2 bài</strong> của mức đó. Mỗi bài có 1 slide riêng — bấm chấm phía trên để tới bài em chọn.
+        </div>
+        <div class="knowledge-grid" style="margin-top:14px;">
+          <div class="k-card green span-2">
+            <strong>🅰️ Mức A — Clone rơi xuống</strong>
+            🌧️ Mưa emoji (A1) hoặc ❄️ tuyết rơi clone chậm (A2).
+          </div>
+          <div class="k-card blue span-2">
+            <strong>🅱️ Mức B — Clone bay lên</strong>
+            🎈 Bắn bong bóng (B1) hoặc 🚀 bắn sao Space (B2).
+          </div>
+          <div class="k-card purple span-2">
+            <strong>🅲 Mức C — Game bắt đồ rơi có điểm</strong>
+            ⭐ Bắt sao rơi (C1) hoặc 🍎🍌 fruit catch nhiều loại điểm (C2).
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: A1 -->
+  <section class="slide" data-index="6" aria-label="A1">
+    <div class="slide-main">
+      <span class="slide-tag green">Bài mở rộng · Mức A</span>
+      <h2><span class="th-label">A1</span> Mưa emoji 🌧️</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Em muốn biến Stage thành một buổi chiều mưa buồn nhẹ nhàng — em làm mưa emoji (💧, ❄️, 🍂...) rơi liên tục. Đổi backdrop thành bầu trời xám cho đẹp!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Clone liên tục; emoji rơi từ trên</li>
+              <li><code>delete this clone</code> khi chạm đáy</li>
+              <li>Backdrop phù hợp (bầu trời)</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Random 2–3 emoji khác nhau (đổi costume khi clone bắt đầu), và thêm âm thanh mưa nhẹ lặp lại (<code>play sound until done</code>) để cảnh mưa có cả tiếng lẫn hình</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.76rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block looks indent">hide / ẩn bản gốc</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block control">create clone of myself / tạo 1 giọt mưa</div>
+                  <div class="block control">wait 0.3 seconds / chờ 0.3 giây</div>
+                </div>
+              </div>
+              <div class="block control">when I start as a clone / khi 1 giọt mưa mới</div>
+              <div class="block looks indent">show / hiện giọt mưa</div>
+              <div class="block motion indent">go to x: pick random y: 180 / vị trí random trên cùng</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block motion">change y by -6 / rơi xuống</div>
+                  <div class="block control c-block">
+                    if &lt;y &lt; -180&gt; then / nếu chạm đáy
+                    <div class="c-body">
+                      <div class="block control">delete this clone / xóa giọt mưa</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: A2 -->
+  <section class="slide" data-index="7" aria-label="A2">
+    <div class="slide-main">
+      <span class="slide-tag green">Bài mở rộng · Mức A</span>
+      <h2><span class="th-label">A2</span> Tuyết rơi clone chậm ❄️</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Em dựng cảnh mùa đông đầu tiên trong project của mình — làm tuyết rơi chậm: clone bông tuyết (❄️) rơi từ trên xuống chậm hơn mưa. Backdrop đêm hoặc mùa đông.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Clone liên tục với <code>wait 0.8 secs</code></li>
+              <li>Clone rơi chậm (<code>change y by</code> -2 hoặc -3)</li>
+              <li><code>delete this clone</code> khi chạm đáy; bản gốc <code>hide</code></li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Random kích thước mỗi bông (<code>set size to pick random 30 to 80</code>), và thêm hiệu ứng lắc nhẹ qua trái phải trong lúc rơi để trông tự nhiên hơn</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.74rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block looks indent">hide / ẩn bản gốc</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block control">create clone of myself / tạo 1 bông tuyết</div>
+                  <div class="block control">wait 0.8 seconds / chờ 0.8 giây (chậm hơn mưa)</div>
+                </div>
+              </div>
+              <div class="block control">when I start as a clone / khi 1 bông tuyết mới</div>
+              <div class="block looks indent">show / hiện bông tuyết</div>
+              <div class="block motion indent">go to x: pick random y: 180 / vị trí random trên cùng</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block motion">change y by -2 / rơi chậm</div>
+                  <div class="block motion optional">change x by pick random -2 to 2 / lắc nhẹ (thử thêm)</div>
+                  <div class="block control c-block">
+                    if &lt;y &lt; -180&gt; then / nếu chạm đáy
+                    <div class="c-body">
+                      <div class="block control">delete this clone / xóa bông tuyết</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: B1 -->
+  <section class="slide" data-index="8" aria-label="B1">
+    <div class="slide-main">
+      <span class="slide-tag">Bài mở rộng · Mức B</span>
+      <h2><span class="th-label level-b">B1</span> Bắn bong bóng 🎈</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Em hóa thân thành người bán bong bóng ở công viên — điều khiển súng bong bóng ở dưới màn hình. Nhấn Space → bắn clone bong bóng bay lên. Chạm trần thì nổ!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Nhân vật di chuyển trái/phải</li>
+              <li>Space tạo clone bong bóng</li>
+              <li>Clone bay lên; chạm trên cùng → <code>delete</code> (hoặc hiệu ứng nổ)</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Đếm số bong bóng bắn bằng biến <code>số bong bóng</code>, và cho bong bóng đổi màu ngẫu nhiên mỗi lần bắn (<code>set color effect to pick random 0 to 200</code>) để trông sặc sỡ như hội chợ</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.76rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block looks indent">hide / ẩn bản gốc</div>
+              <div class="block event">when key space pressed / khi nhấn Space</div>
+              <div class="block control indent">create clone of myself / bắn 1 bong bóng</div>
+              <div class="block control">when I start as a clone / khi 1 bong bóng mới</div>
+              <div class="block looks indent">show / hiện bong bóng</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block motion">change y by 6 / bay lên</div>
+                  <div class="block control c-block">
+                    if &lt;y &gt; 170&gt; then / nếu chạm trần
+                    <div class="c-body">
+                      <div class="block sound">start sound Pop / phát tiếng nổ</div>
+                      <div class="block control">delete this clone / xóa bong bóng</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: B2 -->
+  <section class="slide" data-index="9" aria-label="B2">
+    <div class="slide-main">
+      <span class="slide-tag">Bài mở rộng · Mức B</span>
+      <h2><span class="th-label level-b">B2</span> Bắn sao Space clone bay lên 🚀</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Em là phi công của một tàu vũ trụ nhỏ đang khám phá dải ngân hà — điều khiển tàu ở dưới màn hình. Nhấn Space → bắn clone sao bay lên. Sao chạm trần → biến mất kèm âm thanh.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Sprite tàu di chuyển trái/phải</li>
+              <li>Space → <code>create clone of myself</code></li>
+              <li>Clone bay lên (<code>change y by</code> 8); chạm trên cùng (y &gt; 170) → <code>delete</code></li>
+              <li>Bản gốc <code>hide</code></li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Biến <code>số sao bắn</code> — tăng mỗi lần Space, và giới hạn tốc độ bắn (thêm <code>wait 0.2 secs</code> sau mỗi lần tạo clone) để tránh bắn quá nhanh gây rối màn hình</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.76rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block looks indent">hide / ẩn bản gốc (Rocket)</div>
+              <div class="block event">when key space pressed / khi nhấn Space</div>
+              <div class="block control indent">create clone of myself / bắn 1 sao</div>
+              <div class="block control indent optional">wait 0.2 seconds / giới hạn tốc độ bắn (thử thêm)</div>
+              <div class="block control">when I start as a clone / khi 1 sao mới</div>
+              <div class="block looks indent">show / hiện sao</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block motion">change y by 8 / bay lên</div>
+                  <div class="block control c-block">
+                    if &lt;y &gt; 170&gt; then / nếu chạm trần
+                    <div class="c-body">
+                      <div class="block sound">start sound Laser / phát âm thanh</div>
+                      <div class="block control">delete this clone / xóa sao</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: C1 -->
+  <section class="slide" data-index="10" aria-label="C1">
+    <div class="slide-main">
+      <span class="slide-tag purple">Bài mở rộng · Mức C</span>
+      <h2><span class="th-label level-c">C1</span> Bắt sao rơi ⭐</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Đêm nay trời đầy sao băng — em phải nhanh tay bắt được càng nhiều sao càng tốt! Sao clone rơi ngẫu nhiên, nhân vật điều khiển bắt sao gom điểm trong 30 giây. Hết giờ báo điểm!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Clone sao rơi; điều khiển 4 phím</li>
+              <li>Biến <code>điểm</code>; đếm ngược 30 giây</li>
+              <li>Hết giờ <code>say</code> điểm + <code>stop all</code></li>
+              <li>Clone <code>delete</code> khi bắt hoặc chạm đáy</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Sao rơi nhanh dần theo thời gian (tăng tốc độ <code>change y</code>), và thêm 1 loại "sao bạc" hiếm (random costume) đáng giá gấp đôi điểm để tạo động lực săn tìm</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.68rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set điểm to 0 / gán điểm = 0</div>
+              <div class="block looks indent">hide / ẩn bản gốc (Star)</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block control">create clone of myself / tạo 1 sao</div>
+                  <div class="block control">wait 0.4 seconds / chờ 0.4 giây</div>
+                </div>
+              </div>
+              <div class="block control">when I start as a clone / khi 1 sao mới</div>
+              <div class="block looks indent">show / hiện sao</div>
+              <div class="block motion indent">go to x: pick random y: 180 / vị trí random trên cùng</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block motion">change y by -5 / rơi xuống</div>
+                  <div class="block control c-block">
+                    if &lt;touching Cat?&gt; then / nếu chạm nhân vật
+                    <div class="c-body">
+                      <div class="block variable">change điểm by 1 / tăng điểm</div>
+                      <div class="block control">delete this clone / xóa sao</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="block event">when green flag clicked / khi bấm cờ xanh (đếm giờ)</div>
+              <div class="block control indent">wait 30 seconds / chờ 30 giây</div>
+              <div class="block looks indent">say join "Hết giờ! Điểm: " điểm / báo tổng điểm</div>
+              <div class="block control indent">stop all / dừng toàn bộ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: C2 -->
+  <section class="slide" data-index="11" aria-label="C2">
+    <div class="slide-main">
+      <span class="slide-tag purple">Bài mở rộng · Mức C</span>
+      <h2><span class="th-label level-c">C2</span> Fruit catch nhiều loại điểm khác 🍎🍌</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Em mở "vườn trái cây rơi" của riêng mình — clone táo 🍎 (+1 điểm), chuối 🍌 (+2 điểm), dưa hấu 🍉 (+3 điểm) — mỗi loại random costume khi clone bắt đầu. Bắt trong 30 giây!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Clone trái cây rơi liên tục; random costume (≥ 2 loại)</li>
+              <li>Chạm → <code>change điểm</code> theo loại (táo +1, chuối +2, dưa +3)</li>
+              <li>Biến <code>điểm</code>; đếm ngược 30 giây</li>
+              <li><code>delete this clone</code> khi bắt hoặc chạm đáy</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm trái xấu 🍄 (-1 điểm khi bắt nhầm), và hiển thị bảng tổng kết cuối giờ liệt kê số lượng từng loại trái cây đã bắt (3 biến đếm riêng: <code>số táo</code>, <code>số chuối</code>, <code>số dưa</code>)</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks compact" style="font-size:0.64rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set điểm to 0 / gán điểm = 0</div>
+              <div class="block looks indent">hide / ẩn bản gốc (Fruit)</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block control">create clone of myself / tạo 1 trái cây</div>
+                  <div class="block control">wait 0.5 seconds / chờ 0.5 giây</div>
+                </div>
+              </div>
+              <div class="block control">when I start as a clone / khi 1 trái cây mới</div>
+              <div class="block looks indent">show / hiện trái cây</div>
+              <div class="block looks indent">switch costume to pick random 1 to 3 / random loại quả</div>
+              <div class="block motion indent">go to x: pick random y: 180 / vị trí random trên cùng</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block motion">change y by -5 / rơi xuống</div>
+                  <div class="block control c-block">
+                    if &lt;touching Cat?&gt; then / nếu chạm nhân vật
+                    <div class="c-body">
+                      <div class="block control c-block">
+                        if &lt;costume = táo&gt; then / nếu là táo
+                        <div class="c-body">
+                          <div class="block variable">change điểm by 1 / +1 điểm</div>
+                        </div>
+                      </div>
+                      <div class="block control">delete this clone / xóa trái cây</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="block event">when green flag clicked / khi bấm cờ xanh (đếm giờ)</div>
+              <div class="block control indent">wait 30 seconds / chờ 30 giây</div>
+              <div class="block looks indent">say join "Hết giờ! Điểm: " điểm / báo tổng điểm</div>
+              <div class="block control indent">stop all / dừng toàn bộ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Tổng kết -->
+  <section class="slide title-slide" data-index="12" aria-label="Tổng kết">
+    <div class="slide-main">
+      <div class="title-emoji">👥</div>
+      <h2 style="font-size:1.9rem; margin-bottom:16px;">Showcase &amp; Tổng kết buổi Bài tập</h2>
+      <ul style="font-size:1.05rem; line-height:2; text-align:left; font-weight:700; max-width:560px;">
+        <li>✅ Đã hoàn thành <strong>Luyện tập 1</strong> (xóa clone đúng cách) và <strong>Luyện tập 2</strong> (sao rơi) ngay tại lớp</li>
+        <li>✅ Đã chọn 1 bài mở rộng A / B / C — từ mưa rơi, bong bóng bay đến game bắt đồ rơi có điểm</li>
+        <li>🖼️ Showcase: gallery walk xem project bạn, đặc biệt để ý các bài mức C xem bạn bắt được bao nhiêu điểm</li>
+      </ul>
+      <p style="margin-top:24px; font-size:1.15rem; color:var(--scratch-orange); font-weight:800;">
+        Hẹn gặp lại ở Buổi 23 — My Blocks &amp; debug! 👋
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 13</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Space · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let hasNavigated = false;
+
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
+
+  function buildDots() {
+    const template = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+    document.getElementById('dots').innerHTML = template;
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.toggle('active', Number(dot.dataset.goto) === current);
+    });
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) {
+      hasNavigated = true;
+      document.body.classList.add('presenting');
+    }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1
+      ? '· Scratch'
+      : '· Tuần 11 Buổi 22';
+    updateDots();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, .quiz-item, code, .global-topbar, .nav')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); next(); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  document.getElementById('btnFullscreen').addEventListener('click', e => {
+    e.stopPropagation();
+    toggleFullscreen();
+  });
+
+  document.getElementById('btnExitFs').addEventListener('click', e => {
+    e.stopPropagation();
+    exitFullscreen();
+  });
+
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
+  function toggleFullscreen() {
+    if (isFullscreen()) exitFullscreen();
+    else enterFullscreen();
+  }
+
+  function enterFullscreen() {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  }
+
+  function exitFullscreen() {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+
+  function onFullscreenChange() {
+    document.body.classList.toggle('is-fullscreen', isFullscreen());
+  }
+
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+  document.querySelectorAll('[data-quiz]').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      item.classList.toggle('revealed');
+    });
+  });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1));
+  }, { passive: true });
+
+  buildDots();
+  slides.forEach((s, i) => {
+    s.setAttribute('aria-hidden', i !== 0);
+    if (i === 0) s.classList.add('active');
+    else s.classList.add('next');
+  });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
+</html>

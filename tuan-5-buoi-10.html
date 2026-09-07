@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#1a2744">
-  <title>Tuần 4 — Buổi 8: Luyện Events</title>
+  <title>Tuần 5 — Buổi 10: Luyện Sound</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -391,6 +391,7 @@
     .block.control { background: #ffab19; color: #422c00; }
     .block.motion  { background: #4c97ff; }
     .block.sound   { background: #cf63cf; }
+    .block.sensing { background: #5cb1d6; }
 
     .block.indent   { margin-left: 20px; }
     .block.indent-2 { margin-left: 40px; }
@@ -563,7 +564,6 @@
       letter-spacing: 0.03em;
     }
 
-    .btvn-label { background: var(--scratch-red); }
     .th-label.level-b { background: var(--scratch-blue); }
     .th-label.level-c { background: var(--scratch-purple); }
 
@@ -725,7 +725,7 @@
 </head>
 <body>
 
-<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1"></div>
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="14" aria-valuenow="1"></div>
 
 <header class="global-topbar">
   <div class="brand">
@@ -743,70 +743,88 @@
   <!-- Slide 1 -->
   <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
     <div class="slide-main">
-      <div class="title-emoji">🎮</div>
-      <h1>Luyện Events</h1>
-      <p class="subtitle">Lập trình Scratch — Tháng 1 · Nội dung cơ bản (1)</p>
+      <div class="title-emoji">🎧</div>
+      <h1>Luyện Sound</h1>
+      <p class="subtitle">Lập trình Scratch — Tháng 2 · Nội dung cơ bản (2)</p>
       <div class="title-meta">
-        <span class="badge">📅 Tuần 4</span>
-        <span class="badge">✏️ Buổi 8 — Bài tập</span>
+        <span class="badge">📅 Tuần 5</span>
+        <span class="badge">✍️ Buổi 10 — Bài tập</span>
         <span class="badge">🎯 7–10 tuổi</span>
       </div>
       <p class="start-hint">Nhấn → hoặc Space để bắt đầu</p>
     </div>
   </section>
 
-  <!-- Slide 2 -->
+  <!-- Slide 2: Khởi động ôn tập -->
   <section class="slide" data-index="1" aria-label="Khởi động ôn tập">
     <div class="slide-main">
-      <span class="slide-tag purple">🎬 Khởi động ôn tập</span>
-      <h2>Nhanh tay nhanh mắt!</h2>
+      <span class="slide-tag purple">🎬 Khởi động ôn tập (10 phút)</span>
+      <h2>Trò chơi "Đúng hay Sai?"</h2>
       <div class="slide-body">
-        <div class="highlight-box purple" style="margin-top:0;">
-          Giáo viên đọc 1 câu hỏi, học sinh giơ tay trả lời thật nhanh — click từng câu để hiện đáp án!
-        </div>
+        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Lần này câu hỏi cần <strong>suy luận</strong> chứ không chỉ nhớ khái niệm. Cô đọc từng câu, em giơ ngón cái lên (Đúng) hoặc xuống (Sai). Cô click để xem đáp án ↓</p>
         <div class="quiz-item" data-quiz>
           <span class="quiz-num">1</span>
-          <div>Muốn sprite phản ứng khi nhấn phím, dùng khối Events nào?
-            <div class="quiz-answer">→ <code>when key pressed</code></div>
+          <div>Nếu sprite Mèo <code>say</code> "Xin chào!" <code>for 3 seconds</code>, và sprite Cún có <code>wait 2 seconds</code> rồi mới nói — lúc Cún bắt đầu nói, Mèo đã nói xong chưa?
+            <div class="quiz-answer">→ <strong>Sai</strong> — Mèo còn 1 giây nữa mới nói xong, nên bị chồng tiếng.</div>
           </div>
         </div>
         <div class="quiz-item" data-quiz>
           <span class="quiz-num">2</span>
-          <div>Muốn sprite phản ứng khi click chuột vào nó, dùng khối nào?
-            <div class="quiz-answer">→ <code>when this sprite clicked</code></div>
+          <div>Nếu em đặt nhạc bằng <code>forever</code> + <code>start sound</code> ở cả Stage và ở 1 sprite, hai đoạn nhạc có phát cùng lúc không?
+            <div class="quiz-answer">→ <strong>Đúng</strong> — code ở Stage và ở sprite chạy độc lập với nhau.</div>
           </div>
         </div>
         <div class="quiz-item" data-quiz>
           <span class="quiz-num">3</span>
-          <div>Mỗi khối Events có thể có chuỗi lệnh riêng hay phải dùng chung?
-            <div class="quiz-answer">→ Riêng! Mỗi khối Events có chuỗi lệnh của chính nó.</div>
+          <div><code>play sound until done</code> đặt trong <code>forever</code> sẽ phát nhạc liên tục, không bị chồng bản.
+            <div class="quiz-answer">→ <strong>Đúng</strong> — vì mỗi vòng lặp đợi hết nhạc rồi mới phát lại.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">4</span>
+          <div><code>start sound</code> đặt trong <code>forever</code> cũng phát nhạc liên tục y hệt <code>play sound until done</code>.
+            <div class="quiz-answer">→ <strong>Sai</strong> — <code>start sound</code> không đợi, nên <code>forever</code> gọi lại liên tục làm nhạc bị chồng nhiều bản cùng lúc.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">5</span>
+          <div>Nếu 3 sprite đều có <code>when green flag clicked</code> → <code>say</code> ngay lập tức, cả 3 sẽ nói chồng lên nhau trừ khi có <code>wait</code> xen kẽ hợp lý.
+            <div class="quiz-answer">→ <strong>Đúng</strong>.</div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 3 -->
+  <!-- Slide 3: Ôn nhanh -->
   <section class="slide" data-index="2" aria-label="Ôn nhanh">
     <div class="slide-main">
-      <span class="slide-tag orange">🔁 Ôn nhanh</span>
-      <h2>Nhớ lại Events</h2>
+      <span class="slide-tag purple">Ôn nhanh</span>
+      <h2>Nhớ lại Buổi 9</h2>
       <div class="slide-body">
-        <div class="highlight-box orange" style="margin-top:0;">
-          Hôm nay em luyện lại Events ngay tại lớp, rồi tự chọn 1 bài mở rộng để làm mini game của riêng mình!
+        <div class="highlight-box purple">
+          Buổi hôm nay: em <strong>luyện tập tại lớp</strong> (LT1, LT2) rồi chọn <strong>1 bài mở rộng</strong> để luyện thêm âm thanh &amp; hội thoại nhiều sprite!
         </div>
         <div class="knowledge-grid" style="margin-top:14px;">
-          <div class="k-card orange span-2">
-            <strong>🎬 Events</strong>
-            "Khi… thì…" — khi nhấn phím, khi click chuột…
+          <div class="k-card blue span-3">
+            <strong>🔊 Sound</strong>
+            <code style="background:rgba(255,255,255,0.2); color:#fff;">start sound</code> = phát rồi làm tiếp · <code style="background:rgba(255,255,255,0.2); color:#fff;">play sound until done</code> = đợi hết tiếng
           </div>
-          <div class="k-card purple span-2">
-            <strong>🔀 Mỗi sự kiện 1 chuỗi riêng</strong>
-            Không gộp nhiều phím vào 1 khối Events
+          <div class="k-card purple span-3">
+            <strong>💬 Nhiều sprite</strong>
+            Mỗi sprite có code riêng · hội thoại dùng <code style="background:rgba(255,255,255,0.2); color:#fff;">say</code> + <code style="background:rgba(255,255,255,0.2); color:#fff;">wait</code>
           </div>
-          <div class="k-card blue span-2">
-            <strong>↔️↕️ change x/y by</strong>
-            Di chuyển từng bước nhỏ, mượt hơn <code style="background:rgba(255,255,255,0.2); color:#fff;">go to</code>
+          <div class="k-card green span-2">
+            <strong>🚩 Cờ xanh</strong>
+            <code style="background:rgba(255,255,255,0.2); color:#fff;">when green flag clicked</code>
+          </div>
+          <div class="k-card green span-2">
+            <strong>🖱️ Click sprite</strong>
+            <code style="background:rgba(255,255,255,0.2); color:#fff;">when this sprite clicked</code>
+          </div>
+          <div class="k-card green span-2">
+            <strong>🎵 Nhạc nền</strong>
+            Thường đặt ở <strong>Stage</strong>
           </div>
         </div>
       </div>
@@ -814,29 +832,51 @@
   </section>
 
   <!-- Slide 4: LT1 -->
-  <section class="slide" data-index="3" aria-label="Luyện tập 1">
+  <section class="slide" data-index="3" aria-label="LT1">
     <div class="slide-main">
-      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
-      <h2><span class="th-label btvn-label">LT1</span> Space đổi hình</h2>
+      <span class="slide-tag green">✍️ Luyện tập (15–20 phút)</span>
+      <h2><span class="th-label">LT1</span> Click phát tiếng — 2 nhân vật + nhạc nền 🔊🐱🐶</h2>
       <div class="slide-body">
-        <div class="highlight-box orange" style="margin-top:0;">
-          Em luyện cho sprite đổi sang costume tiếp theo mỗi lần nhấn <strong>phím Space</strong> — làm ngay tại lớp, có khó khăn cứ hỏi giáo viên!
-        </div>
         <div class="cols cols-60-40">
           <div>
-            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <div class="highlight-box green" style="margin-top:0;">
+              Làm <strong>ngay tại lớp</strong>, có cô hướng dẫn: nhạc nền chạy liên tục ở Stage, cộng <strong>2 sprite khác nhau</strong> — mỗi sprite phát 1 âm thanh riêng khi được click.
+            </div>
+            <p class="section-label">Yêu cầu</p>
             <ul>
-              <li><code>when key space pressed</code></li>
-              <li><code>next costume</code> hoặc <code>switch costume</code></li>
-              <li>Sprite có ít nhất 2 costume</li>
-              <li>Đổi hình mỗi lần nhấn phím</li>
+              <li>Nhạc nền ở <strong>Stage</strong>, chạy liên tục bằng <code>forever</code> + <code>start sound</code></li>
+              <li><strong>2 sprite</strong>, mỗi sprite có <strong>1 âm thanh riêng</strong> — không trùng nhau, không trùng nhạc nền</li>
+              <li>Mỗi sprite: click → phát âm thanh riêng + <code>say</code> 1 câu</li>
+              <li>Click nhiều lần từng sprite vẫn ổn định, nhạc nền không bị tắt</li>
+              <li>Đã lưu project tên <code>LT1-2-nhan-vat</code></li>
+            </ul>
+            <p class="section-label">Em tự kiểm</p>
+            <ul>
+              <li>Nhạc nền chạy ngay khi bấm cờ xanh, không bị ngắt khi click sprite</li>
+              <li>Mỗi sprite phát đúng âm thanh của mình, không lẫn với sprite kia hay nhạc nền</li>
+              <li>Có phản ứng (<code>say</code>) ở cả 2 sprite khi click</li>
             </ul>
           </div>
           <div>
-            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
-            <div class="blocks">
-              <div class="block event">when key space pressed / khi nhấn phím Space</div>
-              <div class="block looks indent">next costume / trang phục kế tiếp</div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh — Stage</p>
+            <div class="blocks" style="font-size:0.8rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi mãi
+                <div class="c-body">
+                  <div class="block sound">start sound "Dance Around" / phát nhạc nền</div>
+                </div>
+              </div>
+            </div>
+            <p class="section-label">Gợi ý khối lệnh — mỗi sprite</p>
+            <div class="blocks" style="font-size:0.8rem;">
+              <div class="block event">when this sprite clicked / khi click vào sprite này</div>
+              <div class="block sound indent">start sound … / phát âm thanh riêng của sprite này</div>
+              <div class="block looks indent">say "…!" for 2 seconds / nói câu phản ứng riêng</div>
+            </div>
+            <div class="tip" style="margin-top:12px;">
+              <span class="tip-icon">💡</span>
+              <div><strong>Chưa đúng?</strong> Kiểm tra từng sprite đã thêm <strong>đúng sound riêng</strong> — không dùng chung 1 sound; và <code>forever</code> đang ở Stage, không bị đặt nhầm sang sprite.</div>
             </div>
           </div>
         </div>
@@ -845,66 +885,77 @@
   </section>
 
   <!-- Slide 5: LT2 -->
-  <section class="slide" data-index="4" aria-label="Luyện tập 2">
+  <section class="slide" data-index="4" aria-label="LT2">
     <div class="slide-main">
-      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
-      <h2><span class="th-label btvn-label">LT2</span> Click để chào</h2>
+      <span class="slide-tag green">✍️ Luyện tập (15–20 phút)</span>
+      <h2><span class="th-label">LT2</span> Hội thoại 6 câu — 3 sprite 📝👥</h2>
       <div class="slide-body">
-        <div class="highlight-box orange" style="margin-top:0;">
-          Em luyện cho sprite <code>say</code> lời chào mỗi khi được click vào — xong thì đổi máy với bạn bên cạnh 2 phút để cùng kiểm tra!
-        </div>
         <div class="cols cols-60-40">
           <div>
-            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <div class="highlight-box green" style="margin-top:0;">
+              <strong>3 sprite</strong> nói chuyện <strong>6 câu</strong> (mỗi bạn 2 câu), có <code>wait</code> để cả 3 không nói chồng lên nhau.
+            </div>
+            <p class="section-label">Yêu cầu</p>
             <ul>
-              <li><code>when this sprite clicked</code></li>
-              <li><code>say</code> ít nhất 1 câu</li>
-              <li>Click có phản ứng ngay</li>
-              <li>Có thể click nhiều lần liên tiếp</li>
+              <li>3 sprite, tổng <strong>6 câu</strong> thoại (mỗi bạn 2 câu)</li>
+              <li>Bắt đầu khi bấm <strong>cờ xanh</strong>, đúng thứ tự: bạn 1 → bạn 2 → bạn 3</li>
+              <li>Nội dung hội thoại tự sáng tác, có chủ đề rõ ràng</li>
+              <li>Đã lưu project tên <code>LT2-hoi-thoai-3-nhan-vat</code></li>
+            </ul>
+            <p class="section-label">Em tự kiểm</p>
+            <ul>
+              <li>Đủ 6 câu <code>say</code> (3 sprite × 2 câu)</li>
+              <li>Đúng thứ tự, không chồng — dù có 3 luồng code chạy song song</li>
+              <li>Có ít nhất <strong>4 khối <code>wait</code></strong> (nhiều hơn bản 2 sprite)</li>
             </ul>
           </div>
           <div>
-            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
-            <div class="blocks">
-              <div class="block event">when this sprite clicked / khi click vào sprite này</div>
-              <div class="block looks indent">say "Chào bạn!" for 2 seconds / nói "Chào bạn!" trong 2 giây</div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh (bạn 1, bạn 2)</p>
+            <div class="blocks" style="font-size:0.72rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh (bạn 1)</div>
+              <div class="block looks indent">say "Câu 1" for 2 seconds / nói câu 1</div>
+              <div class="block control indent">wait 6 seconds / chờ bạn 2, 3 nói xong</div>
+              <div class="block looks indent">say "Câu 4" for 2 seconds / nói câu 4</div>
+              <div class="block event">when green flag clicked / khi bấm cờ xanh (bạn 2)</div>
+              <div class="block control indent">wait 2 seconds / chờ câu 1</div>
+              <div class="block looks indent">say "Câu 2" for 2 seconds / nói câu 2</div>
+            </div>
+            <div class="card" style="margin-top:12px;">
+              <h3>⚠️ Lỗi thường gặp</h3>
+              <ul style="font-size:0.9rem;">
+                <li><strong>Nói chồng</strong> → vẽ sơ đồ thời gian trên giấy trước rồi mới gắn <code>wait</code> khớp theo sơ đồ</li>
+                <li><strong>Thiếu câu</strong> → đếm đủ 6 lần <code>say</code></li>
+                <li><strong>Không chạy</strong> → cả 3 sprite đều cần <code>when green flag clicked</code></li>
+              </ul>
             </div>
           </div>
-        </div>
-        <div class="card" style="margin-top:14px;">
-          <h3>⚠️ Lỗi thường gặp</h3>
-          <ul style="font-size:0.94rem;">
-            <li><strong>Gộp nhiều phím vào 1 khối Events</strong> → Tách mỗi phím thành 1 khối <code>when key</code> riêng</li>
-            <li><strong>Nhấn phím không di chuyển</strong> → Kiểm tra <code>change x/y</code> — dấu +/− có đúng không?</li>
-            <li><strong>Nhảy mãi lên trời</strong> → Thêm <code>change y by -30</code> sau <code>wait</code> để rơi xuống</li>
-            <li><strong><code>if touching</code> không chạy</strong> → Chọn đúng tên sprite trong dropdown</li>
-          </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 6 -->
+  <!-- Slide 6: Giới thiệu bài mở rộng -->
   <section class="slide" data-index="5" aria-label="Giới thiệu bài mở rộng">
     <div class="slide-main">
-      <span class="slide-tag green">🎯 Giới thiệu bài mở rộng</span>
+      <span class="slide-tag orange">🎯 Giới thiệu bài mở rộng (10 phút)</span>
       <h2>Em chọn 1 bài để làm</h2>
       <div class="slide-body">
-        <div class="highlight-box green" style="margin-top:0;">
-          Giáo viên demo nhanh bài <strong>A1 "Tứ phương"</strong> — chỉ rõ cách gắn <code>point in direction</code> trước khi di chuyển. Sau đó em chọn <strong>1 mức</strong> A, B hoặc C — mỗi bài có 1 slide riêng, bấm chấm phía trên để tới bài em chọn.
+        <div class="highlight-box orange" style="margin-top:0;">
+          👩‍🏫 Cô demo nhanh 1 ví dụ mẫu (bài <strong>A1 "Bữa tiệc âm nhạc"</strong>) trên máy chiếu — chỉ cách thêm nhạc vào Stage và gắn <code>forever</code> + <code>start sound</code> — trước khi em tự chọn bài.
         </div>
+        <p style="margin-top:10px; font-weight:600;">Chọn <strong>1 mức</strong> A, B hoặc C — rồi chọn <strong>1 trong 2 bài</strong> của mức đó. Mỗi bài có 1 slide riêng — bấm chấm phía trên để tới bài em chọn. Em chỉ cần làm <strong>1 bài</strong>!</p>
         <div class="knowledge-grid" style="margin-top:14px;">
           <div class="k-card green span-2">
             <strong>🅰️ Mức A — Cơ bản</strong>
-            🧭 Tứ phương · ↔️ Trái và phải — luyện điều khiển phím (A1 hoặc A2).
+            🎶 Bữa tiệc âm nhạc · 🐹 Vườn thú Pop — luyện <code style="background:rgba(255,255,255,0.2); color:#fff;">start sound</code> (A1 hoặc A2).
           </div>
           <div class="k-card blue span-2">
             <strong>🅱️ Mức B — Trung bình</strong>
-            🎭 Nhân vật phản ứng · 🦘 Nhảy khi Space — kết hợp phím + phản ứng (B1 hoặc B2).
+            🛒 Chuyện ở siêu thị · 🎤 Phóng viên nhí — hội thoại <code style="background:rgba(255,255,255,0.2); color:#fff;">say</code> / <code style="background:rgba(255,255,255,0.2); color:#fff;">ask</code> + <code style="background:rgba(255,255,255,0.2); color:#fff;">wait</code> (B1 hoặc B2).
           </div>
           <div class="k-card purple span-2">
             <strong>🅲 Mức C — Thử thách</strong>
-            🐱 Mini đuổi bắt · 🐭 Trốn thợ săn chuột — mini game tương tác (C1 hoặc C2).
+            🎬 Đạo diễn nhí · 🥁 Ban nhạc lưu diễn — đổi backdrop + âm thanh + hội thoại (C1 hoặc C2).
           </div>
         </div>
       </div>
@@ -915,29 +966,42 @@
   <section class="slide" data-index="6" aria-label="A1">
     <div class="slide-main">
       <span class="slide-tag green">Bài mở rộng · Mức A</span>
-      <h2><span class="th-label">A1</span> 🧭 Tứ phương</h2>
+      <h2><span class="th-label">A1</span> 🎶 Bữa tiệc âm nhạc</h2>
       <div class="slide-body">
-        <p style="font-weight:600; margin-bottom:10px;">Điều khiển sprite đi 4 hướng bằng phím mũi tên, giống như di chuyển một nhân vật trong game — sprite quay đúng hướng đang đi!</p>
+        <p style="font-weight:600; margin-bottom:10px;">Cuối tuần, lớp em tổ chức một bữa tiệc nhỏ. Em phụ trách phần "DJ" thật sự — không chỉ bật 1 bài, mà <strong>chuyển đổi giữa ít nhất 2 bài nhạc</strong> theo phím bấm của khán giả!</p>
         <div class="cols cols-60-40">
           <div>
             <p class="section-label" style="margin-top:0;">Yêu cầu</p>
             <ul>
-              <li>Đủ 4 phím ↑↓←→, mỗi phím 1 khối Events riêng</li>
-              <li>Mỗi phím có <code>point in direction</code> (↑0°, ↓180°, ←-90°, →90°) trước khi di chuyển</li>
-              <li>Di chuyển mượt theo đúng hướng</li>
+              <li>≥ 2 bài nhạc khác nhau ở <strong>Stage</strong></li>
+              <li>Phím 1 → phát nhạc A liên tục; phím 2 → <strong>dừng nhạc A</strong> rồi phát nhạc B liên tục</li>
+              <li>Dùng <code>stop all sounds</code> trước khi đổi bài để không chồng nhạc</li>
+              <li>Có ít nhất 1 sprite trên Stage · Em đã lưu project</li>
             </ul>
             <p class="section-label">✨ Thử thêm</p>
-            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm backdrop bản đồ + <code>if on edge, bounce</code>, và <code>switch costume</code> khi đổi hướng để nhân vật sống động hơn</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm phím thứ 3 để <code>stop all sounds</code> (tắt hẳn), và hiển thị tên bài đang phát bằng <code>say</code> ở 1 sprite trang trí mỗi khi đổi bài.</p>
           </div>
           <div>
-            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
-            <div class="blocks">
-              <div class="block event">when key up arrow pressed / khi nhấn phím mũi tên lên</div>
-              <div class="block motion indent">point in direction 0 / hướng về 0° (lên)</div>
-              <div class="block motion indent">change y by 10 / đổi y thêm 10</div>
-              <div class="block event">when key right arrow pressed / khi nhấn phím mũi tên phải</div>
-              <div class="block motion indent optional">… (tương tự cho ← và ↓, hướng -90°/180°)</div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh (code của Stage)</p>
+            <div class="blocks" style="font-size:0.82rem;">
+              <div class="block event">when key 1 pressed / khi bấm phím 1</div>
+              <div class="block sound indent">stop all sounds / dừng hết nhạc đang phát</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi mãi
+                <div class="c-body">
+                  <div class="block sound">start sound "Nhạc A" / phát nhạc A</div>
+                </div>
+              </div>
+              <div class="block event">when key 2 pressed / khi bấm phím 2</div>
+              <div class="block sound indent">stop all sounds / dừng nhạc A</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi mãi
+                <div class="c-body">
+                  <div class="block sound">start sound "Nhạc B" / phát nhạc B</div>
+                </div>
+              </div>
             </div>
+            <p style="font-size:0.86rem; font-weight:600; color:#5a6a7e; margin-top:10px;">💡 Thử bấm đổi qua lại nhiều lần, đảm bảo không nghe 2 bài cùng lúc</p>
           </div>
         </div>
       </div>
@@ -948,30 +1012,30 @@
   <section class="slide" data-index="7" aria-label="A2">
     <div class="slide-main">
       <span class="slide-tag green">Bài mở rộng · Mức A</span>
-      <h2><span class="th-label">A2</span> ↔️ Trái và phải</h2>
+      <h2><span class="th-label">A2</span> 🐹 Vườn thú Pop</h2>
       <div class="slide-body">
-        <p style="font-weight:600; margin-bottom:10px;">Một phiên bản đơn giản hơn — chỉ dùng phím ← và →, sprite quay mặt đúng hướng khi đổi chiều di chuyển.</p>
+        <p style="font-weight:600; margin-bottom:10px;">Em có một "góc vườn thú" mini với <strong>2 thú cưng khác nhau</strong> — mỗi con kêu 1 âm thanh riêng và phản ứng khác nhau khi em chạm/click vào, giống mỗi con vật có tính cách riêng!</p>
         <div class="cols cols-60-40">
           <div>
             <p class="section-label" style="margin-top:0;">Yêu cầu</p>
             <ul>
-              <li><code>when key left arrow pressed</code> → <code>point in direction (-90)</code> → <code>change x by -10</code></li>
-              <li>Tương tự phím phải với hướng <code>90</code>, <code>change x by 10</code></li>
-              <li>2 khối Events riêng biệt</li>
+              <li>2 sprite thú cưng, mỗi sprite có <strong>âm thanh riêng</strong> (không trùng nhau)</li>
+              <li>Mỗi sprite có phản ứng riêng: <code>say</code> hoặc <code>next costume</code></li>
+              <li>Click nhiều lần từng con vẫn hoạt động</li>
+              <li>Em đã lưu project</li>
             </ul>
             <p class="section-label">✨ Thử thêm</p>
-            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;"><code>if on edge, bounce</code> để không trôi khỏi sân, và <code>switch costume</code> khi bắt đầu di chuyển để tạo cảm giác bước chân</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm <code>change size by</code> (-5) mỗi lần click cho cả 2 con — chúng nhỏ dần — và cho mỗi con đổi qua nhiều costume bằng <code>next costume</code> mỗi lần click để trông như đang "nhảy nhót".</p>
           </div>
           <div>
-            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh (mỗi sprite)</p>
             <div class="blocks">
-              <div class="block event">when key left arrow pressed / khi nhấn phím mũi tên trái</div>
-              <div class="block motion indent">point in direction -90 / hướng về -90° (trái)</div>
-              <div class="block motion indent">change x by -10 / đổi x thêm -10</div>
-              <div class="block event">when key right arrow pressed / khi nhấn phím mũi tên phải</div>
-              <div class="block motion indent">point in direction 90 / hướng về 90° (phải)</div>
-              <div class="block motion indent">change x by 10 / đổi x thêm 10</div>
+              <div class="block event">when this sprite clicked / khi click vào sprite này</div>
+              <div class="block sound indent">start sound … / phát âm thanh riêng của con này</div>
+              <div class="block looks indent">say "…!" for 1 seconds / nói phản ứng riêng</div>
+              <div class="block looks indent optional">next costume / trang phục kế tiếp (tùy chọn)</div>
             </div>
+            <p style="font-size:0.88rem; font-weight:600; color:#5a6a7e; margin-top:10px;">💡 Tab <strong>Sounds</strong> → mỗi sprite thêm 1 âm thanh riêng, không dùng chung</p>
           </div>
         </div>
       </div>
@@ -982,28 +1046,30 @@
   <section class="slide" data-index="8" aria-label="B1">
     <div class="slide-main">
       <span class="slide-tag">Bài mở rộng · Mức B</span>
-      <h2><span class="th-label level-b">B1</span> 🎭 Nhân vật phản ứng</h2>
+      <h2><span class="th-label level-b">B1</span> 🛒 Chuyện ở siêu thị</h2>
       <div class="slide-body">
-        <p style="font-weight:600; margin-bottom:10px;">Nhân vật của em có 3 "phản xạ" khác nhau — mỗi phím bấm sẽ đổi costume và phát ra âm thanh riêng biệt.</p>
+        <p style="font-weight:600; margin-bottom:10px;">Hai bạn nhỏ đi siêu thị cùng nhau — dọc đường xảy ra bao nhiêu chuyện thú vị: chọn đồ, gặp bạn quen, tính tiền… và cả <strong>nhân viên thu ngân</strong> cũng góp vui! Em viết hội thoại <strong>từ 8 câu trở lên</strong> giữa <strong>3 sprite</strong> để kể lại chuyến đi đó!</p>
         <div class="cols cols-60-40">
           <div>
             <p class="section-label" style="margin-top:0;">Yêu cầu</p>
             <ul>
-              <li>3 phím (ví dụ A / S / D)</li>
-              <li>Mỗi phím: <code>switch costume to</code> costume khác nhau</li>
-              <li>Mỗi phím: <code>play sound</code> âm thanh khác nhau</li>
+              <li>3 sprite (thêm nhân viên thu ngân) — từ 8 câu <code>say</code> trở lên</li>
+              <li>Không nói chồng: có <code>wait</code> khớp thời gian cho cả 3 luồng</li>
+              <li>Chủ đề rõ ràng (siêu thị, công viên…)</li>
+              <li>Bắt đầu khi bấm cờ xanh · Em đã lưu project</li>
             </ul>
             <p class="section-label">✨ Thử thêm</p>
-            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm <code>say</code> ngắn mỗi khi nhấn phím, và thử thêm phím thứ 4 với phản xạ hoàn toàn mới</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm âm thanh "tính tiền" (tiếng chuông) ở nhân viên thu ngân, và đổi costume vui/buồn cho 2 bạn kia theo diễn biến câu chuyện.</p>
           </div>
           <div>
-            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh (sprite 1)</p>
             <div class="blocks">
-              <div class="block event">when key a pressed / khi nhấn phím A</div>
-              <div class="block looks indent">switch costume to costume-a / chuyển trang phục A</div>
-              <div class="block sound indent">play sound pop / phát âm thanh "pop"</div>
-              <div class="block looks indent optional">… (tương tự cho phím S và D)</div>
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block looks indent">say "Ơ, bạn cũng đi siêu thị à?" for 2 seconds / nói câu 1 trong 2 giây</div>
+              <div class="block control indent">wait 2 seconds / chờ bạn nói câu 2</div>
+              <div class="block looks indent optional">… (nói tiếp, xen kẽ 3 nhân vật)</div>
             </div>
+            <p style="font-size:0.88rem; font-weight:600; color:#5a6a7e; margin-top:10px;">💡 Vẽ sơ đồ thời gian trên giấy trước khi lập trình cả 3 sprite</p>
           </div>
         </div>
       </div>
@@ -1014,34 +1080,31 @@
   <section class="slide" data-index="9" aria-label="B2">
     <div class="slide-main">
       <span class="slide-tag">Bài mở rộng · Mức B</span>
-      <h2><span class="th-label level-b">B2</span> 🦘 Nhảy khi Space!</h2>
+      <h2><span class="th-label level-b">B2</span> 🎤 Phóng viên nhí</h2>
       <div class="slide-body">
-        <p style="font-weight:600; margin-bottom:10px;">Nhấn Space để nhân vật nhảy lên rồi rơi xuống như trong game platformer — chỉ được nhảy khi đang đứng trên sàn.</p>
+        <p style="font-weight:600; margin-bottom:10px;">Em vào vai phóng viên nhí, phỏng vấn chính khán giả bằng <strong>6 câu hỏi</strong> thú vị — sprite hỏi, người chơi gõ trả lời, sprite phản hồi lại, thỉnh thoảng có sprite thứ 2 đóng vai khán giả chen vào bình luận!</p>
         <div class="cols cols-60-40">
           <div>
             <p class="section-label" style="margin-top:0;">Yêu cầu</p>
             <ul>
-              <li><code>when key space pressed</code></li>
-              <li><code>if touching color</code> (màu sàn) trước khi nhảy</li>
-              <li>Có lên (<code>change y by 30</code>) và xuống (<code>change y by -30</code>) với <code>wait</code> ở giữa</li>
-              <li>Không nhảy được khi đang ở giữa không trung</li>
+              <li>≥ 6 khối <code>ask</code></li>
+              <li>Mỗi câu có phản hồi bằng <code>join</code> — không lặp lại y hệt một mẫu</li>
+              <li>Có <code>wait</code> giữa các câu, đúng thứ tự</li>
+              <li>Bắt đầu khi bấm cờ xanh · Em đã lưu project</li>
             </ul>
             <p class="section-label">✨ Thử thêm</p>
-            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;"><code>play sound</code> khi nhảy, và thêm phím ← → để vừa nhảy vừa di chuyển ngang</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm sprite thứ 2 đóng vai "khán giả", thỉnh thoảng chen vào 1 câu bình luận (<code>say</code>) giữa các câu hỏi, và thêm 1 âm thanh "tạch" nhẹ trước mỗi câu hỏi mới.</p>
           </div>
           <div>
             <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
             <div class="blocks">
-              <div class="block event">when key space pressed / khi nhấn phím Space</div>
-              <div class="block control c-block indent">
-                if touching color ? / nếu chạm màu sàn
-                <div class="c-body">
-                  <div class="block motion">change y by 30 / đổi y thêm 30</div>
-                  <div class="block control">wait 0.3 seconds / chờ 0.3 giây</div>
-                  <div class="block motion">change y by -30 / đổi y thêm -30</div>
-                </div>
-              </div>
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block sensing indent">ask "Bạn tên là gì?" and wait / hỏi và đợi trả lời</div>
+              <div class="block looks indent">say (join "Xin chào " answer) / nói "Xin chào" + câu trả lời</div>
+              <div class="block control indent">wait 1 seconds / chờ 1 giây</div>
+              <div class="block sensing indent optional">… (tiếp 5 câu hỏi: tuổi, sở thích, môn học, ước mơ, con vật yêu thích)</div>
             </div>
+            <p style="font-size:0.88rem; font-weight:600; color:#5a6a7e; margin-top:10px;">💡 Kết thúc: <code>say</code> "Cảm ơn em đã phỏng vấn!"</p>
           </div>
         </div>
       </div>
@@ -1052,33 +1115,33 @@
   <section class="slide" data-index="10" aria-label="C1">
     <div class="slide-main">
       <span class="slide-tag purple">Bài mở rộng · Mức C</span>
-      <h2><span class="th-label level-c">C1</span> 🐱 Mini đuổi bắt</h2>
+      <h2><span class="th-label level-c">C1</span> 🎬 Đạo diễn nhí</h2>
       <div class="slide-body">
-        <p style="font-weight:600; margin-bottom:10px;">Một mini game đuổi bắt: Player do em điều khiển bằng phím, đi bắt Target đang di chuyển ngẫu nhiên trên Stage.</p>
+        <p style="font-weight:600; margin-bottom:10px;">Em là đạo diễn của một bộ phim ngắn <strong>4 cảnh</strong> — mỗi cảnh có bối cảnh riêng, <strong>3 nhân vật</strong> cùng góp mặt và ít nhất 2 âm thanh minh họa khác nhau, giống một đoạn phim thật sự!</p>
         <div class="cols cols-60-40">
           <div>
             <p class="section-label" style="margin-top:0;">Yêu cầu</p>
             <ul>
-              <li>2 sprite: Player và Target, đặt tên rõ ràng</li>
-              <li>Player: 4 phím mũi tên điều khiển</li>
-              <li>Target: <code>forever</code> + <code>glide 1 secs to random position</code></li>
-              <li>Player: <code>forever</code> + <code>if touching [Target]</code> → <code>say</code> + <code>play sound</code> + <code>hide</code> Target</li>
+              <li>≥ 3 backdrop đổi bằng <code>switch backdrop to</code> — đúng thời điểm cho cả 4 cảnh</li>
+              <li>≥ 3 sprite</li>
+              <li>≥ 2 âm thanh khác nhau</li>
+              <li>Hội thoại ≥ 6 câu</li>
+              <li>Em đã lưu project</li>
             </ul>
             <p class="section-label">✨ Thử thêm</p>
-            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Bấm cờ xanh → <code>show</code> Target lại để chơi tiếp, và thêm biến đếm số lần bắt được nếu em đã học biến</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm nhạc nền nhẹ ở Stage suốt câu chuyện, thêm dòng chữ "THE END" bằng khối <code>say</code> ở cảnh cuối, và dùng 1 âm thanh riêng cho mỗi lần đổi cảnh (không lặp lại cùng 1 tiếng).</p>
           </div>
           <div>
-            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh (Target)</p>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
             <div class="blocks">
               <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
-              <div class="block control c-block indent">
-                forever / lặp mãi
-                <div class="c-body">
-                  <div class="block motion">glide 1 secs to random position / trượt tới vị trí ngẫu nhiên</div>
-                </div>
-              </div>
-              <div class="block looks indent optional">… (Player: forever + if touching Target → say "Bắt được!" + hide)</div>
+              <div class="block looks indent">say "Ngày xửa ngày xưa…" for 2 seconds / giới thiệu cảnh 1</div>
+              <div class="block control indent">wait 2 seconds / chờ 2 giây</div>
+              <div class="block looks indent">switch backdrop to "Forest" / đổi sang cảnh 2</div>
+              <div class="block sound indent">start sound "Clapping" / phát tiếng vỗ tay</div>
+              <div class="block looks indent optional">… (hội thoại + âm thanh tiếp cảnh 2, 3, 4)</div>
             </div>
+            <p style="font-size:0.88rem; font-weight:600; color:#5a6a7e; margin-top:10px;">💡 Viết kịch bản 4 cảnh ra giấy, phân vai cho 3 nhân vật trước khi lập trình</p>
           </div>
         </div>
       </div>
@@ -1089,53 +1152,70 @@
   <section class="slide" data-index="11" aria-label="C2">
     <div class="slide-main">
       <span class="slide-tag purple">Bài mở rộng · Mức C</span>
-      <h2><span class="th-label level-c">C2</span> 🐭 Trốn thợ săn chuột</h2>
+      <h2><span class="th-label level-c">C2</span> 🥁 Ban nhạc lưu diễn</h2>
       <div class="slide-body">
-        <p style="font-weight:600; margin-bottom:10px;">Một cuộc rượt đuổi hai chiều: Prey (con mồi) chạy trốn bằng phím, còn Hunter (thợ săn) tự động luôn đuổi theo vị trí con trỏ chuột.</p>
+        <p style="font-weight:600; margin-bottom:10px;">Ban nhạc <strong>2 thành viên</strong> của em đi lưu diễn qua nhiều sân khấu khác nhau! Em làm mini phim ngắn: đổi backdrop theo từng điểm diễn, có ít nhất <strong>2 loại nhạc cụ</strong> khác nhau và hội thoại xen kẽ giữa 2 thành viên.</p>
         <div class="cols cols-60-40">
           <div>
             <p class="section-label" style="margin-top:0;">Yêu cầu</p>
             <ul>
-              <li>Prey: 4 phím mũi tên điều khiển</li>
-              <li>Hunter: <code>forever</code> → <code>point towards mouse-pointer</code> → <code>move 8 steps</code></li>
-              <li>Hunter: <code>if touching [Prey]</code> → <code>say</code> "Bắt được!" + <code>stop all</code></li>
+              <li>≥ 3 backdrop — <code>switch backdrop to</code> ít nhất 3 lần</li>
+              <li>2 sprite (2 thành viên ban nhạc hội thoại xen kẽ)</li>
+              <li>≥ 2 loại âm thanh nhạc cụ khác nhau (ví dụ Drum và Guitar)</li>
+              <li>Hội thoại ≥ 5 câu</li>
+              <li>Em đã lưu project</li>
             </ul>
             <p class="section-label">✨ Thử thêm</p>
-            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Prey <code>say</code> "Còn chạy được!" mỗi 5 giây, và thử tăng tốc độ Hunter dần theo thời gian để tăng độ khó</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm nhạc nền nhẹ ở Stage chạy suốt mini phim, 1 hiệu ứng ánh sáng bằng <code>change color effect by</code> mỗi khi nhạc cụ vang lên, và thêm tiếng "khán giả vỗ tay" cuối mỗi màn trình diễn.</p>
           </div>
           <div>
-            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh (Hunter)</p>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
             <div class="blocks">
               <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
-              <div class="block control c-block indent">
-                forever / lặp mãi
-                <div class="c-body">
-                  <div class="block motion">point towards mouse-pointer / hướng về con trỏ chuột</div>
-                  <div class="block motion">move 8 steps / di chuyển 8 bước</div>
-                </div>
-              </div>
-              <div class="block looks indent optional">… (nếu touching Prey → say "Bắt được!" + stop all)</div>
+              <div class="block looks indent">say "Chào sân khấu đầu tiên!" for 2 seconds / thành viên 1 chào khán giả</div>
+              <div class="block sound indent">start sound "Drum" / phát tiếng trống</div>
+              <div class="block control indent">wait 2 seconds / chờ 2 giây</div>
+              <div class="block looks indent">switch backdrop to "Concert" / đổi sân khấu tiếp theo</div>
+              <div class="block looks indent optional">… (thành viên 2 chào + nhạc cụ khác ở sân khấu sau)</div>
             </div>
+            <p style="font-size:0.88rem; font-weight:600; color:#5a6a7e; margin-top:10px;">💡 Tab <strong>Sounds</strong> → thêm ≥ 2 nhạc cụ khác nhau, ví dụ <strong>Drum</strong> và <strong>Guitar Strum</strong></p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 13: Tổng kết -->
-  <section class="slide title-slide" data-index="12" aria-label="Tổng kết">
+  <!-- Slide 13: Showcase -->
+  <section class="slide" data-index="12" aria-label="Showcase">
+    <div class="slide-main">
+      <span class="slide-tag purple">🖼️ Showcase (10 phút)</span>
+      <h2>Gallery walk — đi xem project của bạn!</h2>
+      <div class="slide-body">
+        <div class="highlight-box purple">
+          Em để project đang chạy trên máy. Cả lớp đứng dậy, đi vòng quanh nghe/xem project của 3–4 bạn gần nhất trong 1–2 phút, rồi quay về chỗ.
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <h3>🙋 Trình chiếu trước lớp</h3>
+          <p style="font-weight:600; line-height:1.6;">Cô mời 2–3 bạn xung phong trình chiếu project của mình trước lớp — ưu tiên các bài mức C có nhiều cảnh/âm thanh.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 14: Tổng kết -->
+  <section class="slide title-slide" data-index="13" aria-label="Tổng kết">
     <div class="slide-main">
       <div class="title-emoji">🎉</div>
-      <h2 style="font-size:1.9rem; margin-bottom:16px;">Showcase &amp; Tổng kết buổi Bài tập</h2>
-      <ul style="font-size:1.05rem; line-height:2; text-align:left; font-weight:700; max-width:540px;">
-        <li>✅ Đã luyện <strong>LT1</strong> (đổi hình khi Space) và <strong>LT2</strong> (chào khi click) ngay tại lớp</li>
-        <li>✅ Đã chọn 1 bài mở rộng A / B / C</li>
-        <li>✅ Luyện <code>when key pressed</code>, <code>when this sprite clicked</code>, <code>change x/y by</code></li>
-        <li>✅ Biết dùng <code>point in direction</code> để sprite quay đúng hướng di chuyển</li>
-        <li>🖼️ Showcase: gallery walk thử chơi mini game của bạn, 2–3 bạn xung phong trình chiếu</li>
+      <h2 style="font-size:1.9rem; margin-bottom:16px;">Tổng kết buổi Bài tập</h2>
+      <ul style="font-size:1.05rem; line-height:2; text-align:left; font-weight:700; max-width:500px;">
+        <li>✅ Đã luyện <strong>LT1</strong> (click phát tiếng, 2 nhân vật) và <strong>LT2</strong> (hội thoại 6 câu, 3 sprite) ngay tại lớp</li>
+        <li>✅ Đã chọn và hoàn thành 1 bài mở rộng A / B / C</li>
+        <li>✅ Luyện <code>start sound</code>, <code>play sound until done</code></li>
+        <li>✅ Hội thoại nhiều sprite bằng <code>say</code> + <code>wait</code></li>
+        <li>✅ Nhạc nền ở Stage · sự kiện <code>when this sprite clicked</code></li>
       </ul>
       <p style="margin-top:24px; font-size:1.15rem; color:var(--scratch-orange); font-weight:800;">
-        Đây là buổi cuối Tháng 1! Hẹn gặp ở Buổi 9 — Âm thanh &amp; Nhiều sprite (Tháng 2)! 👋
+        Hẹn gặp ở Buổi 11 — Cảm biến &amp; Thuật toán! 👋
       </p>
     </div>
   </section>
@@ -1144,7 +1224,7 @@
 
 <nav class="nav" aria-label="Điều hướng slide">
   <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
-  <span class="slide-counter" id="counter" aria-live="polite">1 / 13</span>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 14</span>
   <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
 </nav>
 <p class="hint" id="hint">← → hoặc Space · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
@@ -1197,7 +1277,7 @@
     btnNext.disabled = current === total - 1;
     brandSub.textContent = current === 0 || current === total - 1
       ? '· Scratch'
-      : '· Tuần 4 Buổi 8';
+      : '· Tuần 5 Buổi 10';
     updateDots();
   }
 

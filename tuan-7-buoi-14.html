@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 7 — Buổi 14: Luyện Loop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+      --slide-w: min(1100px, 94vw);
+      --slide-h: min(700px, 84vh);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1a2744 0%, #2d4a7a 50%, #1a2744 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--scratch-dark);
+      user-select: none;
+    }
+
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 4px; width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow));
+      transition: width 0.35s ease;
+      z-index: 200;
+    }
+
+    .deck { width: var(--slide-w); height: var(--slide-h); position: relative; margin-top: 56px; }
+
+    .slide {
+      position: absolute; inset: 0;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.38);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden;
+      transform: translateX(40px);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1; visibility: visible; transform: translateX(0);
+      pointer-events: auto; z-index: 10;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s;
+    }
+
+    .slide.prev { opacity: 0; visibility: hidden; transform: translateX(-40px); pointer-events: none; z-index: 0; }
+    .slide.next { opacity: 0; visibility: hidden; transform: translateX(40px); pointer-events: none; z-index: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .progress-bar { transition: none; }
+    }
+
+    .global-topbar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      width: var(--slide-w);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      z-index: 150;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.88rem; color: var(--scratch-dark); white-space: nowrap; }
+    .brand-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--scratch-orange), var(--scratch-blue));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .brand-sub { font-weight: 600; color: #7a8a9e; font-size: 0.78rem; }
+
+    .slide-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 360px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #d0d8e4; border: none; cursor: pointer; padding: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .dot:hover { transform: scale(1.25); background: #aab4c4; }
+    .dot.active { background: var(--scratch-orange); transform: scale(1.2); }
+
+    .topbar-actions { display: flex; gap: 6px; }
+    .icon-btn {
+      width: 34px; height: 34px;
+      border: 1px solid #dde3ec;
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      color: var(--scratch-dark);
+    }
+    .icon-btn:hover { background: var(--scratch-bg); }
+
+    .slide-main { flex: 1; display: flex; flex-direction: column; padding: 24px 40px 20px; min-height: 0; }
+    .title-slide .slide-main { justify-content: center; align-items: center; text-align: center; padding: 32px; }
+
+    .slide-tag {
+      display: inline-flex; align-items: center;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #fff; background: var(--scratch-blue);
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 10px;
+      align-self: flex-start;
+    }
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green { background: var(--scratch-green); }
+    .slide-tag.red { background: var(--scratch-red); }
+    .slide-tag.yellow { background: #c98a00; }
+
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.2; font-weight: 800; margin-bottom: 6px; }
+    h2 { font-size: clamp(1.3rem, 2.8vw, 1.75rem); font-weight: 800; margin-bottom: 14px; line-height: 1.25; }
+    .subtitle { font-size: 1.05rem; color: #5a6a7e; font-weight: 600; }
+
+    .slide-body { flex: 1; overflow-y: auto; padding-right: 6px; min-height: 0; }
+    .slide-body::-webkit-scrollbar { width: 5px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #c8d0da; border-radius: 4px; }
+
+    .title-slide { background: linear-gradient(160deg, #fff8f0 0%, #fff 55%, #f0f7ff 100%); }
+    .title-emoji { font-size: clamp(3rem, 8vw, 4.5rem); margin-bottom: 8px; line-height: 1; }
+    .title-slide h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-blue));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .title-meta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .badge { background: #fff; border: 2px solid #dde3ec; border-radius: 12px; padding: 7px 16px; font-weight: 700; font-size: 0.9rem; }
+    .start-hint { margin-top: 28px; color: #7a8a9e; font-size: 0.88rem; font-weight: 600; animation: pulse 2.5s ease-in-out infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+    ul, ol { padding-left: 1.3em; line-height: 1.7; font-size: 1rem; font-weight: 600; }
+    li { margin-bottom: 4px; }
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.92em; font-weight: 700;
+      background: #eef2f7; color: #5b3ea8;
+      padding: 1px 7px; border-radius: 5px;
+    }
+    strong { font-weight: 800; }
+
+    .highlight-box {
+      background: #f0f7ff;
+      border-left: 4px solid var(--scratch-blue);
+      border-radius: 0 12px 12px 0;
+      padding: 14px 18px; margin: 12px 0;
+      font-size: 1rem; line-height: 1.6; font-weight: 600;
+    }
+    .highlight-box.orange { background: #fff8f0; border-color: var(--scratch-orange); }
+    .highlight-box.green { background: #f0fff4; border-color: var(--scratch-green); }
+    .highlight-box.purple { background: #f5f0ff; border-color: var(--scratch-purple); }
+
+    .blocks { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin: 10px 0; font-size: 0.88rem; font-weight: 700; }
+    .block {
+      position: relative; display: inline-block;
+      padding: 7px 14px 7px 12px;
+      border-radius: 6px; color: #fff;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.18);
+      white-space: normal; line-height: 1.35; max-width: 100%;
+    }
+    .block::before {
+      content: ''; position: absolute; top: -3px; left: 10px;
+      width: 12px; height: 6px; background: inherit;
+      border-radius: 3px 3px 0 0; filter: brightness(0.92);
+    }
+    .block:first-child::before, .block.event::before, .block.c-block::before { display: none; }
+
+    .block.event { background: #ffbf00; color: #422c00; border-radius: 14px 6px 6px 6px; padding-top: 9px; }
+    .block.looks { background: #9966ff; }
+    .block.control { background: #ffab19; color: #422c00; }
+    .block.motion { background: #4c97ff; }
+    .block.sound { background: #cf63cf; }
+    .block.pen { background: #0fbd8c; }
+    .block.variable { background: #ff8c1a; }
+
+    .block.indent { margin-left: 20px; }
+    .block.indent-2 { margin-left: 40px; }
+    .block.optional { opacity: 0.65; font-style: italic; }
+
+    .block.c-block { border-radius: 6px 6px 4px 4px; padding-bottom: 4px; }
+    .c-body { display: flex; flex-direction: column; gap: 2px; margin: 4px 0 2px 8px; padding-left: 8px; border-left: 3px solid rgba(0,0,0,0.12); }
+
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 6px; }
+    .cols-60-40 { grid-template-columns: 1.1fr 0.9fr; }
+
+    @media (max-width: 720px) {
+      .cols, .cols-60-40 { grid-template-columns: 1fr; }
+      .slide-main { padding: 18px 22px 14px; }
+      .global-topbar { padding: 8px 12px; top: 8px; }
+      .slide-dots { display: none; }
+      .brand-sub { display: none; }
+    }
+
+    .card { background: var(--scratch-bg); border-radius: 12px; padding: 14px 16px; }
+    .card h3 { font-size: 0.95rem; font-weight: 800; color: var(--scratch-blue); margin-bottom: 8px; }
+
+    .section-label { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #7a8a9e; margin: 10px 0 6px; }
+
+    .knowledge-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+    .k-card { border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 0.88rem; line-height: 1.45; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .k-card > strong:first-child { display: block; font-size: 0.95rem; font-weight: 800; margin-bottom: 5px; }
+    .k-card.span-2 { grid-column: span 2; }
+    .k-card.span-3 { grid-column: span 3; }
+    .k-card.blue { background: var(--scratch-blue); }
+    .k-card.orange { background: var(--scratch-orange); color: #422c00; }
+    .k-card.purple { background: var(--scratch-purple); }
+    .k-card.green { background: var(--scratch-green); }
+    .k-card.red { background: var(--scratch-red); }
+
+    @media (max-width: 720px) {
+      .knowledge-grid { grid-template-columns: 1fr; }
+      .k-card.span-2, .k-card.span-3 { grid-column: span 1; }
+    }
+
+    .quiz-item {
+      background: var(--scratch-bg); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-weight: 700; font-size: 0.96rem;
+      display: flex; gap: 12px; align-items: flex-start;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .quiz-item:hover { background: #e4eaf2; }
+    .quiz-num {
+      background: var(--scratch-purple); color: #fff;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.82rem; flex-shrink: 0;
+    }
+    .quiz-answer { display: none; margin-top: 8px; padding: 8px 12px; background: #e8f4e8; border-radius: 8px; font-size: 0.9rem; font-weight: 700; color: #2d6a3a; }
+    .quiz-item.revealed .quiz-answer { display: block; }
+    .quiz-item.revealed { background: #eef6ee; }
+
+    .tip {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: #fffbe6; border: 2px dashed var(--scratch-yellow);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-size: 0.94rem; line-height: 1.55; font-weight: 600;
+    }
+    .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    .th-label {
+      display: inline-block; background: var(--scratch-green); color: #fff;
+      font-weight: 800; font-size: 0.72rem; padding: 3px 9px; border-radius: 6px;
+      margin-right: 4px; vertical-align: middle; letter-spacing: 0.03em;
+    }
+    .btvn-label { background: var(--scratch-red); }
+    .th-label.level-b { background: var(--scratch-blue); }
+    .th-label.level-c { background: var(--scratch-purple); }
+
+    .emoji-row { font-size: 1.6rem; letter-spacing: 6px; margin: 10px 0; }
+
+    .nav { position: fixed; bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 100; }
+    .nav button {
+      background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.38);
+      color: #fff; width: 46px; height: 46px; border-radius: 50%;
+      font-size: 1.2rem; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(8px);
+    }
+    .nav button:hover:not(:disabled) { background: rgba(255,255,255,0.28); transform: scale(1.07); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+
+    .slide-counter { color: rgba(255,255,255,0.9); font-size: 0.88rem; font-weight: 800; min-width: 56px; text-align: center; }
+
+    .hint { position: fixed; bottom: 76px; color: rgba(255,255,255,0.42); font-size: 0.74rem; font-weight: 600; transition: opacity 0.4s; }
+
+    html:fullscreen, html:-webkit-full-screen { width: 100%; height: 100%; }
+    html:fullscreen body, html:-webkit-full-screen body { width: 100%; height: 100%; min-height: 100%; background: #1a2744; padding: 0; }
+    html:fullscreen .deck, html:-webkit-full-screen .deck { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0; }
+    html:fullscreen .slide, html:-webkit-full-screen .slide { border-radius: 0; box-shadow: none; }
+    html:fullscreen .global-topbar, html:-webkit-full-screen .global-topbar { display: none; }
+    html:fullscreen .hint, html:-webkit-full-screen .hint { display: none; }
+    html:fullscreen .nav, html:-webkit-full-screen .nav { bottom: 16px; opacity: 0.35; transition: opacity 0.25s; }
+    html:fullscreen .nav:hover, html:-webkit-full-screen .nav:hover { opacity: 1; }
+    html:fullscreen .progress-bar, html:-webkit-full-screen .progress-bar { height: 3px; }
+
+    .fs-exit {
+      display: none; position: fixed; top: 12px; right: 12px; z-index: 300;
+      background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.35);
+      color: #fff; width: 40px; height: 40px; border-radius: 10px;
+      cursor: pointer; font-size: 1rem; backdrop-filter: blur(6px);
+      transition: background 0.15s;
+    }
+    .fs-exit:hover { background: rgba(0,0,0,0.65); }
+    html:fullscreen .fs-exit, html:-webkit-full-screen .fs-exit {
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    @media print {
+      body { background: #fff; overflow: visible; }
+      .nav, .hint, .progress-bar, .global-topbar { display: none !important; }
+      .deck { width: 100%; height: auto; }
+      .slide {
+        position: relative; opacity: 1 !important; transform: none !important;
+        page-break-after: always; box-shadow: none; border: 1px solid #ccc;
+        margin-bottom: 20px; min-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="12" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🐱</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1 -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji">🔁</div>
+      <h1>Luyện Loop</h1>
+      <p class="subtitle">Lập trình Scratch — Tháng 2 · Nội dung cơ bản (2)</p>
+      <div class="title-meta">
+        <span class="badge">📅 Tuần 7</span>
+        <span class="badge">✏️ Buổi 14 — Bài tập</span>
+        <span class="badge">🎯 7–10 tuổi</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Space để bắt đầu</p>
+    </div>
+  </section>
+
+  <!-- Slide 2 -->
+  <section class="slide" data-index="1" aria-label="Ôn nhanh">
+    <div class="slide-main">
+      <span class="slide-tag orange">Ôn nhanh</span>
+      <h2>Nhớ lại Buổi 13 nhé em!</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Buổi trước em đã học <code>repeat</code>, <code>forever</code> và bắt đầu vẽ hình bằng <strong>Pen</strong>. Hôm nay mình luyện lại cho thật chắc!
+        </div>
+        <div class="emoji-row">🔁 ♾️ ✏️ 🔺</div>
+        <ul>
+          <li><code>repeat</code> (n) — lặp đúng <strong>n lần</strong> rồi dừng</li>
+          <li><code>forever</code> — lặp <strong>mãi mãi</strong> (game, hoạt hình liên tục)</li>
+          <li>Pen: <code>clear</code>, <code>pen down</code>, <code>pen up</code>, <code>set pen color to</code></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: LT1 -->
+  <section class="slide" data-index="2" aria-label="Luyện tập 1">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
+      <h2><span class="th-label btvn-label">LT1</span> Repeat 10 lần 🔟</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Em dùng <code>repeat</code> (10) để sprite <strong>đi thẳng</strong> hoặc <strong>đổi costume</strong> đúng 10 lần — làm ngay tại lớp, có khó khăn cứ hỏi giáo viên!
+        </div>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li><code>repeat</code> (10)</li>
+              <li>Mỗi lần lặp sprite thay đổi rõ ràng (di chuyển hoặc đổi hình)</li>
+              <li>Nên có <code>wait</code> ngắn giữa các lần</li>
+            </ul>
+            <div class="tip" style="margin-top:12px;">
+              <span class="tip-icon">🔄</span>
+              <div><strong>Đổi máy 2 phút:</strong> xong bài, kiểm tra chéo với bạn bên cạnh xem đúng 10 lần chưa.</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.8rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block motion indent">go to x: -200 y: 0 / về mép trái</div>
+              <div class="block control c-block indent">
+                repeat 10 / lặp 10 lần
+                <div class="c-body">
+                  <div class="block motion">move 20 steps / di chuyển 20 bước</div>
+                  <div class="block control">wait 0.2 seconds / chờ 0.2 giây</div>
+                </div>
+              </div>
+              <div class="block looks indent optional">hoặc: next costume + wait 0.3 / đổi hình 10 lần</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: LT2 -->
+  <section class="slide" data-index="3" aria-label="Luyện tập 2">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
+      <h2><span class="th-label btvn-label">LT2</span> Vẽ tam giác bằng Pen 🔺</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Em thêm extension <strong>Pen</strong> và dùng <code>repeat</code> (3) để vẽ <strong>hình tam giác</strong> — nhớ <code>clear</code> trước khi vẽ!
+        </div>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Đã thêm extension <strong>Pen</strong></li>
+              <li><code>clear</code> trước khi vẽ; <code>pen down</code> khi bắt đầu</li>
+              <li><code>repeat</code> (3): <code>move</code> + <code>turn</code> 120°</li>
+              <li>Tam giác nhìn thấy rõ trên Stage</li>
+            </ul>
+            <div class="tip" style="margin-top:12px;">
+              <span class="tip-icon">🩹</span>
+              <div><strong>Hình sai?</strong> Kiểm tra <code>move</code> đủ dài (80–120) và <code>turn</code> đúng 120°.</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.78rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block pen indent">clear / xóa nét vẽ cũ</div>
+              <div class="block motion indent">go to x: 0 y: 0 / về giữa Stage</div>
+              <div class="block pen indent">set pen color to xanh / chọn màu bút</div>
+              <div class="block pen indent">pen down / hạ bút</div>
+              <div class="block control c-block indent">
+                repeat 3 / lặp 3 lần
+                <div class="c-body">
+                  <div class="block motion">move 100 steps / di chuyển 100 bước</div>
+                  <div class="block motion">turn 120 degrees / quay 120 độ</div>
+                </div>
+              </div>
+              <div class="block pen indent">pen up / nhấc bút</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: Giới thiệu bài mở rộng -->
+  <section class="slide" data-index="4" aria-label="Giới thiệu bài mở rộng">
+    <div class="slide-main">
+      <span class="slide-tag green">🎯 Giới thiệu bài mở rộng</span>
+      <h2>Em chọn 1 bài để làm</h2>
+      <div class="slide-body">
+        <div class="highlight-box green" style="margin-top:0;">
+          Giáo viên demo nhanh bài <strong>A1 "Nhảy thể dục 10 lần"</strong> — chỉ rõ cách phối hợp <code>repeat</code> với âm thanh. Sau đó em chọn <strong>1 mức</strong> A, B hoặc C, rồi chọn <strong>1 trong 2 bài</strong> của mức đó. Mỗi bài có 1 slide riêng — bấm chấm phía trên để tới bài em chọn.
+        </div>
+        <div class="knowledge-grid" style="margin-top:14px;">
+          <div class="k-card green span-2">
+            <strong>🅰️ Mức A — Biến + repeat until</strong>
+            Tên lửa đếm ngược (A1) hoặc vòng xoáy ốc sên (A2) — dùng thêm <strong>biến</strong> 🚀
+          </div>
+          <div class="k-card blue span-2">
+            <strong>🅱️ Mức B — Biến + điều kiện if</strong>
+            Bóng nảy đếm điểm (B1) hoặc ping-pong tăng tốc có giới hạn (B2) 🏀
+          </div>
+          <div class="k-card purple span-2">
+            <strong>🅲 Mức C — Vòng lặp lồng nhau</strong>
+            Lâu đài vuông lồng (C1) hoặc hoa vạn hoa (C2) — thử thách nhất! 🌸
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: A1 -->
+  <section class="slide" data-index="5" aria-label="A1">
+    <div class="slide-main">
+      <span class="slide-tag green">Bài mở rộng · Mức A</span>
+      <h2><span class="th-label">A1</span> Đếm ngược phóng tên lửa 🚀</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Sprite hóa thân thành tên lửa — đếm ngược to từ 10 về 0, mỗi giây một số, rồi vút bay lên trời và biến mất khi về tới 0. Lần này em không biết chính xác lặp mấy lần — máy phải <strong>tự kiểm tra biến</strong> để biết khi nào dừng!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Tạo biến <code>đếm ngược</code>, <code>set</code> = <strong>10</strong> khi bấm cờ xanh</li>
+              <li>Dùng <code>repeat until</code> <code>đếm ngược = 0</code> (không dùng <code>repeat</code> số cố định)</li>
+              <li>Mỗi vòng: <code>say đếm ngược</code>, <code>wait 1</code>, <code>change đếm ngược by -1</code></li>
+              <li>Hết vòng lặp: <code>say "Phóng!"</code>, bay vút lên rồi <code>hide</code></li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Tick hiện biến <code>đếm ngược</code> trên Stage như đồng hồ đếm giờ NASA thật, và thêm <code>start sound</code> tiếng "tíc" mỗi giây</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.76rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set đếm ngược to 10 / gán đếm ngược = 10</div>
+              <div class="block control c-block indent">
+                repeat until &lt;đếm ngược = 0&gt; / lặp đến khi hết đếm ngược
+                <div class="c-body">
+                  <div class="block looks">say đếm ngược / nói to số đếm</div>
+                  <div class="block control">wait 1 seconds / chờ 1 giây</div>
+                  <div class="block variable">change đếm ngược by -1 / giảm đếm ngược</div>
+                </div>
+              </div>
+              <div class="block looks indent">say "Phóng!" / nói "Phóng!"</div>
+              <div class="block motion indent">change y by 300 / bay vút lên</div>
+              <div class="block looks indent">hide / biến mất</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: A2 -->
+  <section class="slide" data-index="6" aria-label="A2">
+    <div class="slide-main">
+      <span class="slide-tag green">Bài mở rộng · Mức A</span>
+      <h2><span class="th-label">A2</span> Vòng xoáy ốc sên 🌀</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Không vẽ 1 vòng tròn đứng yên nữa — lần này Pen vẽ một đường xoáy <strong>lớn dần theo từng vòng</strong>, y hệt vỏ ốc sên! Bí quyết: dùng một <strong>biến</strong> để mỗi vòng lặp bước đi lại dài thêm một chút.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Pen extension; tạo biến <code>bước đi</code>, <code>set</code> = <strong>1</strong></li>
+              <li><code>repeat</code> (60): <code>move bước đi</code> + <code>turn 10 degrees</code></li>
+              <li>Mỗi vòng lặp: <code>change bước đi by 0.3</code> (bước đi dài dần ra)</li>
+              <li>Đường xoáy to dần rõ ràng, không phải vòng tròn đều</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm <code>change pen color by 5</code> mỗi vòng lặp — vòng xoáy sẽ đổi màu cầu vồng dần ra ngoài!</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.78rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set bước đi to 1 / gán bước đi = 1</div>
+              <div class="block pen indent">clear / xóa nét vẽ cũ</div>
+              <div class="block pen indent">pen down / hạ bút</div>
+              <div class="block control c-block indent">
+                repeat 60 / lặp 60 lần
+                <div class="c-body">
+                  <div class="block motion">move bước đi steps / di chuyển theo bước đi</div>
+                  <div class="block motion">turn 10 degrees / quay 10 độ</div>
+                  <div class="block variable">change bước đi by 0.3 / bước đi dài thêm</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: B1 -->
+  <section class="slide" data-index="7" aria-label="B1">
+    <div class="slide-main">
+      <span class="slide-tag">Bài mở rộng · Mức B</span>
+      <h2><span class="th-label level-b">B1</span> Bóng nảy đếm điểm 🏀</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Quả bóng nảy mãi mãi khắp Stage, đổi màu mỗi lần chạm tường — nhưng lần này máy còn phải <strong>tự đếm</strong> xem bóng đã chạm tường bao nhiêu lần, và reo lên khi đủ 10 lần!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li><code>forever</code>; <code>move</code>; <code>if on edge, bounce</code></li>
+              <li>Tạo biến <code>số lần chạm</code>, <code>set</code> = 0 khi cờ xanh</li>
+              <li>Mỗi lần chạm biên: <code>change số lần chạm by 1</code> + đổi màu bút</li>
+              <li><code>if số lần chạm = 10 then</code> → <code>say "Chạm đủ 10 lần!"</code></li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm <code>stop this script</code> bên trong <code>if</code> để bóng dừng hẳn khi đủ 10 lần, và hiển thị biến <code>số lần chạm</code> trên Stage như bảng điểm thật</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.74rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set số lần chạm to 0 / gán số lần chạm = 0</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block motion">move 8 steps / di chuyển 8 bước</div>
+                  <div class="block control c-block">
+                    if &lt;touching edge?&gt; then / nếu chạm biên
+                    <div class="c-body">
+                      <div class="block motion">bounce / bật lại</div>
+                      <div class="block variable">change số lần chạm by 1 / tăng số lần chạm</div>
+                      <div class="block pen">change pen color by 10 / đổi màu bút</div>
+                    </div>
+                  </div>
+                  <div class="block control c-block">
+                    if &lt;số lần chạm = 10&gt; then / nếu đủ 10 lần
+                    <div class="c-body">
+                      <div class="block looks">say "Chạm đủ 10 lần!" / báo hoàn thành</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: B2 -->
+  <section class="slide" data-index="8" aria-label="B2">
+    <div class="slide-main">
+      <span class="slide-tag">Bài mở rộng · Mức B</span>
+      <h2><span class="th-label level-b">B2</span> Ping-pong tăng tốc có giới hạn 🏓</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Quả bóng nảy mãi và tăng tốc dần mỗi khi chạm biên — nhưng nếu cứ tăng mãi thì bóng sẽ nhanh đến mức nhìn không kịp! Lần này em phải thêm một <strong>điều kiện giới hạn</strong> để bóng không bao giờ chạy quá nhanh.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li><code>forever</code> + <code>move tốc độ</code>; <code>if touching edge</code> → <code>bounce</code>, <code>change tốc độ by 1</code></li>
+              <li><strong>Bắt buộc:</strong> <code>if tốc độ &gt; 20 then</code> → <code>set tốc độ to 5</code> (giới hạn tốc độ tối đa)</li>
+              <li>Chạy đủ lâu để thấy bóng tăng tốc rồi tự "reset" về chậm</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm biến <code>điểm</code>, <code>change điểm by 1</code> mỗi lần chạm biên, và hiển thị cả 2 biến <code>tốc độ</code> + <code>điểm</code> trên Stage như bảng điều khiển trận đấu</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.74rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set tốc độ to 5 / gán tốc độ ban đầu</div>
+              <div class="block control c-block indent">
+                forever / lặp mãi
+                <div class="c-body">
+                  <div class="block motion">move tốc độ steps / di chuyển theo tốc độ</div>
+                  <div class="block control c-block">
+                    if &lt;touching edge?&gt; then / nếu chạm biên
+                    <div class="c-body">
+                      <div class="block motion">bounce / bật lại</div>
+                      <div class="block variable">change tốc độ by 1 / tăng tốc độ</div>
+                    </div>
+                  </div>
+                  <div class="block control c-block">
+                    if &lt;tốc độ &gt; 20&gt; then / nếu tốc độ quá cao
+                    <div class="c-body">
+                      <div class="block variable">set tốc độ to 5 / trả về tốc độ chậm</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: C1 -->
+  <section class="slide" data-index="9" aria-label="C1">
+    <div class="slide-main">
+      <span class="slide-tag purple">Bài mở rộng · Mức C</span>
+      <h2><span class="th-label level-c">C1</span> Lâu đài vuông lồng 🏰</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Không chỉ 1 hình vuông — em vẽ liên tiếp <strong>5 hình vuông lớn dần</strong>, mỗi hình to hơn hình trước một chút và đổi màu khác nhau, tạo thành những vòng tường thành mở rộng như một tòa lâu đài phép thuật! Bí quyết: <strong>lồng 2 vòng lặp</strong> vào nhau.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Pen extension; tạo biến <code>kích thước</code>, <code>set</code> = <strong>20</strong></li>
+              <li><strong>Vòng lặp lồng nhau:</strong> <code>repeat</code> (5) bên ngoài → bên trong <code>repeat</code> (4): <code>move kích thước</code> + <code>turn 90</code></li>
+              <li>Sau mỗi hình vuông: <code>change kích thước by 20</code> + đổi màu bút</li>
+              <li>Vẽ đủ 5 hình vuông lớn dần rõ ràng</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Thêm <code>set pen size to</code> tăng dần theo từng hình để tường thành trông dày hơn ở vòng ngoài</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.72rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block variable indent">set kích thước to 20 / gán kích thước = 20</div>
+              <div class="block pen indent">clear / xóa nét vẽ cũ</div>
+              <div class="block pen indent">pen down / hạ bút</div>
+              <div class="block control c-block indent">
+                repeat 5 / lặp 5 vòng vuông
+                <div class="c-body">
+                  <div class="block control c-block">
+                    repeat 4 / lặp 4 cạnh
+                    <div class="c-body">
+                      <div class="block motion">move kích thước steps / đi theo kích thước</div>
+                      <div class="block motion">turn 90 degrees / quay 90 độ</div>
+                    </div>
+                  </div>
+                  <div class="block variable">change kích thước by 20 / vuông sau to hơn</div>
+                  <div class="block pen">change pen color by 30 / đổi màu bút</div>
+                </div>
+              </div>
+              <div class="block pen indent">pen up / nhấc bút</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: C2 -->
+  <section class="slide" data-index="10" aria-label="C2">
+    <div class="slide-main">
+      <span class="slide-tag purple">Bài mở rộng · Mức C</span>
+      <h2><span class="th-label level-c">C2</span> Hoa vạn hoa 🌸</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Không chỉ 1 ngôi sao — em vẽ <strong>6 ngôi sao xoay lệch góc</strong> chồng lên nhau, mỗi ngôi sao đổi màu khác nhau, tạo thành một bông hoa vạn hoa (kaleidoscope) rực rỡ! Bí quyết vẫn là <strong>lồng 2 vòng lặp</strong>: vòng trong vẽ 1 ngôi sao, vòng ngoài xoay và lặp lại.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu</p>
+            <ul>
+              <li>Pen extension; <code>clear</code> + <code>pen down</code></li>
+              <li><strong>Vòng lặp lồng nhau:</strong> <code>repeat</code> (6) bên ngoài → bên trong <code>repeat</code> (5): <code>move</code> + <code>turn 144</code></li>
+              <li>Sau mỗi ngôi sao: <code>turn 60 degrees</code> (xoay lệch) + đổi màu bút</li>
+              <li>Vẽ đủ 6 ngôi sao xoay các góc khác nhau, chồng lên nhau</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Đổi <code>repeat</code> ngoài thành 12 và góc xoay thành 30° — hoa vạn hoa sẽ dày cánh hơn hẳn!</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối lệnh</p>
+            <div class="blocks" style="font-size:0.72rem;">
+              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
+              <div class="block pen indent">clear / xóa nét vẽ cũ</div>
+              <div class="block pen indent">pen down / hạ bút</div>
+              <div class="block control c-block indent">
+                repeat 6 / lặp 6 ngôi sao
+                <div class="c-body">
+                  <div class="block control c-block">
+                    repeat 5 / lặp 5 cánh sao
+                    <div class="c-body">
+                      <div class="block motion">move 100 steps / di chuyển 100 bước</div>
+                      <div class="block motion">turn 144 degrees / quay 144 độ</div>
+                    </div>
+                  </div>
+                  <div class="block motion">turn 60 degrees / xoay lệch cho sao sau</div>
+                  <div class="block pen">change pen color by 30 / đổi màu bút</div>
+                </div>
+              </div>
+              <div class="block pen indent">pen up / nhấc bút</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: Tổng kết -->
+  <section class="slide title-slide" data-index="11" aria-label="Tổng kết">
+    <div class="slide-main">
+      <div class="title-emoji">🎉</div>
+      <h2 style="font-size:1.9rem; margin-bottom:16px;">Showcase &amp; Tổng kết buổi Bài tập</h2>
+      <ul style="font-size:1.05rem; line-height:2; text-align:left; font-weight:700; max-width:540px;">
+        <li>✅ Đã hoàn thành <strong>Luyện tập 1</strong> (repeat 10 lần) và <strong>Luyện tập 2</strong> (vẽ tam giác Pen) ngay tại lớp</li>
+        <li>✅ Đã chọn 1 bài mở rộng A / B / C</li>
+        <li>✅ Luyện thêm <code>repeat</code>, <code>forever</code>, Pen</li>
+        <li>🖼️ Showcase: gallery walk xem project bạn, 2–3 bạn trình chiếu</li>
+      </ul>
+      <p style="margin-top:24px; font-size:1.15rem; color:var(--scratch-orange); font-weight:800;">
+        Hẹn gặp lại ở Buổi 15 — Điều kiện &amp; biến! 👋
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 12</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Space · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let hasNavigated = false;
+
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
+
+  function buildDots() {
+    const template = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+    document.getElementById('dots').innerHTML = template;
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.toggle('active', Number(dot.dataset.goto) === current);
+    });
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) {
+      hasNavigated = true;
+      document.body.classList.add('presenting');
+    }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1
+      ? '· Scratch'
+      : '· Tuần 7 Buổi 14';
+    updateDots();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, .quiz-item, code, .global-topbar, .nav')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); next(); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  document.getElementById('btnFullscreen').addEventListener('click', e => {
+    e.stopPropagation();
+    toggleFullscreen();
+  });
+
+  document.getElementById('btnExitFs').addEventListener('click', e => {
+    e.stopPropagation();
+    exitFullscreen();
+  });
+
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
+  function toggleFullscreen() {
+    if (isFullscreen()) exitFullscreen();
+    else enterFullscreen();
+  }
+
+  function enterFullscreen() {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  }
+
+  function exitFullscreen() {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+
+  function onFullscreenChange() {
+    document.body.classList.toggle('is-fullscreen', isFullscreen());
+  }
+
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+  document.querySelectorAll('[data-quiz]').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      item.classList.toggle('revealed');
+    });
+  });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1));
+  }, { passive: true });
+
+  buildDots();
+  slides.forEach((s, i) => {
+    s.setAttribute('aria-hidden', i !== 0);
+    if (i === 0) s.classList.add('active');
+    else s.classList.add('next');
+  });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
+</html>

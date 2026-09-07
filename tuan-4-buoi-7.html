@@ -757,7 +757,7 @@
 </head>
 <body>
 
-<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1"></div>
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="15" aria-valuenow="1"></div>
 
 <header class="global-topbar">
   <div class="brand">
@@ -775,13 +775,13 @@
   <!-- Slide 1 -->
   <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
     <div class="slide-main">
-      <div class="title-emoji">⌨️</div>
+      <div class="title-emoji">🕹️</div>
       <h1>Sự kiện &amp; Điều khiển</h1>
       <p class="subtitle">Lập trình Scratch — Tháng 1 · Nội dung cơ bản (1)</p>
       <div class="title-meta">
         <span class="badge">📅 Tuần 4</span>
         <span class="badge">📖 Buổi 7 — Học</span>
-        <span class="badge">🎯 8–10 tuổi</span>
+        <span class="badge">🎯 7–10 tuổi</span>
       </div>
       <p class="start-hint">Nhấn → hoặc Space để bắt đầu</p>
     </div>
@@ -794,9 +794,9 @@
       <h2>Hôm nay em học gì?</h2>
       <div class="slide-body">
         <div class="highlight-box orange">
-          Em điều khiển sprite bằng <strong>phím</strong> và <strong>click chuột</strong> — không chỉ bấm cờ xanh!
+          Em điều khiển sprite bằng <strong>phím</strong> và <strong>click chuột</strong> — không chỉ bấm cờ xanh! Hôm nay em chính thức trở thành <strong>"game thủ"</strong> đầu tiên điều khiển nhân vật do chính mình lập trình.
         </div>
-        <div class="emoji-row">⌨️ 🖱️ 🚩 ⬆️</div>
+        <div class="emoji-row">🕹️ ⌨️ 🖱️ 🚀</div>
         <ul>
           <li>Dùng <code>when key pressed</code> để phản ứng khi nhấn phím</li>
           <li>Dùng <code>when this sprite clicked</code> khi click sprite</li>
@@ -807,10 +807,26 @@
     </div>
   </section>
 
-  <!-- Slide 3 -->
-  <section class="slide" data-index="2" aria-label="Kiến thức mới">
+  <!-- Slide 3: Khởi động -->
+  <section class="slide" data-index="2" aria-label="Khởi động">
     <div class="slide-main">
-      <span class="slide-tag purple">Kiến thức mới</span>
+      <span class="slide-tag purple">🎬 Khởi động (10 phút)</span>
+      <h2>Trò chơi "Điều khiển từ xa"</h2>
+      <div class="slide-body">
+        <div class="highlight-box purple">
+          Quy ước: "Mũi tên lên!" → nhảy lên 1 cái; "Mũi tên xuống!" → ngồi thụp; "Space!" → vỗ tay; "Click!" → giơ tay vẫy. Giáo viên hô ngẫu nhiên, học sinh phản ứng thật nhanh — tăng tốc dần cho vui!
+        </div>
+        <div class="highlight-box orange" style="margin-top:14px;">
+          → "Hôm nay Scratch cũng phản ứng y như vậy — mỗi khi em nhấn phím hoặc click, sprite sẽ làm một việc khác nhau!" Buổi trước sprite mới chỉ chạy tự động theo cờ xanh — hôm nay em tự tay điều khiển nó, y như một <strong>game thủ thực thụ</strong>!
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4 -->
+  <section class="slide" data-index="3" aria-label="Kiến thức mới">
+    <div class="slide-main">
+      <span class="slide-tag purple">Kiến thức mới (20 phút)</span>
       <h2>Events — Khi… thì…</h2>
       <div class="slide-body">
         <div class="knowledge-grid">
@@ -834,14 +850,17 @@
         <div class="highlight-box" style="margin-top:16px;">
           💡 <strong>Ví dụ:</strong> Phím ↑ → <code>change y by 10</code> (lên). Phím ↓ → <code>change y by -10</code> (xuống).
         </div>
+        <div class="highlight-box orange" style="margin-top:12px;">
+          <strong>Vì sao quan trọng?</strong> Từ giờ sprite không chỉ tự chạy theo cờ xanh — em có thể <strong>ĐIỀU KHIỂN</strong> nó trực tiếp bằng phím và chuột, giống hệt cách chơi game thật. Đây là bước đầu tiên để làm ra một trò chơi do chính em điều khiển!
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 4 -->
-  <section class="slide" data-index="3" aria-label="Ví dụ mẫu">
+  <!-- Slide 5 -->
+  <section class="slide" data-index="4" aria-label="Ví dụ mẫu 1">
     <div class="slide-main">
-      <span class="slide-tag">Ví dụ mẫu</span>
+      <span class="slide-tag">Ví dụ mẫu 1</span>
       <h2>Đi lên / xuống ⬆️⬇️</h2>
       <div class="slide-body">
         <div class="cols">
@@ -879,16 +898,41 @@
     </div>
   </section>
 
-  <!-- Slide 5: TH1 -->
-  <section class="slide" data-index="4" aria-label="TH1">
+  <!-- Slide 6 -->
+  <section class="slide" data-index="5" aria-label="Ví dụ mẫu 2">
+    <div class="slide-main">
+      <span class="slide-tag">Ví dụ mẫu 2</span>
+      <h2>Click để chào 👋</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <p style="margin-bottom:10px; font-weight:600;">Khác với ví dụ 1 dùng phím, đây dùng sự kiện <strong>click chuột</strong> trực tiếp vào sprite:</p>
+            <div class="blocks">
+              <div class="block event">when this sprite clicked / khi click vào sprite này</div>
+              <div class="block looks indent">say "Chào bạn!" for 1 seconds / nói "Chào bạn!" trong 1 giây</div>
+            </div>
+            <p style="margin-top:10px; font-size:0.92rem; color:#5a6a7e; font-weight:600;">Events không chỉ có phím — click chuột cũng là một sự kiện!</p>
+          </div>
+          <div class="card">
+            <h3>🤔 Em đoán xem?</h3>
+            <p style="line-height:1.6; font-weight:600;">Nếu em có 2 khối Events riêng — <code>when key up arrow pressed</code> và <code>when key down arrow pressed</code> — em đoán xem: nhấn <strong>CẢ HAI</strong> phím cùng lúc, chuyện gì sẽ xảy ra?</p>
+            <p style="margin-top:8px; font-size:0.9rem; color:#5a6a7e; font-weight:700;">Đoán trước rồi thử ngay trên Scratch!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: TH1 -->
+  <section class="slide" data-index="6" aria-label="TH1">
     <div class="slide-main">
       <span class="slide-tag green">Thực hành</span>
-      <h2><span class="th-label">TH1</span> Lên và xuống ⬆️⬇️</h2>
+      <h2><span class="th-label">TH1</span> 🚀 Phi thuyền lên xuống</h2>
       <div class="slide-body">
         <div class="cols cols-60-40">
           <div>
             <div class="highlight-box green" style="margin-top:0;">
-              Nhấn phím ↑ sprite đi lên, phím ↓ sprite đi xuống.
+              Em là phi công điều khiển phi thuyền — nhấn phím ↑ phi thuyền bay lên, phím ↓ hạ xuống.
             </div>
             <p class="section-label">Yêu cầu</p>
             <ul>
@@ -910,8 +954,8 @@
     </div>
   </section>
 
-  <!-- Slide 6: TH1 checklist -->
-  <section class="slide" data-index="5" aria-label="TH1 checklist">
+  <!-- Slide 8: TH1 checklist -->
+  <section class="slide" data-index="7" aria-label="TH1 checklist">
     <div class="slide-main">
       <span class="slide-tag green">Thực hành</span>
       <h2><span class="th-label">TH1</span> Checklist tự kiểm</h2>
@@ -929,16 +973,32 @@
     </div>
   </section>
 
-  <!-- Slide 7: TH2 -->
-  <section class="slide" data-index="6" aria-label="TH2">
+  <!-- Slide 9: Giải lao vận động -->
+  <section class="slide" data-index="8" aria-label="Giải lao vận động">
+    <div class="slide-main">
+      <span class="slide-tag orange">🤸 Giải lao vận động (5 phút)</span>
+      <h2>Trò chơi "Người máy nghe phím"</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange">
+          Cả lớp đứng dậy làm "người máy". Giáo viên hô "phím" tưởng tượng: "↑!" → nhón chân cao; "↓!" → ngồi thấp; "Space!" → nhảy tại chỗ; "Click chuột!" → xoay 1 vòng.
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <p style="font-weight:600; line-height:1.6;">Tăng tốc độ hô lệnh dần để tạo không khí vui, giúp em nhớ Events phản ứng theo từng hành động khác nhau!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: TH2 -->
+  <section class="slide" data-index="9" aria-label="TH2">
     <div class="slide-main">
       <span class="slide-tag green">Thực hành</span>
-      <h2><span class="th-label">TH2</span> Điều khiển 4 hướng 🎮</h2>
+      <h2><span class="th-label">TH2</span> 🕹️ Điều khiển như game thủ</h2>
       <div class="slide-body">
         <div class="cols">
           <div>
             <div class="highlight-box green" style="margin-top:0;">
-              Dùng 4 phím mũi tên di chuyển sprite.
+              Nâng cấp phi thuyền lên bản đầy đủ — dùng cả 4 phím mũi tên để bay tự do khắp bốn phương, y hệt một game thủ thực thụ!
             </div>
             <p class="section-label">Yêu cầu</p>
             <ul>
@@ -964,8 +1024,8 @@
     </div>
   </section>
 
-  <!-- Slide 8: TH2 checklist -->
-  <section class="slide" data-index="7" aria-label="TH2 checklist">
+  <!-- Slide 11: TH2 checklist -->
+  <section class="slide" data-index="10" aria-label="TH2 checklist">
     <div class="slide-main">
       <span class="slide-tag green">Thực hành</span>
       <h2><span class="th-label">TH2</span> Checklist tự kiểm</h2>
@@ -986,15 +1046,38 @@
           </div>
           <div class="card">
             <h3>🎉 Hoàn thành!</h3>
-            <p style="line-height:1.6; font-weight:600;">Em đã điều khiển sprite bằng phím. Giờ ôn lại và nhận bài tập về nhà!</p>
+            <p style="line-height:1.6; font-weight:600;">Em đã điều khiển sprite như game thủ thực thụ! Giờ đến thử thách nhóm "điệp viên" với bạn.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 9: Mẹo -->
-  <section class="slide" data-index="8" aria-label="Mẹo nhỏ">
+  <!-- Slide 12: Thử thách nhóm/sáng tạo -->
+  <section class="slide" data-index="11" aria-label="Thử thách nhóm">
+    <div class="slide-main">
+      <span class="slide-tag orange">🤝 Thử thách nhóm/sáng tạo (15 phút)</span>
+      <h2>🕵️ Điệp viên đoán phím</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange">
+          Ghép cặp 2 bạn. Bạn A nhắm mắt (hoặc quay đi), bạn B bấm <strong>1 trong 4 phím mũi tên</strong> trên project của bạn A.
+        </div>
+        <div class="cols" style="margin-top:14px;">
+          <div class="card">
+            <h3>🕵️ Bạn A phá án</h3>
+            <p style="line-height:1.6; font-weight:600;">Mở mắt nhìn vị trí mới của sprite và đoán xem bạn B vừa bấm phím nào!</p>
+          </div>
+          <div class="card">
+            <h3>🔄 Đổi vai</h3>
+            <p style="line-height:1.6; font-weight:600;">Đổi vai, thử vài lượt. Giáo viên mời 1–2 cặp "điệp viên" thi đố trước lớp cho vui!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Mẹo -->
+  <section class="slide" data-index="12" aria-label="Mẹo nhỏ">
     <div class="slide-main">
       <span class="slide-tag yellow">Mẹo nhỏ</span>
       <h2>Gặp khó? Thử mẹo này!</h2>
@@ -1025,13 +1108,13 @@
     </div>
   </section>
 
-  <!-- Slide 10: Quiz -->
-  <section class="slide" data-index="9" aria-label="Câu hỏi ôn">
+  <!-- Slide 14: Tổng kết & Ôn tập trò chơi -->
+  <section class="slide" data-index="13" aria-label="Tổng kết & Ôn tập trò chơi">
     <div class="slide-main">
-      <span class="slide-tag purple">Ôn tập</span>
-      <h2>Câu hỏi ôn — Em trả lời nhé!</h2>
+      <span class="slide-tag purple">🎉 Tổng kết & Ôn tập trò chơi (10 phút)</span>
+      <h2>Giơ tay trả lời nhanh — 2 đội thi đua!</h2>
       <div class="slide-body">
-        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Cô click để xem đáp án gợi ý ↓</p>
+        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Đội nào giơ tay trước được trả lời — đúng ghi 1 điểm. Cô click để xem đáp án gợi ý ↓</p>
         <div class="quiz-item" data-quiz>
           <span class="quiz-num">1</span>
           <div><code>when key pressed</code> khác <code>when green flag clicked</code> thế nào?
@@ -1062,81 +1145,17 @@
             <div class="quiz-answer">→ Di chuyển sprite sang phải 10 bước (trục ngang x tăng 10).</div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 11: BTVN1 -->
-  <section class="slide" data-index="10" aria-label="BTVN1">
-    <div class="slide-main">
-      <span class="slide-tag red">Bài tập về nhà</span>
-      <h2><span class="th-label btvn-label">BTVN1</span> Space đổi costume</h2>
-      <div class="slide-body">
-        <div class="cols">
-          <div>
-            <div class="highlight-box orange" style="margin-top:0;">
-              Mỗi lần nhấn <strong>phím Space</strong>, sprite đổi sang costume tiếp theo.
-            </div>
-            <p class="section-label">Yêu cầu</p>
-            <ul>
-              <li><code>when key space pressed</code></li>
-              <li><code>next costume</code> hoặc <code>switch costume</code></li>
-            </ul>
-            <ul class="checklist" data-checklist style="margin-top:12px;">
-              <li>Nhấn Space đổi hình</li>
-              <li>Sprite có ít nhất 2 costume</li>
-              <li>Hoạt động mỗi lần nhấn</li>
-            </ul>
-          </div>
-          <div>
-            <p class="section-label">Gợi ý</p>
-            <div class="blocks">
-              <div class="block event">when key space pressed / khi nhấn phím Space</div>
-              <div class="block looks indent">next costume / trang phục kế tiếp</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 12: BTVN2 -->
-  <section class="slide" data-index="11" aria-label="BTVN2">
-    <div class="slide-main">
-      <span class="slide-tag red">Bài tập về nhà</span>
-      <h2><span class="th-label btvn-label">BTVN2</span> Click để chào 👋</h2>
-      <div class="slide-body">
-        <div class="highlight-box orange" style="margin-top:0;">
-          Click vào sprite → sprite <code>say</code> lời chào.
-        </div>
-        <div class="cols" style="margin-top:14px;">
-          <div>
-            <p class="section-label">Gợi ý từng bước</p>
-            <div class="blocks">
-              <div class="block event">when this sprite clicked / khi click vào sprite này</div>
-              <div class="block looks indent">say "Chào bạn!" for 2 seconds / nói "Chào bạn!" trong 2 giây</div>
-            </div>
-          </div>
-          <div>
-            <p class="section-label">Checklist</p>
-            <ul class="checklist" data-checklist>
-              <li>Click sprite có phản ứng</li>
-              <li>Có lời chào</li>
-              <li>Có thể click nhiều lần</li>
-            </ul>
-          </div>
-        </div>
         <div class="highlight-box" style="margin-top:14px;">
-          📌 Mang project đến <strong>Buổi 8 — Luyện Events</strong> tuần sau để chữa bài!
+          🙋 Mời 1–2 em chiếu màn hình, thử điều khiển phi thuyền bằng 4 phím trước lớp!
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 13: Tổng kết -->
-  <section class="slide title-slide" data-index="12" aria-label="Tổng kết">
+  <!-- Slide 15: Tổng kết -->
+  <section class="slide title-slide" data-index="14" aria-label="Tổng kết">
     <div class="slide-main">
-      <div class="title-emoji">⌨️</div>
+      <div class="title-emoji">🕹️</div>
       <h2 style="font-size:1.9rem; margin-bottom:16px;">Tổng kết buổi học</h2>
       <ul style="font-size:1.05rem; line-height:2; text-align:left; font-weight:700; max-width:520px;">
         <li>✅ Events = <strong>khi… thì…</strong></li>
@@ -1146,7 +1165,7 @@
         <li>✅ <code>change x/y by</code> = di chuyển từng bước</li>
       </ul>
       <p style="margin-top:24px; font-size:1.15rem; color:var(--scratch-orange); font-weight:800;">
-        Hẹn gặp lại ở Buổi 8! 👋
+        Hẹn gặp lại ở buổi Bài tập tuần này để làm Luyện tập 1, 2 và bài mở rộng! 👋
       </p>
     </div>
   </section>
@@ -1155,7 +1174,7 @@
 
 <nav class="nav" aria-label="Điều hướng slide">
   <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
-  <span class="slide-counter" id="counter" aria-live="polite">1 / 13</span>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 15</span>
   <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
 </nav>
 <p class="hint" id="hint">← → hoặc Space · F toàn màn hình · Esc thoát · click hai bên màn hình</p>

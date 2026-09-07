@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#1a2744">
-  <title>Tuần 5 — Buổi 9: Âm thanh & Nhiều sprite</title>
+  <title>Summer Camp — Session 4: A Game Needs a Way to Lose (Hạ Long Dodge)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -391,6 +391,8 @@
     .block.control { background: #ffab19; color: #422c00; }
     .block.motion  { background: #4c97ff; }
     .block.sound   { background: #cf63cf; }
+    .block.sensing { background: #5cb1d6; }
+    .block.data    { background: #ff8c1a; }
 
     .block.indent   { margin-left: 20px; }
     .block.indent-2 { margin-left: 40px; }
@@ -467,7 +469,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    .k-card > strong:first-child {
+    .k-card strong {
       display: block;
       font-size: 0.95rem;
       font-weight: 800;
@@ -675,7 +677,7 @@
       height: 3px;
     }
 
-    /* Nút thoát fullscreen (chỉ hiện khi full màn hình) */
+    /* Exit-fullscreen button (visible only in fullscreen) */
     .fs-exit {
       display: none;
       position: fixed;
@@ -723,398 +725,522 @@
 </head>
 <body>
 
-<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1"></div>
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="14" aria-valuenow="1"></div>
 
 <header class="global-topbar">
   <div class="brand">
     <span class="brand-icon">🐱</span>
-    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Summer Camp</span></span>
   </div>
-  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="slide-dots" id="dots" aria-label="Pick a slide"></div>
   <div class="topbar-actions">
-    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+    <button class="icon-btn" id="btnFullscreen" title="Fullscreen (F)">⛶</button>
   </div>
 </header>
 
 <div class="deck" id="deck">
 
-  <!-- Slide 1 -->
-  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+  <!-- Slide 1: Title -->
+  <section class="slide title-slide active" data-index="0" aria-label="Title">
     <div class="slide-main">
-      <div class="title-emoji">🎵</div>
-      <h1>Âm thanh &amp; Nhiều sprite</h1>
-      <p class="subtitle">Lập trình Scratch — Tháng 2 · Nội dung cơ bản (2)</p>
+      <div class="title-emoji">⛵</div>
+      <h1>A Game Needs a Way to Lose — Hạ Long Dodge</h1>
+      <p class="subtitle">Scratch Summer Camp · Summer Game Studio</p>
       <div class="title-meta">
-        <span class="badge">📅 Tuần 5</span>
-        <span class="badge">📖 Buổi 9 — Học</span>
-        <span class="badge">🎯 7–10 tuổi</span>
+        <span class="badge">📅 Session 4 / 6</span>
+        <span class="badge">🎮 Today's game: Hạ Long Dodge</span>
+        <span class="badge">⏱️ 90 minutes</span>
       </div>
-      <p class="start-hint">Nhấn → hoặc Space để bắt đầu</p>
+      <p class="start-hint">Press → or Space to start</p>
     </div>
   </section>
 
-  <!-- Slide 2 -->
-  <section class="slide" data-index="1" aria-label="Mục tiêu">
+  <!-- Slide 2: Goals -->
+  <section class="slide" data-index="1" aria-label="Goals">
     <div class="slide-main">
-      <span class="slide-tag">Mục tiêu</span>
-      <h2>Hôm nay em học gì?</h2>
+      <span class="slide-tag">Goals</span>
+      <h2>What are we making today?</h2>
       <div class="slide-body">
         <div class="highlight-box orange">
-          Em làm project Scratch <strong>có tiếng</strong> và <strong>có nhiều nhân vật cùng lúc</strong> — nhạc nền, tiếng click, và hội thoại giữa 2 sprite!
+          The whole studio builds <strong>Hạ Long Dodge</strong> — a sailboat drifts through the bay while rocks keep drifting in. 3 lives. Hit a rock, lose a life. Run out of lives, it's game over. The longer you survive, the higher your score.
         </div>
-        <div class="emoji-row">🎶 🐱 🐶 💬</div>
+        <div class="emoji-row">⛵ 🪨 ❤️ 💥</div>
         <ul>
-          <li>Phát âm thanh bằng khối <strong>Sound</strong></li>
-          <li>Thêm nhạc nền ở <strong>Stage</strong>, tiếng nhân vật ở <strong>Sprite</strong></li>
-          <li>Lập trình <strong>2 sprite</strong> nói chuyện xen kẽ</li>
-          <li>Dùng <code>wait</code> để không nói chồng lên nhau</li>
+          <li>Manage <strong>two variables at once</strong>: <code>Score</code> and <code>Lives</code></li>
+          <li>Build a <strong>Game Over</strong> screen with <code>broadcast</code> + <code>stop all</code></li>
+          <li>Learn the design rule: a good game gets <strong>harder little by little</strong></li>
+          <li>End of session: <strong>survival contest</strong> — who lasts longest on someone else's game?</li>
         </ul>
       </div>
     </div>
   </section>
 
-  <!-- Slide 3: Khởi động -->
-  <section class="slide" data-index="2" aria-label="Khởi động">
+  <!-- Slide 3: Warm-up -->
+  <section class="slide" data-index="2" aria-label="Warm-up">
     <div class="slide-main">
-      <span class="slide-tag purple">🎬 Khởi động (10 phút)</span>
-      <h2>Trò chơi "Đoán âm thanh"</h2>
+      <span class="slide-tag purple">🎮 Warm-up (10 min)</span>
+      <h2>What's been missing from every game so far?</h2>
       <div class="slide-body">
-        <div class="highlight-box purple">
-          Giáo viên phát 3–4 âm thanh ngắn (vỗ tay, huýt sáo, tiếng chuông, tiếng cười…) mà không cho nhìn — cả lớp chỉ <strong>nghe</strong> rồi đoán đó là âm thanh gì!
+        <div class="card">
+          <h3>🌊 30 seconds in Hạ Long Bay</h3>
+          <p style="font-weight:600; line-height:1.6;">Today's setting — towering limestone rocks rising out of the water. For some of you, this might be the very first time you've seen it.</p>
         </div>
         <div class="highlight-box orange" style="margin-top:14px;">
-          → "Buổi trước mình đã cho sprite phản ứng khi click chuột hoặc bấm phím. Hôm nay nếu click mà sprite còn <strong>PHÁT RA TIẾNG</strong> nữa thì sao? Và nếu 2 bạn cùng lúc nói to trong lớp, mình có nghe rõ ai nói gì không? Hôm nay em học cách cho Scratch có tiếng, và cho <strong>2 nhân vật nói chuyện</strong> mà không bị chồng tiếng!"
+          Design question: think back to the last 3 games we built. What's missing? <strong>You can't lose.</strong> A game that can't be lost gives you nothing to fight for.
+        </div>
+        <div class="highlight-box green">
+          Today we fix that — a boat, some rocks, and 3 lives. Suddenly every move matters.
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 4 -->
-  <section class="slide" data-index="3" aria-label="Kiến thức mới">
+  <!-- Slide 4: Key words -->
+  <section class="slide" data-index="3" aria-label="Key words">
     <div class="slide-main">
-      <span class="slide-tag purple">Kiến thức mới (20 phút)</span>
-      <h2>Sound &amp; nhiều sprite</h2>
+      <span class="slide-tag yellow">Key words · Từ khóa hôm nay</span>
+      <h2>6 words we'll use all session 🇬🇧 🇻🇳</h2>
       <div class="slide-body">
         <div class="knowledge-grid">
-          <div class="k-card orange span-2">
-            <strong>🔊 start sound</strong>
-            Phát âm thanh <em>một lần</em> — tiếng click, tiếng kêu… (nhóm Sound).
+          <div class="k-card red span-2">
+            <strong>Lives</strong>
+            <em>Mạng</em> — how many hits you can take before it's over.
           </div>
-          <div class="k-card purple span-2">
-            <strong>🎵 play sound until done</strong>
-            Phát âm thanh và <em>đợi</em> cho đến khi hết.
+          <div class="k-card orange span-2">
+            <strong>Game over</strong>
+            <em>Kết thúc game</em> — the screen that shows when your lives hit 0.
           </div>
           <div class="k-card blue span-2">
-            <strong>🎭 Thêm âm thanh</strong>
-            Tab <em>Sounds</em> → Choose a Sound. Nhạc nền ở <strong>Stage</strong>, tiếng nhân vật ở <strong>Sprite</strong>.
+            <strong>Speed</strong>
+            <em>Tốc độ</em> — how fast something moves across the screen.
           </div>
-          <div class="k-card green span-3">
-            <strong>👥 Nhiều sprite</strong>
-            Mỗi sprite có <em>code riêng</em> — thêm bằng Choose a Sprite. Dùng <code>say</code> + <code>wait</code> để hội thoại.
+          <div class="k-card purple span-2">
+            <strong>Difficulty</strong>
+            <em>Độ khó</em> — how hard the game feels to play.
           </div>
-          <div class="k-card red span-3">
-            <strong>🖱️ when this sprite clicked</strong>
-            Chạy code khi <em>click vào sprite</em> — dùng cho tiếng click + phản ứng.
+          <div class="k-card green span-2">
+            <strong>Show / Hide</strong>
+            <em>Hiện / Ẩn</em> — make a sprite appear or disappear.
           </div>
-        </div>
-        <div class="highlight-box orange" style="margin-top:12px;">
-          <strong>Vì sao quan trọng?</strong> Đến giờ project của em mới chỉ có 1 nhân vật và im lặng — giống phim câm. Âm thanh giúp project "sống động" hơn hẳn, còn nhiều sprite cùng lúc là bước đầu tiên để làm <strong>game thật sự</strong>: nhân vật chính, quái vật, vật phẩm… đều là sprite riêng chạy song song!
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 5 -->
-  <section class="slide" data-index="4" aria-label="Ví dụ mẫu 1">
-    <div class="slide-main">
-      <span class="slide-tag">Ví dụ mẫu 1</span>
-      <h2>Mèo chào em có tiếng "Meow" 🐱</h2>
-      <div class="slide-body">
-        <div class="cols">
-          <div>
-            <p style="margin-bottom:10px; font-weight:600;">Thêm sound Meow → ghép khối:</p>
-            <div class="blocks">
-              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
-              <div class="block looks indent">say "Xin chào!" for 2 seconds / nói "Xin chào!" trong 2 giây</div>
-              <div class="block sound indent">start sound Meow / phát âm thanh Meow</div>
-            </div>
-          </div>
-          <div>
-            <div class="card" style="margin-bottom:12px;">
-              <h3>🔍 Quan sát</h3>
-              <ul>
-                <li>Tab <strong>Sounds</strong> → Choose a Sound → Meow</li>
-                <li><code>say</code> hiện bong bóng thoại</li>
-                <li><code>start sound</code> phát tiếng kêu</li>
-              </ul>
-            </div>
-            <div class="card">
-              <h3>✏️ Thử ngay</h3>
-              <ul>
-                <li>Chọn sprite Cat (Mèo)</li>
-                <li>Thêm âm thanh trong tab Sounds</li>
-                <li>Bấm cờ xanh ▶️ — nghe và xem!</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 6 -->
-  <section class="slide" data-index="5" aria-label="Ví dụ mẫu 2">
-    <div class="slide-main">
-      <span class="slide-tag">Ví dụ mẫu 2</span>
-      <h2>Hai sprite chào nhau không chồng tiếng 🐱🐶</h2>
-      <div class="slide-body">
-        <div class="cols">
-          <div>
-            <p style="margin-bottom:10px; font-weight:600;">Sprite <strong>Mèo</strong> nói trước, sprite <strong>Cún</strong> đợi đúng 2 giây rồi mới nói:</p>
-            <div class="blocks">
-              <div class="block event">when green flag clicked / khi bấm cờ xanh (Mèo)</div>
-              <div class="block looks indent">say "Chào Cún!" for 2 seconds / nói "Chào Cún!" trong 2 giây</div>
-              <div class="block event">when green flag clicked / khi bấm cờ xanh (Cún)</div>
-              <div class="block control indent">wait 2 seconds / chờ 2 giây</div>
-              <div class="block looks indent">say "Chào Mèo!" for 2 seconds / nói "Chào Mèo!" trong 2 giây</div>
-            </div>
-            <p style="margin-top:10px; font-size:0.92rem; color:#5a6a7e; font-weight:600;">Nếu bỏ khối <code>wait</code> ở Cún, hai bạn sẽ nói cùng lúc và không nghe rõ ai nói gì!</p>
-          </div>
-          <div class="card">
-            <h3>🤔 Em đoán xem?</h3>
-            <p style="line-height:1.6; font-weight:600;">Nếu sprite Mèo <code>say</code> "Xin chào!" <code>for 3 seconds</code>, và sprite Cún có <code>wait 1 seconds</code> rồi mới nói câu của mình — lúc Cún <strong>bắt đầu nói</strong>, Mèo đã nói xong chưa?</p>
-            <p style="margin-top:8px; font-size:0.9rem; color:#5a6a7e; font-weight:700;">Đoán trước rồi thử ngay trên Scratch!</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 7: TH1 -->
-  <section class="slide" data-index="6" aria-label="TH1">
-    <div class="slide-main">
-      <span class="slide-tag green">Thực hành</span>
-      <h2><span class="th-label">TH1</span> Nhạc nền + tiếng click 🔊</h2>
-      <div class="slide-body">
-        <div class="cols cols-60-40">
-          <div>
-            <div class="highlight-box green" style="margin-top:0;">
-              <strong>Nhạc nền</strong> khi cờ xanh + <strong>tiếng riêng</strong> khi click sprite.
-            </div>
-            <p class="section-label">Yêu cầu</p>
-            <ul>
-              <li>Đã thêm âm thanh cho Stage (nhạc nền) và âm thanh riêng cho sprite</li>
-              <li>Nhạc nền phát khi bấm <strong>cờ xanh</strong> (code ở Stage)</li>
-              <li>Click sprite → phát âm thanh khác (không trùng nhạc nền) + <code>say</code> 1 câu</li>
-              <li>Đã lưu project</li>
-            </ul>
-          </div>
-          <div>
-            <p class="section-label" style="margin-top:0;">Gợi ý — Stage</p>
-            <div class="blocks" style="font-size:0.78rem;">
-              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
-              <div class="block control c-block indent">
-                forever / lặp mãi
-                <div class="c-body">
-                  <div class="block sound">start sound Dance Around / phát nhạc Dance Around</div>
-                </div>
-              </div>
-            </div>
-            <p class="section-label">Gợi ý — Sprite</p>
-            <div class="blocks" style="font-size:0.78rem;">
-              <div class="block event">when this sprite clicked / khi click vào sprite này</div>
-              <div class="block sound indent">start sound Pop / phát âm thanh Pop</div>
-              <div class="block looks indent">say "Ồ! Em click vào mình rồi!" for 2 seconds / nói "Ồ! Em click vào mình rồi!" trong 2 giây</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 8: Giải lao vận động -->
-  <section class="slide" data-index="7" aria-label="Giải lao vận động">
-    <div class="slide-main">
-      <span class="slide-tag orange">🤸 Giải lao vận động (5 phút)</span>
-      <h2>Trò chơi "Vỗ tay theo nhịp"</h2>
-      <div class="slide-body">
-        <div class="highlight-box orange">
-          Cả lớp đứng dậy. Giáo viên vỗ tay một nhịp ngắn (ví dụ: vỗ - vỗ - ngừng - vỗ), học sinh vỗ lại đúng y hệt — tăng dần độ khó bằng cách thêm dậm chân, búng tay xen kẽ.
-        </div>
-        <div class="card" style="margin-top:14px;">
-          <p style="font-weight:600; line-height:1.6;">Chia lớp 2 nhóm: nhóm 1 vỗ tay nhịp nền liên tục (giống <strong>"nhạc nền"</strong> ở Stage), nhóm 2 thỉnh thoảng dậm chân xen vào (giống <strong>"tiếng click"</strong> ở sprite) — cả lớp cảm nhận 2 lớp âm thanh chạy cùng lúc, giống project TH1 em vừa làm!</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 9: TH2 -->
-  <section class="slide" data-index="8" aria-label="TH2">
-    <div class="slide-main">
-      <span class="slide-tag green">Thực hành</span>
-      <h2><span class="th-label">TH2</span> Hội thoại 2 sprite 💬</h2>
-      <div class="slide-body">
-        <div class="cols">
-          <div>
-            <div class="highlight-box green" style="margin-top:0;">
-              Hai nhân vật <strong>nói chuyện xen kẽ</strong> — dùng <code>wait</code> để không nói cùng lúc.
-            </div>
-            <p class="section-label">Yêu cầu</p>
-            <ul>
-              <li>Ít nhất <strong>2 sprite</strong> trên Stage, hội thoại bắt đầu khi bấm <strong>cờ xanh</strong></li>
-              <li>Mỗi sprite nói ít nhất <strong>2 câu</strong> (tổng ≥ 4 câu)</li>
-              <li>Dùng <code>wait</code> để hai nhân vật không nói chồng lên nhau</li>
-              <li>Đã thử chạy lại vài lần và lưu project</li>
-            </ul>
-          </div>
-          <div>
-            <p class="section-label">Gợi ý — Sprite Meo</p>
-            <div class="blocks" style="font-size:0.75rem;">
-              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
-              <div class="block looks indent">say "Chào Cho! Hôm nay em học Scratch nhé!" for 3 seconds / nói "Chào Cho!..." trong 3 giây</div>
-              <div class="block control indent">wait 6 seconds / chờ 6 giây</div>
-              <div class="block looks indent">say "Đồng ý! Bắt đầu thôi!" for 2 seconds / nói "Đồng ý! Bắt đầu thôi!" trong 2 giây</div>
-            </div>
-            <p class="section-label">Gợi ý — Sprite Cho</p>
-            <div class="blocks" style="font-size:0.75rem;">
-              <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
-              <div class="block control indent">wait 3 seconds / chờ 3 giây</div>
-              <div class="block looks indent">say "Chào Meo! Scratch vui lắm!" for 3 seconds / nói "Chào Meo!..." trong 3 giây</div>
-              <div class="block control indent">wait 3 seconds / chờ 3 giây</div>
-              <div class="block looks indent">say "Mình cùng làm game nhé!" for 2 seconds / nói "Mình cùng làm game nhé!" trong 2 giây</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 10: Thử thách nhóm/sáng tạo -->
-  <section class="slide" data-index="9" aria-label="Thử thách nhóm">
-    <div class="slide-main">
-      <span class="slide-tag orange">🤝 Thử thách nhóm/sáng tạo (10–15 phút)</span>
-      <h2>🕵️ Đoán lời thoại của bạn</h2>
-      <div class="slide-body">
-        <div class="highlight-box orange">
-          Ghép cặp 2 bạn. Bạn A cho bạn B xem project TH2 của mình chạy <strong>1 lần</strong> (không cho xem code, chỉ xem/nghe kết quả).
-        </div>
-        <div class="cols" style="margin-top:14px;">
-          <div class="card">
-            <h3>🎧 Bạn B đoán</h3>
-            <p style="line-height:1.6; font-weight:600;">"Bạn Mèo nói mấy câu? Bạn Cún nói câu gì trước?" — đổi vai, thử với project của bạn B.</p>
-          </div>
-          <div class="card">
-            <h3>✨ Thử thêm</h3>
-            <p style="line-height:1.6; font-weight:600;">Nếu còn thời gian, mỗi cặp thêm 1 câu thoại "bất ngờ" thứ 3 vào giữa hội thoại rồi đố cặp bên cạnh nghe xem có nhận ra không. Giáo viên mời 1–2 cặp trình diễn trước lớp!</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 11: Mẹo -->
-  <section class="slide" data-index="10" aria-label="Mẹo nhỏ">
-    <div class="slide-main">
-      <span class="slide-tag yellow">Mẹo nhỏ</span>
-      <h2>Gặp khó? Thử mẹo này!</h2>
-      <div class="slide-body">
-        <div class="cols">
-          <div>
-            <div class="tip">
-              <span class="tip-icon">🔊</span>
-              <div><strong>Nhạc quá to?</strong><br>Dùng <code>set volume to 50 %</code> trước khi <code>start sound</code>.</div>
-            </div>
-            <div class="tip">
-              <span class="tip-icon">💬</span>
-              <div><strong>Hội thoại bị lệch?</strong><br>Viết thứ tự ra giấy: Meo nói → đợi → Cho nói → đợi…</div>
-            </div>
-          </div>
-          <div>
-            <div class="tip">
-              <span class="tip-icon">👗</span>
-              <div><strong>Muốn đổi mặt khi nói?</strong><br>Thêm <code>switch costume to</code> trước hoặc sau <code>say</code>.</div>
-            </div>
-            <div class="tip">
-              <span class="tip-icon">🎭</span>
-              <div><strong>Không có tiếng?</strong><br>Kiểm tra tab Sounds đã có âm thanh; chọn đúng tên trong khối <code>start sound</code>.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 12: Tổng kết & Ôn tập trò chơi -->
-  <section class="slide" data-index="11" aria-label="Tổng kết & Ôn tập trò chơi">
-    <div class="slide-main">
-      <span class="slide-tag purple">🎉 Tổng kết &amp; Ôn tập trò chơi (10 phút)</span>
-      <h2>Đố vui tiếp sức — 2 đội thi đua!</h2>
-      <div class="slide-body">
-        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Mỗi đội cử đại diện trả lời nhanh 1 câu rồi đổi người — đúng ghi 1 điểm. Cô click để xem đáp án gợi ý ↓</p>
-        <div class="quiz-item" data-quiz>
-          <span class="quiz-num">1</span>
-          <div>Em thêm nhạc nền vào Stage hay Sprite? Vì sao?
-            <div class="quiz-answer">→ Thường thêm vào <strong>Stage</strong> vì nhạc nền phát cho cả project, không gắn một nhân vật.</div>
-          </div>
-        </div>
-        <div class="quiz-item" data-quiz>
-          <span class="quiz-num">2</span>
-          <div><code>start sound</code> và <code>play sound until done</code> khác nhau thế nào?
-            <div class="quiz-answer">→ <code>start sound</code> phát rồi chạy tiếp; <code>play sound until done</code> đợi hết âm thanh mới chạy khối sau.</div>
-          </div>
-        </div>
-        <div class="quiz-item" data-quiz>
-          <span class="quiz-num">3</span>
-          <div>Làm sao để hai sprite không nói cùng một lúc?
-            <div class="quiz-answer">→ Dùng <code>wait</code> — sprite sau đợi đủ thời gian sprite trước nói xong.</div>
-          </div>
-        </div>
-        <div class="quiz-item" data-quiz>
-          <span class="quiz-num">4</span>
-          <div><code>when this sprite clicked</code> dùng để làm gì?
-            <div class="quiz-answer">→ Chạy code khi em <strong>click vào sprite đó</strong> — phát tiếng, nói chuyện…</div>
-          </div>
-        </div>
-        <div class="quiz-item" data-quiz>
-          <span class="quiz-num">5</span>
-          <div>Mỗi sprite trong Scratch có code riêng hay dùng chung?
-            <div class="quiz-answer">→ Mỗi sprite có <strong>code riêng</strong> — giống mỗi nhân vật có kịch bản riêng.</div>
+          <div class="k-card blue span-2">
+            <strong>Stop all</strong>
+            <em>Dừng tất cả</em> — freeze every script the moment the game ends.
           </div>
         </div>
         <div class="highlight-box" style="margin-top:14px;">
-          🙋 Mời 1–2 em xung phong trình chiếu project TH2 "hội thoại 2 sprite" của mình!
+          💬 Scratch blocks are in <strong>English</strong>, exactly like the real interface — the Vietnamese meaning of each key word stays on this slide whenever you need it.
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 13: Tổng kết -->
-  <section class="slide title-slide" data-index="12" aria-label="Tổng kết">
+  <!-- Slide 5: New knowledge -->
+  <section class="slide" data-index="4" aria-label="New knowledge">
     <div class="slide-main">
-      <div class="title-emoji">🎵</div>
-      <h2 style="font-size:1.9rem; margin-bottom:16px;">Tổng kết buổi học</h2>
-      <ul style="font-size:1.05rem; line-height:2; text-align:left; font-weight:700; max-width:500px;">
-        <li>✅ <code>start sound</code> / <code>play sound until done</code></li>
-        <li>✅ Nhạc nền ở <strong>Stage</strong>, tiếng nhân vật ở <strong>Sprite</strong></li>
-        <li>✅ Mỗi sprite có <strong>code riêng</strong></li>
-        <li>✅ <code>say</code> + <code>wait</code> = hội thoại xen kẽ</li>
-        <li>✅ <code>when this sprite clicked</code> = phản ứng khi click</li>
+      <span class="slide-tag purple">New knowledge (15 min)</span>
+      <h2>The 3 pieces of a "you can lose" game</h2>
+      <div class="slide-body">
+        <div class="knowledge-grid">
+          <div class="k-card red span-2">
+            <strong>❤️ Lives = 3</strong>
+            Hit a rock → <code style="background:rgba(255,255,255,0.3); color:#fff;">change Lives by -1</code>. Same variable trick as <code style="background:rgba(255,255,255,0.3); color:#fff;">Score</code>, just counting down instead of up.
+          </div>
+          <div class="k-card orange span-2">
+            <strong>📢 broadcast</strong>
+            <code style="background:rgba(255,255,255,0.4); color:#422c00;">if Lives = 0 then broadcast GameOver</code> — one sprite shouts a message, any other sprite can listen for it.
+          </div>
+          <div class="k-card blue span-2">
+            <strong>🛑 show + stop all</strong>
+            The GAME OVER text sprite hears the broadcast → <code style="background:rgba(255,255,255,0.3); color:#fff;">show</code> + <code style="background:rgba(255,255,255,0.3); color:#fff;">stop all</code>. Every script in the project freezes at once.
+          </div>
+        </div>
+        <div class="highlight-box" style="margin-top:16px;">
+          💡 <strong>Broadcast</strong> is the most abstract idea in the whole camp — one sprite doesn't know or care who's listening, it just shouts. Today we use it exactly once, for Game Over.
+        </div>
+        <div class="highlight-box orange">
+          🤔 <strong>Predict:</strong> if we forget to <code>hide</code> the GAME OVER text at the very start, what does the screen look like the moment you hit the green flag?
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Worked example -->
+  <section class="slide" data-index="5" aria-label="Worked example">
+    <div class="slide-main">
+      <span class="slide-tag">Worked example</span>
+      <h2>Losing a life, then losing the game 💥</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <p style="margin-bottom:10px; font-weight:600;">Lose a life — the rock sprite checks constantly:</p>
+            <div class="blocks">
+              <div class="block event">when green flag clicked</div>
+              <div class="block control c-block indent">
+                forever
+                <div class="c-body">
+                  <div class="block control c-block">
+                    if touching [Boat] then
+                    <div class="c-body">
+                      <div class="block data">change [Lives] by -1 — one life gone</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p style="margin-top:10px; font-size:0.92rem; color:#5a6a7e; font-weight:600;">The rule lives inside <code>forever</code> — it's checked non-stop, exactly like the score rule from last session.</p>
+          </div>
+          <div>
+            <p style="margin-bottom:10px; font-weight:600;">Game over — broadcast, then everyone stops:</p>
+            <div class="blocks">
+              <div class="block event">when green flag clicked</div>
+              <div class="block control c-block indent">
+                forever
+                <div class="c-body">
+                  <div class="block control c-block">
+                    if [Lives = 0] then
+                    <div class="c-body">
+                      <div class="block event">broadcast [GameOver] — shout the message</div>
+                      <div class="block control">stop [all] — freeze everything</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="blocks">
+              <div class="block event">when I receive [GameOver]</div>
+              <div class="block looks indent">show — reveal the GAME OVER text</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: Build steps 1-2 -->
+  <section class="slide" data-index="6" aria-label="Build 1">
+    <div class="slide-main">
+      <span class="slide-tag green">🛠️ Build the core game (20 min)</span>
+      <h2><span class="th-label">STEP 1–2</span> Boat follows your finger + rocks drift in</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <p class="section-label" style="margin-top:0;">Step 1 — Boat steers up and down</p>
+            <ul>
+              <li>Boat only moves <strong>vertically</strong> — drag your finger up or down</li>
+              <li>Keep it near the left side of the screen</li>
+            </ul>
+            <div class="blocks">
+              <div class="block event">when green flag clicked</div>
+              <div class="block control c-block indent">
+                forever
+                <div class="c-body">
+                  <div class="block motion">set y to (mouse y) — boat follows your finger up/down</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Step 2 — Rocks drift in from the right</p>
+            <ul>
+              <li>Appear on the right edge, at a random y</li>
+              <li>Drift left with <code>change x by -6</code></li>
+              <li>Reach the left edge → jump back to the right at a new y</li>
+            </ul>
+            <div class="blocks">
+              <div class="block event">when green flag clicked</div>
+              <div class="block motion indent">go to x: 240 y: (pick random -160 to 160)</div>
+              <div class="block control c-block indent">
+                forever
+                <div class="c-body">
+                  <div class="block motion">change x by -6 — drift left</div>
+                  <div class="block control c-block">
+                    if [x position &lt; -240] then
+                    <div class="c-body">
+                      <div class="block motion">go to x: 240 y: (pick random -160 to 160) — back to the right, new spot</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: Build steps 3-5 -->
+  <section class="slide" data-index="7" aria-label="Build 2">
+    <div class="slide-main">
+      <span class="slide-tag green">🛠️ Build the core game</span>
+      <h2><span class="th-label">STEP 3–5</span> Lose lives, game over, score while alive</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div>
+            <p class="section-label" style="margin-top:0;">Step 3 — Hit a rock: lose a life + flash</p>
+            <div class="blocks">
+              <div class="block event">when green flag clicked</div>
+              <div class="block control c-block indent">
+                forever
+                <div class="c-body">
+                  <div class="block control c-block">
+                    if touching [Boat] then
+                    <div class="c-body">
+                      <div class="block data">change [Lives] by -1</div>
+                      <div class="block looks">change [color] effect by 25 — flash</div>
+                      <div class="block control">wait 0.5 seconds</div>
+                      <div class="block looks">change [color] effect by -25 — back to normal</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="section-label">Step 4 — Out of lives → Game Over</p>
+            <div class="blocks">
+              <div class="block optional control">(same broadcast + stop all as the worked example)</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Step 5 — Score climbs while you're alive</p>
+            <div class="blocks">
+              <div class="block event">when green flag clicked</div>
+              <div class="block data indent">set [Lives] to 3</div>
+              <div class="block data indent">set [Score] to 0</div>
+              <div class="block control c-block indent">
+                forever
+                <div class="c-body">
+                  <div class="block control">wait 1 seconds</div>
+                  <div class="block data">change [Score] by 1 — survive one more second</div>
+                </div>
+              </div>
+            </div>
+            <div class="card" style="margin-top:10px;">
+              <h3>🧪 Test it now</h3>
+              <p style="font-weight:600; line-height:1.6;">Let a rock hit the boat 3 times — does the GAME OVER text show up and does everything freeze?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: Pick your difficulty -->
+  <section class="slide" data-index="8" aria-label="Pick your difficulty">
+    <div class="slide-main">
+      <span class="slide-tag orange">🛠️ Level up (20 min)</span>
+      <h2>Pick your difficulty — just like a real game</h2>
+      <div class="slide-body">
+        <div class="knowledge-grid">
+          <div class="k-card green span-2">
+            <strong>🟢 EASY</strong>
+            Draw different rock shapes, add wave sound and a crunch sound on collision.
+          </div>
+          <div class="k-card orange span-2">
+            <strong>🟡 NORMAL</strong>
+            New rule: a <em>life buoy</em> 🛟 that occasionally floats by — touch it for +1 life.
+          </div>
+          <div class="k-card red span-2">
+            <strong>🔴 HARD</strong>
+            Rocks that <em>speed up as your score rises</em>, or a second diagonal stream of rocks.
+          </div>
+        </div>
+        <div class="highlight-box" style="margin-top:16px;">
+          You pick your level — not by grade, by <strong>confidence</strong>. Each level has its own slide: tap the dots up top to jump to yours.
+        </div>
+        <div class="highlight-box green">
+          🕹️ Done early? Become a <strong>playtester</strong>: play a friend's game and write down bugs — a real bug report.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: Easy -->
+  <section class="slide" data-index="9" aria-label="Easy">
+    <div class="slide-main">
+      <span class="slide-tag green">Level up · 🟢 Easy</span>
+      <h2><span class="th-label">EASY</span> 🎨 Dress up the bay</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Same rocks, same rules — but the bay should feel and sound like yours.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Requirements</p>
+            <ul>
+              <li>Draw or pick 2–3 <strong>different rock shapes/costumes</strong></li>
+              <li>Wave sound plays in the background the whole game</li>
+              <li>A distinct "crunch" sound when the boat hits a rock</li>
+              <li>Decorate the backdrop: sky, water color, small boats in the distance</li>
+            </ul>
+            <p class="section-label">✨ Try more</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Random rock costume each time it appears on the right — <code>pick random 1 to 3</code> → <code>switch costume to</code></p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Block hints</p>
+            <div class="blocks">
+              <div class="block event">when green flag clicked</div>
+              <div class="block control c-block indent">
+                forever
+                <div class="c-body">
+                  <div class="block sound">play sound [waves] until done — looping wave sound</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: Normal -->
+  <section class="slide" data-index="10" aria-label="Normal">
+    <div class="slide-main">
+      <span class="slide-tag orange">Level up · 🟡 Normal</span>
+      <h2><span class="th-label" style="background:var(--scratch-orange);">NORMAL</span> 🛟 A life buoy drifts by</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Every so often a life buoy floats across the bay. Catch it and get an extra life — miss it, and it's gone.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Requirements</p>
+            <ul>
+              <li>A separate <strong>life buoy</strong> sprite, hidden most of the time</li>
+              <li>Appears <strong>rarely</strong> — wait a random 8–15 seconds between appearances</li>
+              <li>Drifts across like a rock, but touching it → <code>change Lives by 1</code></li>
+              <li>A cheerful sound when caught, then <code>hide</code></li>
+            </ul>
+            <p class="section-label">✨ Try more</p>
+            <p style="font-size:0.92rem; font-weight:600; color:#5a6a7e;">Show a quick "+1 life!" message with <code>say … for 1 seconds</code> when caught</p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Block hints — life buoy sprite</p>
+            <div class="blocks">
+              <div class="block event">when green flag clicked</div>
+              <div class="block looks indent">hide</div>
+              <div class="block control c-block indent">
+                forever
+                <div class="c-body">
+                  <div class="block control">wait (pick random 8 to 15) seconds</div>
+                  <div class="block looks">show</div>
+                  <div class="block motion">go to x: 240 y: (pick random -160 to 160)</div>
+                  <div class="block control c-block">
+                    repeat until touching [Boat]
+                    <div class="c-body">
+                      <div class="block motion">change x by -6</div>
+                    </div>
+                  </div>
+                  <div class="block data">change [Lives] by 1 — +1 life!</div>
+                  <div class="block looks">hide</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: Hard -->
+  <section class="slide" data-index="11" aria-label="Hard">
+    <div class="slide-main">
+      <span class="slide-tag red">Level up · 🔴 Hard</span>
+      <h2><span class="th-label btvn-label">HARD</span> 🌊 The bay gets rougher</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Pick 1 of the 2 mechanics (finished early? do the other one too):</p>
+        <div class="cols">
+          <div>
+            <p class="section-label" style="margin-top:0;">Option A — Rocks speed up with your score</p>
+            <ul>
+              <li>New variable <code>Speed</code></li>
+              <li>Every loop: <code>set Speed to ((Score / 10) + 5)</code></li>
+              <li>The rock moves by <code>change x by (Speed × -1)</code></li>
+            </ul>
+            <div class="blocks">
+              <div class="block control c-block">
+                forever
+                <div class="c-body">
+                  <div class="block data">set [Speed] to ((Score / 10) + 5) — faster as score climbs</div>
+                  <div class="block motion">change x by ((Speed) * -1) — drift left, faster now</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Option B — A second diagonal stream</p>
+            <ul>
+              <li>Duplicate the rock sprite</li>
+              <li>New rocks drift <strong>diagonally</strong> — change both x and y each loop</li>
+              <li>Player now watches two directions at once</li>
+            </ul>
+            <div class="blocks">
+              <div class="block event">when green flag clicked</div>
+              <div class="block motion indent">go to x: 240 y: 150</div>
+              <div class="block control c-block indent">
+                forever
+                <div class="c-body">
+                  <div class="block motion">change x by -6</div>
+                  <div class="block motion">change y by -3 — drifts diagonally down-left</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Playtest -->
+  <section class="slide" data-index="12" aria-label="Playtest">
+    <div class="slide-main">
+      <span class="slide-tag purple">🕹️ Playtest (10 min)</span>
+      <h2>Survival contest — who lasts longest?</h2>
+      <div class="slide-body">
+        <div class="highlight-box purple">
+          Swap devices. Everyone plays a friend's game once — whoever <strong>survives the longest</strong> on that game wins the round.
+        </div>
+        <div class="cols" style="margin-top:14px;">
+          <div class="card">
+            <h3>📈 Compare the ramp-up</h3>
+            <p style="font-weight:600; line-height:1.6;">Whose game feels like it gets <strong>harder little by little</strong>, and whose feels like it jumps straight to "impossible"? That difference is real game design.</p>
+          </div>
+          <div class="card">
+            <h3>💬 Feedback formula</h3>
+            <p style="font-weight:600; line-height:1.6;">Say exactly 2 sentences about the game you just played:<br>① 1 thing you liked &nbsp;② 1 thing to fix.</p>
+          </div>
+        </div>
+        <div class="highlight-box green" style="margin-top:14px;">
+          🐛 Lives not decreasing? Game Over screen never shows? Tell the author — a <strong>bug report</strong> is the best gift a playtester can give.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 14: Wrap-up -->
+  <section class="slide title-slide" data-index="13" aria-label="Wrap-up">
+    <div class="slide-main">
+      <div class="title-emoji">⛵</div>
+      <h2 style="font-size:1.9rem; margin-bottom:16px;">Session 4 wrap-up</h2>
+      <ul style="font-size:1.05rem; line-height:2; text-align:left; font-weight:700; max-width:560px;">
+        <li>✅ <code>Lives</code> + <code>Score</code> — two variables tracked at the same time</li>
+        <li>✅ <code>broadcast</code> = one sprite shouts, others can listen</li>
+        <li>✅ <code>show</code> + <code>stop all</code> = a proper Game Over screen</li>
+        <li>✅ A good game gets <strong>harder little by little</strong>, not all at once</li>
+        <li>✅ Save your project: <code>Buoi4-Ten</code> (Session4-YourName)</li>
       </ul>
       <p style="margin-top:24px; font-size:1.15rem; color:var(--scratch-orange); font-weight:800;">
-        Hẹn gặp lại ở buổi Bài tập tuần này để làm Luyện tập 1, 2 và bài mở rộng! 👋
+        Session 5: reflexes and rhythm — a whack-a-mole game 🐭
+      </p>
+      <p style="margin-top:10px; font-size:0.95rem; color:#7a8a9e; font-weight:600; max-width:520px;">
+        Optional homework — no pressure: session 6 is your own game. Start thinking about what you'd like to make!
       </p>
     </div>
   </section>
 
 </div>
 
-<nav class="nav" aria-label="Điều hướng slide">
-  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
-  <span class="slide-counter" id="counter" aria-live="polite">1 / 13</span>
-  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+<nav class="nav" aria-label="Slide navigation">
+  <button id="btnPrev" title="Previous slide (←)" aria-label="Previous slide">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 14</span>
+  <button id="btnNext" title="Next slide (→)" aria-label="Next slide">&#8594;</button>
 </nav>
-<p class="hint" id="hint">← → hoặc Space · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
-<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+<p class="hint" id="hint">← → or Space · F fullscreen · Esc exit · click the screen edges</p>
+<button class="fs-exit" id="btnExitFs" title="Exit fullscreen (Esc)">✕</button>
 
 <script>
   const slides = document.querySelectorAll('.slide');
@@ -1162,8 +1288,8 @@
     btnPrev.disabled = current === 0;
     btnNext.disabled = current === total - 1;
     brandSub.textContent = current === 0 || current === total - 1
-      ? '· Scratch'
-      : '· Tuần 5 Buổi 9';
+      ? '· Summer Camp'
+      : '· Summer Camp Session 4';
     updateDots();
   }
 

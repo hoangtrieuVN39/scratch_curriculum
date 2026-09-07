@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 12 — Buổi 24: Game mini hoàn chỉnh</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+      
+      --slide-w: min(1100px, 94vw);
+      --slide-h: min(700px, 84vh);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1a2744 0%, #2d4a7a 50%, #1a2744 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--scratch-dark);
+      user-select: none;
+    }
+
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 4px; width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow));
+      transition: width 0.35s ease;
+      z-index: 200;
+    }
+
+    .deck { width: var(--slide-w); height: var(--slide-h); position: relative; margin-top: 56px; }
+
+    .slide {
+      position: absolute; inset: 0;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.38);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden;
+      transform: translateX(40px);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1; visibility: visible; transform: translateX(0);
+      pointer-events: auto; z-index: 10;
+      transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s;
+    }
+
+    .slide.prev { opacity: 0; visibility: hidden; transform: translateX(-40px); pointer-events: none; z-index: 0; }
+    .slide.next { opacity: 0; visibility: hidden; transform: translateX(40px); pointer-events: none; z-index: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .progress-bar { transition: none; }
+    }
+
+    .global-topbar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      width: var(--slide-w);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      z-index: 150;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.88rem; color: var(--scratch-dark); white-space: nowrap; }
+    .brand-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--scratch-orange), var(--scratch-blue));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .brand-sub { font-weight: 600; color: #7a8a9e; font-size: 0.78rem; }
+
+    .slide-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 360px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #d0d8e4; border: none; cursor: pointer; padding: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .dot:hover { transform: scale(1.25); background: #aab4c4; }
+    .dot.active { background: var(--scratch-orange); transform: scale(1.2); }
+
+    .topbar-actions { display: flex; gap: 6px; }
+    .icon-btn {
+      width: 34px; height: 34px;
+      border: 1px solid #dde3ec;
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      color: var(--scratch-dark);
+    }
+    .icon-btn:hover { background: var(--scratch-bg); }
+
+    .slide-main { flex: 1; display: flex; flex-direction: column; padding: 24px 40px 20px; min-height: 0; }
+    .title-slide .slide-main { justify-content: center; align-items: center; text-align: center; padding: 32px; }
+
+    .slide-tag {
+      display: inline-flex; align-items: center;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #fff; background: var(--scratch-blue);
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 10px;
+      align-self: flex-start;
+    }
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green { background: var(--scratch-green); }
+    .slide-tag.red { background: var(--scratch-red); }
+    .slide-tag.yellow { background: #c98a00; }
+
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.2; font-weight: 800; margin-bottom: 6px; }
+    h2 { font-size: clamp(1.3rem, 2.8vw, 1.75rem); font-weight: 800; margin-bottom: 14px; line-height: 1.25; }
+    .subtitle { font-size: 1.05rem; color: #5a6a7e; font-weight: 600; }
+
+    .slide-body { flex: 1; overflow-y: auto; padding-right: 6px; min-height: 0; }
+    .slide-body::-webkit-scrollbar { width: 5px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #c8d0da; border-radius: 4px; }
+
+    .title-slide { background: linear-gradient(160deg, #fff8f0 0%, #fff 55%, #f0f7ff 100%); }
+    .title-emoji { font-size: clamp(3rem, 8vw, 4.5rem); margin-bottom: 8px; line-height: 1; }
+    .title-slide h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .title-meta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .badge { background: #fff; border: 2px solid #dde3ec; border-radius: 12px; padding: 7px 16px; font-weight: 700; font-size: 0.9rem; }
+    .start-hint { margin-top: 28px; color: #7a8a9e; font-size: 0.88rem; font-weight: 600; animation: pulse 2.5s ease-in-out infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+    ul, ol { padding-left: 1.3em; line-height: 1.7; font-size: 1rem; font-weight: 600; }
+    li { margin-bottom: 4px; }
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.92em; font-weight: 700;
+      background: #eef2f7; color: #5b3ea8;
+      padding: 1px 7px; border-radius: 5px;
+    }
+    strong { font-weight: 800; }
+
+    .highlight-box {
+      background: #f0f7ff;
+      border-left: 4px solid var(--scratch-blue);
+      border-radius: 0 12px 12px 0;
+      padding: 14px 18px; margin: 12px 0;
+      font-size: 1rem; line-height: 1.6; font-weight: 600;
+    }
+    .highlight-box.orange { background: #fff8f0; border-color: var(--scratch-orange); }
+    .highlight-box.green { background: #f0fff4; border-color: var(--scratch-green); }
+    .highlight-box.purple { background: #f5f0ff; border-color: var(--scratch-purple); }
+    .highlight-box.red { background: #fff0f3; border-color: var(--scratch-red); }
+
+    /* Scratch block mockups */
+    .blocks { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin: 10px 0; font-size: 0.88rem; font-weight: 700; }
+    .block {
+      position: relative; display: inline-block;
+      padding: 7px 14px 7px 12px;
+      border-radius: 6px; color: #fff;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.18);
+      white-space: normal; line-height: 1.35; max-width: 100%;
+    }
+    .block::before {
+      content: ''; position: absolute; top: -3px; left: 10px;
+      width: 12px; height: 6px; background: inherit;
+      border-radius: 3px 3px 0 0; filter: brightness(0.92);
+    }
+    .block:first-child::before, .block.event::before, .block.define::before, .block.c-block::before { display: none; }
+
+    .block.event { background: #ffbf00; color: #422c00; border-radius: 14px 6px 6px 6px; padding-top: 9px; }
+    .block.define { background: #ff6680; color: #fff; border-radius: 14px 6px 6px 6px; padding-top: 9px; font-weight: 800; }
+    .block.myblock { background: #ff6680; color: #fff; font-weight: 800; }
+    .block.looks { background: #9966ff; }
+    .block.control { background: #ffab19; color: #422c00; }
+    .block.motion { background: #4c97ff; }
+    .block.sound { background: #cf63cf; }
+    .block.sensing { background: #5cb1d6; }
+    .block.variable { background: #ff8c1a; }
+    .block.operator { background: #59c059; }
+
+    .block.indent { margin-left: 20px; }
+    .block.indent-2 { margin-left: 40px; }
+    .block.optional { opacity: 0.65; font-style: italic; }
+
+    .block.c-block { border-radius: 6px 6px 4px 4px; padding-bottom: 4px; }
+    .c-body { display: flex; flex-direction: column; gap: 2px; margin: 4px 0 2px 8px; padding-left: 8px; border-left: 3px solid rgba(0,0,0,0.12); }
+
+    .blocks.compact { gap: 1px; margin: 6px 0; }
+    .blocks.compact .block { padding: 4px 10px 4px 8px; line-height: 1.2; }
+    .blocks.compact .c-body { margin: 2px 0 1px 6px; padding-left: 6px; gap: 1px; }
+
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 6px; }
+    .cols-60-40 { grid-template-columns: 1.15fr 0.85fr; }
+
+    @media (max-width: 720px) {
+      .cols, .cols-60-40 { grid-template-columns: 1fr; }
+      .slide-main { padding: 18px 22px 14px; }
+      .global-topbar { padding: 8px 12px; top: 8px; }
+      .slide-dots { display: none; }
+      .brand-sub { display: none; }
+    }
+
+    .card { background: var(--scratch-bg); border-radius: 12px; padding: 14px 16px; }
+    .card h3 { font-size: 0.95rem; font-weight: 800; color: var(--scratch-blue); margin-bottom: 8px; }
+    .card.purple h3 { color: var(--scratch-purple); }
+    .card.orange h3 { color: var(--scratch-orange); }
+    .card.red h3 { color: var(--scratch-red); }
+    .card.green h3 { color: #2e7d32; }
+
+    .section-label { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #7a8a9e; margin: 10px 0 6px; }
+
+    .knowledge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .k-card { border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 0.88rem; line-height: 1.45; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .k-card > strong:first-child { display: block; font-size: 0.95rem; font-weight: 800; margin-bottom: 5px; }
+    .k-card.span-2 { grid-column: span 2; }
+    .k-card.span-3 { grid-column: span 3; }
+    .k-card.blue { background: var(--scratch-blue); }
+    .k-card.orange { background: var(--scratch-orange); color: #422c00; }
+    .k-card.purple { background: var(--scratch-purple); }
+    .k-card.green { background: var(--scratch-green); }
+    .k-card.red { background: var(--scratch-red); }
+
+    @media (max-width: 720px) {
+      .knowledge-grid { grid-template-columns: 1fr; }
+      .k-card.span-2, .k-card.span-3 { grid-column: 1; }
+    }
+
+    /* Steps list */
+    .steps-list { display: flex; flex-direction: column; gap: 8px; }
+    .step-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--scratch-bg); padding: 10px 14px; border-radius: 10px;
+      font-weight: 700; font-size: 0.92rem; line-height: 1.4;
+    }
+    .step-badge {
+      background: var(--scratch-blue); color: #fff;
+      font-weight: 800; font-size: 0.78rem;
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .step-badge.red { background: var(--scratch-red); }
+    .step-badge.orange { background: var(--scratch-orange); }
+
+    /* Quiz */
+    .quiz-item {
+      background: var(--scratch-bg); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-weight: 700; font-size: 0.96rem;
+      display: flex; gap: 12px; align-items: flex-start;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .quiz-item:hover { background: #e4eaf2; }
+    .quiz-num {
+      background: var(--scratch-purple); color: #fff;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.82rem; flex-shrink: 0;
+    }
+    .quiz-answer { display: none; margin-top: 8px; padding: 8px 12px; background: #e8f4e8; border-radius: 8px; font-size: 0.9rem; font-weight: 700; color: #2d6a3a; }
+    .quiz-item.revealed .quiz-answer { display: block; }
+    .quiz-item.revealed { background: #eef6ee; }
+
+    .tip {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: #fffbe6; border: 2px dashed var(--scratch-yellow);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+      font-size: 0.94rem; line-height: 1.55; font-weight: 600;
+    }
+    .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    .th-label {
+      display: inline-block; background: var(--scratch-green); color: #fff;
+      font-weight: 800; font-size: 0.72rem; padding: 3px 9px; border-radius: 6px;
+      margin-right: 4px; vertical-align: middle; letter-spacing: 0.03em;
+    }
+    .btvn-label { background: var(--scratch-red); }
+    .th-label.level-b { background: var(--scratch-blue); }
+    .th-label.level-c { background: var(--scratch-purple); }
+
+    .emoji-row { font-size: 1.6rem; letter-spacing: 6px; margin: 10px 0; }
+
+    /* Custom table */
+    .table-custom {
+      width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.88rem;
+    }
+    .table-custom th, .table-custom td {
+      border: 1px solid #dbe3ed; padding: 8px 12px; text-align: left;
+    }
+    .table-custom th {
+      background: #eef4fc; font-weight: 800; color: var(--scratch-dark);
+    }
+    .table-custom tr:nth-child(even) td { background: #fafbfc; }
+
+    .nav { position: fixed; bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 100; }
+    .nav button {
+      background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.38);
+      color: #fff; width: 46px; height: 46px; border-radius: 50%;
+      font-size: 1.2rem; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(8px);
+    }
+    .nav button:hover:not(:disabled) { background: rgba(255,255,255,0.28); transform: scale(1.07); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+
+    .slide-counter { color: rgba(255,255,255,0.9); font-size: 0.88rem; font-weight: 800; min-width: 56px; text-align: center; }
+
+    .hint { position: fixed; bottom: 76px; color: rgba(255,255,255,0.42); font-size: 0.74rem; font-weight: 600; transition: opacity 0.4s; }
+
+    html:fullscreen, html:-webkit-full-screen { width: 100%; height: 100%; }
+    html:fullscreen body, html:-webkit-full-screen body { width: 100%; height: 100%; min-height: 100%; background: #1a2744; padding: 0; }
+    html:fullscreen .deck, html:-webkit-full-screen .deck { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0; }
+    html:fullscreen .slide, html:-webkit-full-screen .slide { border-radius: 0; box-shadow: none; }
+    html:fullscreen .global-topbar, html:-webkit-full-screen .global-topbar { display: none; }
+    html:fullscreen .hint, html:-webkit-full-screen .hint { display: none; }
+    html:fullscreen .nav, html:-webkit-full-screen .nav { bottom: 16px; opacity: 0.35; transition: opacity 0.25s; }
+    html:fullscreen .nav:hover, html:-webkit-full-screen .nav:hover { opacity: 1; }
+    html:fullscreen .progress-bar, html:-webkit-full-screen .progress-bar { height: 3px; }
+
+    .fs-exit {
+      display: none; position: fixed; top: 12px; right: 12px; z-index: 300;
+      background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.35);
+      color: #fff; width: 40px; height: 40px; border-radius: 10px;
+      cursor: pointer; font-size: 1rem; backdrop-filter: blur(6px);
+      transition: background 0.15s;
+    }
+    .fs-exit:hover { background: rgba(0,0,0,0.65); }
+    html:fullscreen .fs-exit, html:-webkit-full-screen .fs-exit {
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    @media print {
+      body { background: #fff; overflow: visible; }
+      .nav, .hint, .progress-bar, .global-topbar { display: none !important; }
+      .deck { width: 100%; height: auto; }
+      .slide {
+        position: relative; opacity: 1 !important; transform: none !important;
+        page-break-after: always; box-shadow: none; border: 1px solid #ccc;
+        margin-bottom: 20px; min-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🐱</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1: Tiêu đề -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji">🎮</div>
+      <h1>Game mini hoàn chỉnh</h1>
+      <p class="subtitle">Lập trình Scratch — Tháng 3 · Logic nâng cao</p>
+      <div class="title-meta">
+        <span class="badge">📅 Tuần 12</span>
+        <span class="badge">✏️ Buổi 24 — Bài tập</span>
+        <span class="badge">🎯 7–10 tuổi</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Phím cách để bắt đầu</p>
+    </div>
+  </section>
+
+  <!-- Slide 2: Khởi động ôn tập -->
+  <section class="slide" data-index="1" aria-label="Khởi động ôn tập">
+    <div class="slide-main">
+      <span class="slide-tag purple">🎬 Khởi động ôn tập (10 phút)</span>
+      <h2>Đúng hay Sai? 👍👎</h2>
+      <div class="slide-body">
+        <p style="font-size:0.88rem; color:#7a8a9e; font-weight:700; margin-bottom:10px;">Thầy/Cô đọc từng câu, cả lớp giơ ngón cái lên (Đúng) hoặc xuống (Sai) — click từng câu để mở đáp án ↓</p>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">1</span>
+          <div>"My Block (Khối của tôi) giúp gom nhiều khối lệnh thành một khối có tên riêng."
+            <div class="quiz-answer">→ <strong>Đúng!</strong> Giúp code gọn gàng, dễ đọc và dùng lại nhiều lần.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">2</span>
+          <div>"Khối `định nghĩa` (define) là nơi em gọi My Block để chạy."
+            <div class="quiz-answer">→ <strong>Sai!</strong> Khối <code>định nghĩa</code> là nơi viết ruột code; khối mang tên riêng mới là nơi gọi ra chạy.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">3</span>
+          <div>"Khi debug (tìm sửa lỗi), bước đầu tiên nên làm là quan sát kỹ triệu chứng lỗi."
+            <div class="quiz-answer">→ <strong>Đúng!</strong> Quan sát hiện tượng bất thường giúp xác định chính xác vị trí cần kiểm tra.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">4</span>
+          <div>"Thêm khối `nói` (say test) tạm thời vào code là một cách debug hợp lệ."
+            <div class="quiz-answer">→ <strong>Đúng!</strong> Khối <code>nói</code> giúp kiểm tra xem Scratch có thực sự chạy đến dòng lệnh đó không.</div>
+          </div>
+        </div>
+        <div class="quiz-item" data-quiz>
+          <span class="quiz-num">5</span>
+          <div>"Một game hay không cần màn Start hay Game Over, chỉ cần chạy mãi mãi."
+            <div class="quiz-answer">→ <strong>Sai!</strong> Game hấp dẫn cần có luồng hoàn chỉnh: Bắt đầu (Start) ➡️ Gameplay ➡️ Kết thúc (Game Over/Win) ➡️ Chơi lại (Reset).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Ôn nhanh -->
+  <section class="slide" data-index="2" aria-label="Ôn nhanh">
+    <div class="slide-main">
+      <span class="slide-tag orange">🔁 Ôn nhanh</span>
+      <h2>Trạm kỹ năng Tháng 3 — Logic nâng cao ⚡</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Hôm nay là buổi tổng kết lớn nhất Tháng 3! Em sẽ kết hợp <strong>toàn bộ vũ khí lập trình</strong> đã học để tạo ra một <strong>Game mini hoàn chỉnh</strong> mang dấu ấn của riêng mình! 🏆
+        </div>
+        <div class="knowledge-grid" style="margin-top:12px;">
+          <div class="k-card blue">
+            <strong>🎲 Biến &amp; Phép toán</strong>
+            Quản lý <code>điểm</code>, <code>thời gian</code>, <code>mạng</code>; phép so sánh điều kiện &amp; <code>lấy ngẫu nhiên</code>.
+          </div>
+          <div class="k-card orange">
+            <strong>📡 Thông báo (Broadcast)</strong>
+            Điều phối các màn chơi mượt mà: nhận tin <code>start</code> để chơi, phát tin <code>game over</code> khi kết thúc.
+          </div>
+          <div class="k-card green">
+            <strong>👥 Bản sao (Clone)</strong>
+            Tạo mưa rơi, sao rơi, bóng bay liên tục bằng clone và <strong>luôn xóa clone</strong> khi chạm đáy.
+          </div>
+          <div class="k-card red">
+            <strong>🧩 My Blocks &amp; Debug</strong>
+            Gom code thành các khối gọn gàng (<code>reset game</code>, <code>tăng điểm</code>) và tư duy bác sĩ sửa lỗi 6 bước.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: LT1 -->
+  <section class="slide" data-index="3" aria-label="Luyện tập 1">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp (15–20 phút)</span>
+      <h2><span class="th-label btvn-label">LT1</span> Gom code thành My Block 🧩</h2>
+      <div class="slide-body">
+        <div class="highlight-box red" style="margin-top:0;">
+          Mở project cũ (game bắt sao hoặc game tuần trước) và <strong>refactor (gom code)</strong>: tạo ít nhất <strong>2 My Blocks</strong> (ví dụ <code>reset game</code> và <code>tăng điểm</code>), thay thế các đoạn code lặp lại.
+        </div>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu cần đạt</p>
+            <ul>
+              <li>Tạo ít nhất <strong>2 My Blocks</strong> có tên rõ ràng (ví dụ: <code>reset game</code>, <code>tăng điểm</code>).</li>
+              <li>Mỗi My Block có <strong>≥ 2 khối lệnh</strong> bên trong <code>định nghĩa</code>.</li>
+              <li>Game vẫn chạy <strong>chính xác như cũ</strong> sau khi gom code.</li>
+              <li>Lưu project với tên: <code>LT1-refactor-my-block</code>.</li>
+            </ul>
+            <div class="tip" style="margin-top:10px;">
+              <span class="tip-icon">🔄</span>
+              <div><strong>Đổi máy 2 phút:</strong> Nhờ bạn bên cạnh bắt lỗi giúp xem sau khi gom My Block, game có còn chạy trơn tru không!</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý mẫu My Block</p>
+            <div class="blocks compact" style="font-size:0.75rem;">
+              <div class="block define">định nghĩa reset game</div>
+              <div class="block variable indent">đặt [điểm] thành (0)</div>
+              <div class="block motion indent">đi tới điểm x: (0) y: (-120)</div>
+              <div class="block looks indent">hiện</div>
+              <div style="height:6px;"></div>
+              <div class="block define">định nghĩa tăng điểm</div>
+              <div class="block variable indent">thay đổi [điểm] một lượng (1)</div>
+              <div class="block sound indent">bắt đầu âm thanh [Collect]</div>
+              <div style="height:6px;"></div>
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block myblock indent">reset game</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: LT2 -->
+  <section class="slide" data-index="4" aria-label="Luyện tập 2">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
+      <h2><span class="th-label btvn-label">LT2</span> Bác sĩ Scratch sửa project lỗi mẫu 🔧</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Project mẫu <code>BT-loi-1.sb3</code> (Game "Bắt sao") đang mắc <strong>3 ca bệnh</strong> nghiêm trọng. Em hãy chẩn đoán và chữa trị cho game chạy hoàn hảo!
+        </div>
+        <table class="table-custom" style="margin-top:8px;">
+          <thead>
+            <tr>
+              <th style="width: 15%;">Bệnh án</th>
+              <th style="width: 45%;">Triệu chứng lỗi</th>
+              <th style="width: 40%;">Phương thuốc chữa trị (Gợi ý)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>🩺 Lỗi 1</strong></td>
+              <td>Bấm cờ xanh, điểm <strong>không về 0</strong> — vẫn giữ nguyên điểm cũ</td>
+              <td>Thêm <code>đặt [điểm] thành (0)</code> ngay dưới <code>khi bấm vào 🏳️</code>.</td>
+            </tr>
+            <tr>
+              <td><strong>🩺 Lỗi 2</strong></td>
+              <td>Nhấn phím mũi tên, Cat <strong>không di chuyển</strong></td>
+              <td>Code di chuyển đang nằm <strong>ngoài</strong> <code>liên tục</code> ➡️ Bọc code trong khối <code>liên tục</code>.</td>
+            </tr>
+            <tr>
+              <td><strong>🩺 Lỗi 3</strong></td>
+              <td>Chạm vào sao, điểm <strong>không tăng</strong></td>
+              <td>Kiểm tra tên biến: sửa lại đúng biến <code>điểm</code> thay vì dùng nhầm biến khác.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="highlight-box green" style="margin-top:10px; padding:10px 14px; font-size:0.92rem;">
+          💾 <strong>Checklist:</strong> Sửa cả 3 lỗi ➡️ Chạy thử kiểm tra ➡️ Lưu project tên <code>LT2-sua-loi-1</code>.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Giới thiệu bài mở rộng -->
+  <section class="slide" data-index="5" aria-label="Giới thiệu bài mở rộng">
+    <div class="slide-main">
+      <span class="slide-tag green">🎯 Giới thiệu bài mở rộng (10 phút)</span>
+      <h2>Em tự chọn 1 mức thử thách (30–35 phút)</h2>
+      <div class="slide-body">
+        <div class="highlight-box green" style="margin-top:0;">
+          Thầy/Cô demo nhanh 1 bài mẫu. Em chọn <strong>1 trong 3 mức</strong> (A, B hoặc C), rồi chọn <strong>1 trong 2 bài</strong> của mức đó để bắt tay thực hiện!
+        </div>
+        <div class="knowledge-grid" style="margin-top:14px; grid-template-columns: repeat(3, 1fr);">
+          <div class="k-card green">
+            <strong>🅰️ Mức A — Luyện My Block</strong>
+            🧩 <strong>A1:</strong> Refactor My Block (gom 3 khối)<br>
+            🛑 <strong>A2:</strong> My Block gameOver (kết thúc chuẩn)
+          </div>
+          <div class="k-card blue">
+            <strong>🅱️ Mức B — Bác sĩ Debug</strong>
+            🔧 <strong>B1:</strong> Sửa 3 project lỗi đa dạng<br>
+            🍎 <strong>B2:</strong> Sửa project lỗi #4 (Game bắt táo)
+          </div>
+          <div class="k-card purple">
+            <strong>🅲 Mức C — Game hoàn chỉnh</strong>
+            🎮 <strong>C1:</strong> Game mini hoàn chỉnh từ A-Z<br>
+            🔄 <strong>C2:</strong> Remix game tuần 22 lên Pro
+          </div>
+        </div>
+        <div class="tip" style="margin-top:12px;">
+          <span class="tip-icon">💡</span>
+          <div>Bấm các chấm tròn phía trên hoặc dùng phím mũi tên để chuyển đến slide bài tập em muốn làm!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: A1 -->
+  <section class="slide" data-index="6" aria-label="A1">
+    <div class="slide-main">
+      <span class="slide-tag green">Bài mở rộng · Mức A</span>
+      <h2><span class="th-label">A1</span> Refactor My Block 🧩</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Project game của em đang cồng kềnh với nhiều đoạn lệnh lặp đi lặp lại. Đã đến lúc dọn dẹp sạch sẽ: gom thành <strong>3 My Blocks</strong> chuyên nghiệp!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu bắt buộc</p>
+            <ul>
+              <li>Tạo đủ <strong>3 My Blocks</strong>: <code>reset game</code>, <code>tăng điểm</code>, <code>game over</code>.</li>
+              <li>Mỗi khối có <strong>≥ 2 lệnh</strong> bên trong phần <code>định nghĩa</code>.</li>
+              <li>Thay thế code cũ bằng các khối gọi tương ứng.</li>
+              <li>Chạy thử kiểm tra toàn bộ tính năng và lưu project.</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm (Thách thức)</p>
+            <p style="font-size:0.9rem; font-weight:600; color:#5a6a7e;">
+              Thêm tham số đầu vào cho khối <code>tăng điểm (số điểm)</code> để 1 khối duy nhất vừa cộng +1 điểm (táo thường) vừa cộng +5 điểm (kim cương hiếm)!
+            </p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý 3 My Blocks</p>
+            <div class="blocks compact" style="font-size:0.7rem;">
+              <div class="block define">định nghĩa reset game</div>
+              <div class="block variable indent">đặt [điểm] thành (0)</div>
+              <div class="block motion indent">đi tới điểm x: (0) y: (-100)</div>
+              <div style="height:4px;"></div>
+              <div class="block define">định nghĩa tăng điểm</div>
+              <div class="block variable indent">thay đổi [điểm] một lượng (1)</div>
+              <div class="block sound indent">bắt đầu âm thanh [Coin]</div>
+              <div style="height:4px;"></div>
+              <div class="block define">định nghĩa game over</div>
+              <div class="block looks indent">nói [Game Over!] trong (2) giây</div>
+              <div class="block control indent">dừng lại [tất cả]</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: A2 -->
+  <section class="slide" data-index="7" aria-label="A2">
+    <div class="slide-main">
+      <span class="slide-tag green">Bài mở rộng · Mức A</span>
+      <h2><span class="th-label">A2</span> My Block gameOver 🛑</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Mọi game đều cần kết thúc chuẩn xác và đẹp mắt! Em tạo My Block <strong><code>game over</code></strong> để dừng game trong nhiều tình huống khác nhau.</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu bắt buộc</p>
+            <ul>
+              <li>Tạo My Block <code>game over</code> có <strong>≥ 3 khối lệnh</strong> bên trong: <code>nói</code> thông báo + <code>phát tin game over</code> + <code>dừng lại tất cả</code>.</li>
+              <li>Gọi khối <code>game over</code> ở ít nhất <strong>2 tình huống</strong> (ví dụ: khi hết 30s VÀ khi hết 3 mạng).</li>
+              <li>Kết hợp với khối <code>reset game</code> khi bắt đầu ván mới.</li>
+            </ul>
+            <p class="section-label">✨ Thử thêm</p>
+            <p style="font-size:0.9rem; font-weight:600; color:#5a6a7e;">
+              Thêm âm thanh tiếng nổ (Explosion) và tạo biến <code>điểm cao nhất</code> để khối <code>game over</code> tự so sánh cập nhật kỷ lục mới!
+            </p>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý cấu trúc khối</p>
+            <div class="blocks compact" style="font-size:0.72rem;">
+              <div class="block define">định nghĩa game over</div>
+              <div class="block sound indent">bắt đầu âm thanh [Lose]</div>
+              <div class="block looks indent">nói (kết hợp [Game Over! Điểm: ] (điểm)) trong (2) giây</div>
+              <div class="block event indent">phát tin [hiện bảng điểm]</div>
+              <div class="block control indent">dừng lại [tất cả]</div>
+              <div style="height:6px;"></div>
+              <p style="font-size:0.78rem; color:#7a8a9e; margin-bottom:3px;">Khi hết giờ hoặc hết mạng:</p>
+              <div class="block control c-block">
+                nếu &lt;(thời gian) = (0)&gt; thì
+                <div class="c-body">
+                  <div class="block myblock">game over</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: B1 -->
+  <section class="slide" data-index="8" aria-label="B1">
+    <div class="slide-main">
+      <span class="slide-tag">Bài mở rộng · Mức B</span>
+      <h2><span class="th-label level-b">B1</span> Sửa 3 project lỗi (Bác sĩ Scratch) 🔧</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:8px;">Em trở thành Bác sĩ lập trình Scratch hôm nay — khám và chữa khỏi hoàn toàn cho cả 3 project mẫu bị sự cố!</p>
+        <div class="steps-list" style="font-size:0.86rem; gap:6px;">
+          <div class="step-item" style="padding:8px 12px;">
+            <span class="step-badge">1</span>
+            <div><strong>Project 1 ("Bắt sao"):</strong> Cờ xanh không reset điểm ➡️ thêm <code>đặt điểm thành 0</code>; Cat không di chuyển ➡️ bọc trong <code>liên tục</code>; Chạm sao không tăng điểm ➡️ sửa lại đúng tên biến.</div>
+          </div>
+          <div class="step-item" style="padding:8px 12px;">
+            <span class="step-badge">2</span>
+            <div><strong>Project 2 ("Nút Start"):</strong> Click Play game không chạy ➡️ sửa tên tin <code>start</code> và <code>Start</code> cho khớp 100%; Game chạy ngay khi bấm cờ xanh ➡️ đổi sang <code>khi nhận start</code>; Game over không dừng ➡️ thêm <code>dừng lại tất cả</code>.</div>
+          </div>
+          <div class="step-item" style="padding:8px 12px;">
+            <span class="step-badge">3</span>
+            <div><strong>Project 3 ("Mưa clone"):</strong> Không thấy mưa ➡️ chuyển code rơi sang <code>khi tôi bắt đầu là một bản sao</code>; Game giật lag sau 30s ➡️ thêm <code>xóa bản sao này</code> khi chạm đáy; Mưa rơi giữa màn hình ➡️ thêm <code>đi tới y: 180</code>.</div>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:8px;">
+          <span class="tip-icon">📝</span>
+          <div><strong>Ghi chú:</strong> Viết ngắn gọn những chỗ em đã sửa vào sổ tay hoặc comment Scratch để luyện tư duy debug có hệ thống!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: B2 -->
+  <section class="slide" data-index="9" aria-label="B2">
+    <div class="slide-main">
+      <span class="slide-tag">Bài mở rộng · Mức B</span>
+      <h2><span class="th-label level-b">B2</span> Sửa project lỗi #4 (Game bắt táo) 🍎🔧</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Ca bệnh đặc biệt trong project <code>BT-loi-4.sb3</code>! Đọc bảng triệu chứng, tìm nguyên nhân cốt lõi và chữa trị dứt điểm.</p>
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th style="width: 14%;">Vấn đề</th>
+              <th style="width: 46%;">Triệu chứng lỗi</th>
+              <th style="width: 40%;">Nguyên nhân &amp; Cách sửa</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Lỗi 1</strong></td>
+              <td>Bấm nút Start, game <strong>không bắt đầu</strong> (nhân vật đứng yên)</td>
+              <td>Sai tên tin nhắn: Nút phát <code>start</code> nhưng nhân vật chờ <code>Start</code> ➡️ Sửa cho <strong>giống hệt nhau từng chữ</strong>.</td>
+            </tr>
+            <tr>
+              <td><strong>Lỗi 2</strong></td>
+              <td>Chạm vào táo, điểm <strong>không tăng</strong></td>
+              <td>My Block <code>tăng điểm</code> đã có định nghĩa nhưng ở phần chạm táo <strong>quên gọi khối</strong> ➡️ Kéo khối <code>tăng điểm</code> vào trong <code>nếu đang chạm</code>.</td>
+            </tr>
+            <tr>
+              <td><strong>Lỗi 3</strong></td>
+              <td>Hết 30 giây, game <strong>không dừng lại</strong> (vẫn chơi tiếp)</td>
+              <td>Trong khối <code>định nghĩa game over</code> bị thiếu lệnh <code>dừng lại tất cả</code> ➡️ Kéo bổ sung vào cuối định nghĩa.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="highlight-box green" style="margin-top:10px; padding:10px 14px; font-size:0.92rem;">
+          🎯 <strong>Yêu cầu:</strong> Sửa hết 3 lỗi ➡️ Chơi thử 2 lần ➡️ Lưu project tên <code>LT-sua-loi-4</code>.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: C1 -->
+  <section class="slide" data-index="10" aria-label="C1">
+    <div class="slide-main">
+      <span class="slide-tag purple">Bài mở rộng · Mức C</span>
+      <h2><span class="th-label level-c">C1</span> Game mini hoàn chỉnh 🎮🌟</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:8px;">Tác phẩm đỉnh cao Tháng 3! Em tự làm một Game mini hoàn chỉnh kết hợp tất cả kiến thức đã học để biểu diễn trong buổi Showcase!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Các yếu tố bắt buộc có trong game</p>
+            <ul>
+              <li>🔘 <strong>Màn Start:</strong> Nút Play phát tin <code>start</code> để bắt đầu.</li>
+              <li>🎮 <strong>Gameplay:</strong> Điều khiển nhân vật bắt vật phẩm hoặc né chướng ngại vật (dùng clone hoặc nhiều sprite).</li>
+              <li>🏆 <strong>Biến số:</strong> Có biến <code>điểm</code> hiển thị và cập nhật liên tục.</li>
+              <li>🧩 <strong>My Block:</strong> Có ít nhất <strong>1 My Block</strong> (ví dụ <code>reset game</code>).</li>
+              <li>🛑 <strong>Game Over:</strong> Kết thúc rõ ràng bằng thông báo và <code>dừng lại tất cả</code>.</li>
+              <li>🔊 <strong>Âm thanh:</strong> Có tiếng khi ăn điểm và tiếng khi thua.</li>
+            </ul>
+          </div>
+          <div>
+            <div class="card purple" style="font-size:0.86rem; line-height:1.55;">
+              <h3>🗺️ Storyboard 3 bước chuẩn</h3>
+              <p><strong>1. Trạng thái Chờ:</strong> Nút Start hiện, nhân vật ẩn, điểm = 0.</p>
+              <p style="margin-top:4px;"><strong>2. Trạng thái Chơi:</strong> Nhận tin <code>start</code> ➡️ Nút Start ẩn ➡️ Clone xuất hiện liên tục ➡️ Bắt đầu tính điểm và đếm giờ.</p>
+              <p style="margin-top:4px;"><strong>3. Trạng thái Kết thúc:</strong> Hết giờ/hết mạng ➡️ Gọi <code>game over</code> ➡️ Báo tổng điểm ➡️ Dừng game.</p>
+            </div>
+            <p class="section-label" style="margin-top:6px;">✨ Thử thêm</p>
+            <p style="font-size:0.86rem; font-weight:600; color:#5a6a7e;">Thêm màn Thắng khi đạt mốc 15 điểm, hoặc thêm biến <code>mạng</code> (3 mạng)!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: C2 -->
+  <section class="slide" data-index="11" aria-label="C2">
+    <div class="slide-main">
+      <span class="slide-tag purple">Bài mở rộng · Mức C</span>
+      <h2><span class="th-label level-c">C2</span> Remix game tuần 22 lên bản Pro 🔄✨</h2>
+      <div class="slide-body">
+        <p style="font-weight:600; margin-bottom:10px;">Không cần làm lại từ đầu — em lấy project tuần 22 (Bắt sao rơi / Fruit catch) và <strong>remix nâng cấp</strong> thành phiên bản chuyên nghiệp hoàn chỉnh!</p>
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Các nâng cấp cần thêm vào</p>
+            <ul>
+              <li>🔘 <strong>Thêm nút Start:</strong> Bấm nút mới bắt đầu rơi đồ (chuyển code gameplay vào <code>khi nhận start</code>).</li>
+              <li>🏆 <strong>Biến điểm hiển thị đẹp mắt:</strong> Đặt lại điểm = 0 khi bấm cờ xanh.</li>
+              <li>🧩 <strong>Gom ít nhất 2 My Blocks:</strong> <code>reset game</code> và <code>tăng điểm</code> hoặc <code>game over</code>.</li>
+              <li>🛑 <strong>Màn kết thúc:</strong> Hết 30 giây phát tin thông báo kết quả.</li>
+              <li>👥 <strong>Clone mượt mà:</strong> Luôn xóa clone khi chạm đáy hoặc khi bị bắt.</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Các bước thực hiện nhanh</p>
+            <div class="steps-list" style="font-size:0.84rem; gap:6px;">
+              <div class="step-item" style="padding:6px 10px;">
+                <span class="step-badge">1</span>
+                <div>Mở bài Tuần 22 ➡️ <em>Tập tin ➡️ Lưu bản sao</em>.</div>
+              </div>
+              <div class="step-item" style="padding:6px 10px;">
+                <span class="step-badge">2</span>
+                <div>Vẽ thêm sprite Nút START ➡️ code phát tin <code>start</code>.</div>
+              </div>
+              <div class="step-item" style="padding:6px 10px;">
+                <span class="step-badge">3</span>
+                <div>Tạo My Block <code>reset game</code> và <code>game over</code>.</div>
+              </div>
+              <div class="step-item" style="padding:6px 10px;">
+                <span class="step-badge">4</span>
+                <div>Chơi thử 3 lần kiểm tra lỗi ➡️ Lưu tên <code>Remix-tuan-22</code>.</div>
+              </div>
+            </div>
+            <p class="section-label" style="margin-top:6px;">✨ Thử thêm</p>
+            <p style="font-size:0.85rem; font-weight:600; color:#5a6a7e;">Thêm hiệu ứng âm thanh khác nhau cho từng loại vật phẩm!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Showcase & Tổng kết -->
+  <section class="slide title-slide" data-index="12" aria-label="Tổng kết">
+    <div class="slide-main">
+      <div class="title-emoji">🎉</div>
+      <h2 style="font-size:1.85rem; margin-bottom:12px;">Showcase &amp; Hoàn thành Tháng 3! 🚀</h2>
+      <div class="highlight-box green" style="max-width:680px; text-align:left; margin-bottom:12px;">
+        🖼️ <strong>Showcase (10 phút):</strong> Mời 3–4 bạn lên trình chiếu game mini trước cả lớp. Cả lớp cùng chơi thử, cổ vũ và khen ngợi 1 điểm độc đáo nhất của bạn! 👏
+      </div>
+      <ul style="font-size:0.96rem; line-height:1.8; text-align:left; font-weight:700; max-width:680px;">
+        <li>✅ Làm chủ <strong>Operators &amp; Biến số</strong>: Quản lý điểm, thời gian, mạng sống</li>
+        <li>✅ Làm chủ <strong>Broadcast &amp; Trạng thái game</strong>: Start ➡️ Chơi ➡️ Game Over</li>
+        <li>✅ Làm chủ <strong>Clone (Nhân bản)</strong>: Tạo hiệu ứng rơi liên tục &amp; xóa clone sạch sẽ</li>
+        <li>✅ Làm chủ <strong>My Blocks &amp; Debug</strong>: Gom code gọn gàng, tự tìm &amp; sửa lỗi logic</li>
+      </ul>
+      <p style="margin-top:16px; font-size:1.1rem; color:var(--scratch-orange); font-weight:800;">
+        🌟 Chúc mừng em đã hoàn thành Tháng 3! Hẹn gặp lại ở Tháng 4 — Dự án Game lớn tự thiết kế! 🚀🎮
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 13</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Phím cách · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let hasNavigated = false;
+
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
+
+  function buildDots() {
+    const template = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+    document.getElementById('dots').innerHTML = template;
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.toggle('active', Number(dot.dataset.goto) === current);
+    });
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) {
+      hasNavigated = true;
+      document.body.classList.add('presenting');
+    }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1
+      ? '· Scratch'
+      : '· Tuần 12 Buổi 24';
+    updateDots();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, .quiz-item, code, .global-topbar, .nav')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); next(); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  document.getElementById('btnFullscreen').addEventListener('click', e => {
+    e.stopPropagation();
+    toggleFullscreen();
+  });
+
+  document.getElementById('btnExitFs').addEventListener('click', e => {
+    e.stopPropagation();
+    exitFullscreen();
+  });
+
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
+  function toggleFullscreen() {
+    if (isFullscreen()) exitFullscreen();
+    else enterFullscreen();
+  }
+
+  function enterFullscreen() {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  }
+
+  function exitFullscreen() {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+
+  function onFullscreenChange() {
+    document.body.classList.toggle('is-fullscreen', isFullscreen());
+  }
+
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+  document.querySelectorAll('[data-quiz]').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      item.classList.toggle('revealed');
+    });
+  });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1));
+  }, { passive: true });
+
+  buildDots();
+  slides.forEach((s, i) => {
+    s.setAttribute('aria-hidden', i !== 0);
+    if (i === 0) s.classList.add('active');
+    else s.classList.add('next');
+  });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
+</html>
