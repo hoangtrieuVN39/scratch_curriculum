@@ -17,152 +17,184 @@
 
 ## Tuần 13 — Ý tưởng game & Storyboard
 
-### Buổi 25 — Học (H): Ý tưởng game
+### Buổi 25 — Học (H): Ý tưởng game & Luật chơi 🎮💡
 
 #### Hôm nay em học gì?
 
-Hôm nay em bắt đầu **dự án game cuối khóa**! Em sẽ:
-1. Brainstorm (nghĩ ra) **3 ý tưởng game** và chọn **1 ý tưởng** để làm.
-2. Viết **luật thắng** và **luật thua** cho game đã chọn.
+Hôm nay em chính thức bước vào **Dự án Game lớn cuối khóa**! Em sẽ trở thành một **Nhà thiết kế Game (Game Designer) nhí**:
+1. Khám phá **Kho tàng 6 Vũ trụ Chủ đề** và trải nghiệm **Máy phát ý tưởng Slot Machine**.
+2. Brainstorm (động não) **3 ý tưởng game** đa dạng và chọn ra **1 ý tưởng tâm đắc nhất** để làm suốt tháng này.
+3. Viết **Luật Thắng** và **Luật Thua** rõ ràng với **con số cụ thể** (điểm số, mạng sống, thời gian).
+4. Tham gia minigame vận động **"Thắng hay Thua?"** và tranh tài tại **Đấu trường Quiz Game Design**.
 
-Đây là bước quan trọng nhất — game hay bắt đầu từ ý tưởng rõ ràng!
+Đây là bước quan trọng nhất — một game kinh điển luôn bắt đầu từ ý tưởng sáng tạo và luật chơi chặt chẽ!
+
+---
 
 #### 🎬 Khởi động (5–10 phút)
 
 **"Game em thích nhất là gì?"**
 
-- Mỗi em nói nhanh 1 câu: tên 1 game em thích chơi (Scratch, điện thoại, hay ngoài đời đều được) và **1 lý do** thích (vui, khó, có nhân vật ngầu…).
-- Giáo viên ghi nhanh lên bảng vài từ khóa lặp lại (ví dụ: "bắt vật", "đua", "trả lời câu hỏi") → dẫn vào ý: mọi game hay đều có **luật chơi rõ ràng** — hôm nay lớp mình học cách nghĩ luật chơi cho game của riêng em!
-- Không cần mở máy — đây là khởi động bằng lời nói, chuẩn bị tinh thần cho buổi "nghĩ ý tưởng".
-
-#### Kiến thức mới (15 phút)
-
-**Game là gì?**
-Game là chương trình có **luật chơi**: người chơi làm gì đó, game phản hồi, và có **thắng** hoặc **thua**.
-
-**Thể loại game phổ biến trên Scratch:**
-
-| Thể loại | Em làm gì trong game? | Ví dụ |
-|----------|----------------------|-------|
-| **Bắt / Thu thập** | Di chuyển, chạm vật để ghi điểm | Bắt sao, bắt táo |
-| **Tránh** | Di chuyển, né vật nguy hiểm | Tránh thiên thạch, tránh cá mập |
-| **Đuổi bắt** | Một nhân vật đuổi nhân vật kia | Mèo đuổi chuột |
-| **Quiz / Trắc nghiệm** | Trả lời câu hỏi đúng/sai | Đoán số, quiz toán |
-| **Phiêu lưu** | Khám phá, click, nói chuyện | Chuyện tương tác ngắn |
-
-**Luật thắng / thua:**
-- **Thắng:** Em đạt mục tiêu (ví dụ: đủ 10 điểm, hết thời gian còn mạng, trả lời đúng hết).
-- **Thua:** Em không đạt (ví dụ: hết mạng, chạm quái, hết giờ mà chưa đủ điểm).
-
-**Công cụ hôm nay:** Giấy + bút (hoặc file Word/Notepad) — chưa cần mở Scratch nhiều!
-
-#### Ví dụ mẫu
-
-**Ví dụ ý tưởng 1 — "Bắt sao bay"**
-- Thể loại: Bắt / Thu thập
-- Nhân vật chính: Phi hành gia
-- Luật thắng: Bắt được 15 sao
-- Luật thua: Chạm thiên thạch 3 lần (hết mạng)
-
-**Ví dụ ý tưởng 2 — "Quiz siêu tốc"**
-- Thể loại: Quiz
-- Nhân vật chính: Robot hỏi câu
-- Luật thắng: Trả lời đúng 5/5 câu
-- Luật thua: Sai quá 2 câu
-
-**Ví dụ ý tưởng 3 — "Mèo đuổi chuột"**
-- Thể loại: Đuổi bắt
-- Nhân vật chính: Chuột (em điều khiển)
-- Luật thắng: Sống sót 60 giây
-- Luật thua: Mèo chạm chuột
+- Mỗi bạn nói nhanh 1 câu: Tên 1 game em thích chơi nhất (Scratch, điện thoại, máy tính hay ngoài đời) và **1 lý do vì sao em thích** (nhân vật ngầu, cách chơi hồi hộp, đồ họa đẹp, cảm giác chiến thắng...).
+- Giáo viên ghi nhanh lên bảng các từ khóa cốt lõi: *"bắt vật phẩm"*, *"né chướng ngại"*, *"đua tốc độ"*, *"thời gian đếm ngược"*, *"tính điểm"*...
+- **Dẫn dắt:** Dù đồ họa đơn giản hay phức tạp, mọi game hấp dẫn đều có **luật chơi rõ ràng**. Hôm nay lớp mình sẽ học cách tư duy như Game Designer để tự sáng chế luật chơi cho siêu phẩm của riêng em!
 
 ---
 
-#### TH1 — Brainstorm 3 ý tưởng, chọn 1 (20 phút)
+#### 💡 Kiến thức mới 1: Game là gì? (10 phút)
 
-**Mô tả:** Em nghĩ ra 3 ý tưởng game khác nhau, ghi ngắn gọn, rồi chọn 1 ý tưởng em thích nhất để làm suốt tháng này.
+**Định nghĩa chuẩn cho bé:**
+Game (Trò chơi) là chương trình tương tác có **luật chơi**:
+1. **Hành động của người chơi:** Bấm phím mũi tên, click chuột, gõ phím điều khiển nhân vật.
+2. **Game phản hồi:** Máy tính cộng điểm, trừ mạng, phát âm thanh, đổi phông nền.
+3. **Kết quả rõ ràng:** Phải có điểm kết thúc — đạt mục tiêu thì **THẮNG**, hết cơ hội thì **THUA**!
+
+*(Nếu nhân vật chỉ đi lại tự do mà không có mục tiêu, không có điểm và không có thắng/thua ➡️ đó chỉ là hoạt hình tương tác, chưa phải là Game).*
+
+**5 Thể loại game Scratch phổ biến nhất:**
+
+| Thể loại | Người chơi làm gì trong game? | Ví dụ kinh điển trên Scratch |
+|----------|-------------------------------|------------------------------|
+| **🍎 Bắt / Thu thập** | Di chuyển nhân vật hứng/chạm vật phẩm tích điểm | Bắt sao vũ trụ, Hứng táo rơi, Nhặt kim cương |
+| **☄️ Tránh né / Sinh tồn** | Điều khiển nhân vật né chướng ngại nguy hiểm | Né thiên thạch, Cá con trốn cá mập, Băng qua đường |
+| **🐱🐭 Đuổi bắt** | Nhân vật này rượt đuổi và bắt lấy nhân vật kia | Mèo đuổi chuột, Cảnh sát bắt trộm |
+| **🧠 Quiz / Trí tuệ** | Đọc câu hỏi và chọn đáp án đúng trong thời gian | Đố vui vũ trụ, Rung chuông vàng Scratch |
+| **🗺️ Phiêu lưu / Khám phá** | Đi qua mê cung, tìm chìa khóa mở rương kho báu | Mê cung thần bí, Khám phá đảo hoang |
+
+> 🌟 **Gợi ý cho Tháng 4:** Học sinh nên ưu tiên chọn thể loại **Bắt / Thu thập** hoặc **Tránh né / Sinh tồn** vì cơ chế trực quan, dễ hoàn thiện xuất sắc 1 màn chơi trong 2–3 tuần!
+
+---
+
+#### 🌌 Kho tàng 6 Vũ trụ Chủ đề & Máy phát Ý tưởng (10 phút)
+
+Giáo viên giới thiệu **6 thế giới kỳ thú** để khơi dậy trí tưởng tượng:
+1. **🚀 Vũ trụ Viễn tưởng:** Phi thuyền không gian, trạm quỹ đạo, phi hành gia nhí, thiên thạch.
+2. **🌊 Đại dương Kỳ thú:** Thợ lặn săn ngọc trai, rạn san hô, cá mập hung dữ, tàu đắm cổ xưa.
+3. **🦖 Rừng rậm Tiền sử:** Bé khủng long T-Rex, nham thạch núi lửa, tổ trứng rồng.
+4. **🧙‍♂️ Trường học Ma thuật:** Phù thủy nhỏ, chổi bay thần kỳ, bình thuốc độc, đũa phép ánh sáng.
+5. **🤖 Thành phố Tương lai:** Robot Cyberpunk năm 2099, xe bay, cổng dịch chuyển lượng tử.
+6. **🍭 Vương quốc Kẹo ngọt:** Gấu kẹo dẻo, mưa sô-cô-la, bánh kem khổng lồ, sông sữa chua dâu tây.
+
+**🎰 Trải nghiệm "Vòng quay Ý tưởng Game" (Slot Machine trên Slide):**
+- Giáo viên mời 1–2 bạn lên bấm quay ngẫu nhiên: [Bối cảnh] × [Nhân vật] × [Nhiệm vụ].
+- Ví dụ ngẫu nhiên độc lạ: *"Khủng long T-Rex ở Vương quốc Kẹo ngọt hứng bánh donut rơi"* hoặc *"Cá heo siêu tốc ở Vũ trụ né thiên thạch rực lửa"*.
+
+---
+
+#### 📋 3 Hồ sơ Ý tưởng Game Mẫu
+
+- **Mẫu 1 — "Bắt sao bay" (Bắt / Thu thập):**
+  - Bối cảnh & Nhân vật: Vũ trụ viễn tưởng · Phi hành gia nhí
+  - Cách chơi: Di chuyển chuột hứng sao rơi từ trên xuống
+  - 🏆 Luật Thắng: Biến `Điểm` = 15
+  - 💥 Luật Thua: Biến `Mạng` = 0 (chạm thiên thạch 3 lần)
+- **Mẫu 2 — "Quiz Siêu Tốc" (Trắc nghiệm):**
+  - Bối cảnh & Nhân vật: Học viện công nghệ · Robot thông thái
+  - Cách chơi: Nhấn phím A, B, C, D trả lời câu hỏi đố vui
+  - 🏆 Luật Thắng: Trả lời đúng 5/5 câu
+  - 💥 Luật Thua: Trả lời sai quá 2 câu hoặc hết 30 giây
+- **Mẫu 3 — "Mèo đuổi Chuột" (Đuổi bắt / Sinh tồn):**
+  - Bối cảnh & Nhân vật: Ngôi nhà vui nhộn · Chú Chuột thông minh (em chơi)
+  - Cách chơi: 4 phím mũi tên trốn thoát mèo hung dữ
+  - 🏆 Luật Thắng: Sống sót trọn vẹn 60 giây
+  - 💥 Luật Thua: Mèo chạm vào Chuột
+
+---
+
+#### ✍️ TH1 — Brainstorm 3 ý tưởng, chọn 1 (20 phút)
+
+**Mô tả:** Em lấy giấy trắng và bút (hoặc mở file Notepad), chia làm 3 cột để ghi 3 ý tưởng khác nhau, sau đó chọn lấy 1 ý tưởng tâm đắc nhất.
 
 **Yêu cầu:**
-- Viết **đúng 3 ý tưởng** (mỗi ý 2–4 câu).
-- Mỗi ý tưởng ghi: **tên tạm**, **thể loại**, **nhân vật chính**, **1 câu mô tả cách chơi**.
-- Khoanh tròn hoặc gạch chân **1 ý tưởng** em chọn.
-- Viết 1 câu giải thích **vì sao em chọn** ý tưởng đó.
-
-**Gợi ý từng bước:**
-1. Lấy giấy, chia 3 cột (Ý tưởng 1 | Ý tưởng 2 | Ý tưởng 3).
-2. Nghĩ game em **thích chơi** hoặc game **dễ làm** với kỹ năng đã học.
-3. Đừng chọn game quá phức tạp (ví dụ: game 10 màn, nhiều boss) — hãy chọn game làm được trong **2–3 tuần**.
-4. Hỏi bạn cùng bàn: ý tưởng nào nghe **vui** và **rõ** nhất?
-5. Chọn 1 ý tưởng — đây sẽ là game của em!
+- Viết đủ **3 ý tưởng** (mỗi ý tưởng gồm: Tên tạm + Thể loại + Nhân vật chính + 1 câu mô tả cách chơi).
+- Dùng bút **khoanh tròn 1 ý tưởng** em chọn.
+- Viết 1 câu giải thích: *"Em chọn ý tưởng này vì..."*.
+- Đánh giá tính khả thi: Game làm được trong **2–3 tuần** (1 màn chơi hoàn chỉnh, không làm game quá to 10 màn).
 
 **Checklist tự kiểm:**
-- [ ] Em có 3 ý tưởng, mỗi ý có tên + thể loại + nhân vật
-- [ ] Em đã chọn 1 ý tưởng
-- [ ] Em viết được vì sao chọn ý tưởng đó
+- [ ] Em có đủ 3 ý tưởng với tên + thể loại + nhân vật
+- [ ] Em đã khoanh tròn 1 ý tưởng duy nhất
+- [ ] Em đã hỏi ý kiến bạn cùng bàn và giải thích được lý do chọn
 
 ---
 
-#### 🤸 Giải lao vận động (5 phút)
+#### 🏃 Giải lao vận động: Minigame "Thắng hay Thua?" (5 phút)
 
-**Trò chơi "Thắng hay Thua?"**
-
-- Cả lớp đứng dậy. Giáo viên đọc nhanh từng tình huống, học sinh **giơ tay lên** nếu đó là dấu hiệu THẮNG, **ngồi thụp xuống** nếu là THUA: "Đủ 10 điểm!" (thắng — giơ tay), "Hết mạng!" (thua — ngồi xuống), "Sống sót 60 giây!" (thắng), "Chạm quái 3 lần!" (thua)...
-- Chơi 2–3 vòng, tăng tốc dần — giúp em vận động sau khi ngồi viết ý tưởng, đồng thời ôn lại khái niệm thắng/thua trước khi viết luật ở TH2.
-
-#### TH2 — Viết luật thắng và luật thua (20 phút)
-
-**Mô tả:** Với ý tưởng đã chọn, em viết rõ **khi nào thắng** và **khi nào thua**.
-
-**Yêu cầu:**
-- Viết **ít nhất 1 luật thắng** (có số cụ thể: điểm, giây, số câu đúng…).
-- Viết **ít nhất 1 luật thua** (có số cụ thể: mạng, lần chạm, thời gian…).
-- Mỗi luật viết **1–2 câu**, dễ hiểu.
-
-**Gợi ý từng bước:**
-1. Hỏi: *"Làm sao em biết mình THẮNG?"* → ghi luật thắng.
-2. Hỏi: *"Làm sao em biết mình THUA?"* → ghi luật thua.
-3. Dùng số cụ thể: "10 điểm" thay vì "nhiều điểm"; "3 mạng" thay vì "vài lần".
-4. Kiểm tra: luật thắng và thua có **mâu thuẫn** không? (Ví dụ: thắng khi 10 điểm nhưng game chỉ có 5 điểm tối đa → sửa lại!)
-5. Đọc to cho bạn nghe — bạn có hiểu không?
-
-**Ví dụ hoàn chỉnh (game "Bắt sao bay"):**
-- **Thắng:** Khi biến `Điểm` = 15, hiện "Bạn thắng!" và dừng game.
-- **Thua:** Khi biến `Mạng` = 0 (chạm thiên thạch 3 lần), hiện "Game Over" và dừng game.
-
-**Checklist tự kiểm:**
-- [ ] Em có luật thắng với số cụ thể
-- [ ] Em có luật thua với số cụ thể
-- [ ] Bạn cùng bàn đọc hiểu được luật của em
+**Cách tổ chức trong lớp:**
+- Cả lớp đứng dậy vận động toàn thân:
+  - 🙋 Nếu tình huống trên bảng là **THẮNG** ➡️ Giơ 2 tay lên cao ăn mừng!
+  - 🙇 Nếu tình huống trên bảng là **THUA** ➡️ Ngồi thụp xuống sàn trốn thoát!
+- Giáo viên bấm các tình huống trên slide (hoặc đọc to):
+  1. *"Bắt đủ 15 quả táo đỏ!"* ➡️ THẮNG (Giơ tay)
+  2. *"Chạm thiên thạch hết 3 mạng!"* ➡️ THUA (Ngồi xuống)
+  3. *"Sống sót trọn vẹn 60 giây!"* ➡️ THẮNG
+  4. *"Để bóng rơi chạm đất 3 lần!"* ➡️ THUA
+  5. *"Trả lời đúng 5/5 câu hỏi quiz!"* ➡️ THẮNG
+  6. *"Bị mèo chạm vào chú chuột!"* ➡️ THUA
+  7. *"Về tới đích trước khi hết giờ!"* ➡️ THẮNG
+- Giúp học sinh xả stress sau 20 phút ngồi viết, đồng thời thấm nhuần tư duy Thắng/Thua có con số cụ thể!
 
 ---
 
-#### Mẹo nhỏ
+#### 💡 Kiến thức mới 2: Luật Thắng & Luật Thua (10 phút)
 
-- Game **đơn giản nhưng chạy được** tốt hơn game phức tạp nhưng không xong!
-- Nếu bí ý tưởng: nghĩ game em đã làm ở các tuần trước (bắt sao, tránh thiên thạch…) và **biến tấu** thêm (đổi nhân vật, thêm điểm, thêm thời gian).
-- Luật thắng/thua nên dùng **biến** (`Điểm`, `Mạng`, `Thời gian`) — em đã học rồi!
+**Bí quyết của Game Designer: Luôn dùng CON SỐ CỤ THỂ!**
+- ❌ **Luật Mơ Hồ (Máy tính bó tay):** *"Thắng khi chơi giỏi"*, *"Thắng khi nhiều điểm"*, *"Thua khi hết máu"*.
+- ✅ **Luật Cụ Thể (Scratch lập trình được ngay):**
+  - Dùng khối `nếu <điểm = 15> thì phát tin [thắng v]`
+  - Dùng khối `nếu <mạng = 0> thì phát tin [game over v]`
+  - Dùng khối `nếu <thời gian = 0> thì ...`
+- **3 biến số thần thánh:** `Điểm` (Score), `Mạng` (Lives), `Thời gian` (Timer).
 
-#### Câu hỏi ôn (10 phút)
+---
 
-1. Brainstorm là gì? Em cần brainstorm bao nhiêu ý tưởng?
-2. Luật thắng và luật thua khác nhau thế nào? Cho 1 ví dụ mỗi loại.
-3. Vì sao nên dùng số cụ thể (10 điểm, 3 mạng) thay vì "nhiều" hay "vài"?
-4. Kể tên 3 thể loại game em có thể làm trên Scratch.
-5. Ý tưởng game em chọn hôm nay là gì? (Tóm tắt 1 câu)
+#### ✍️ TH2 — Viết luật thắng và luật thua (15–20 phút)
+
+**Mô tả:** Với ý tưởng duy nhất đã chọn ở TH1, em điền vào khung mẫu chuẩn:
+- **Tên game:** ....................................................
+- **Thể loại:** ....................................................
+- **Nhân vật chính:** ........................................
+- 🏆 **LUẬT THẮNG:** Khi biến `[Điểm / Thời gian]` = `[Số cụ thể]`, hiện "Bạn Thắng!" và dừng game.
+- 💥 **LUẬT THUA:** Khi biến `[Mạng / Thời gian]` = `[Số cụ thể]`, hiện "Game Over" và dừng game.
+
+**Kiểm tra mâu thuẫn luật (Self-Check):**
+- Có số đo cụ thể chưa?
+- Luật thắng và luật thua có triệt tiêu nhau không? (Ví dụ: Thắng cần 20 điểm nhưng game chỉ xuất hiện 10 quả táo ➡️ Không bao giờ thắng được!).
+- Bạn bên cạnh đọc có hiểu ngay game kết thúc khi nào không?
+
+---
+
+#### 🏆 Đấu trường Quiz Game Design (10 phút)
+
+Cả lớp cùng nhìn lên màn hình slide và biểu quyết đáp án A/B/C/D cho 5 câu hỏi:
+1. *Thế nào là định nghĩa đúng của một trò chơi (Game)?* ➡️ Đáp án B (Có luật chơi, có người tương tác và có Thắng/Thua).
+2. *Game nào thuộc thể loại Tránh né / Sinh tồn?* ➡️ Đáp án B (Mèo nhảy né thiên thạch sống sót).
+3. *Vì sao luật chơi game nên có con số cụ thể (15 điểm, 3 mạng)?* ➡️ Đáp án B (Vì máy tính cần điều kiện so sánh chính xác).
+4. *Trong dự án Tháng 4 này, em nên chọn làm quy mô game như thế nào?* ➡️ Đáp án B (1 màn chơi hoàn chỉnh, mượt mà và trọn vẹn).
+5. *'Brainstorm' trong thiết kế game có nghĩa là gì?* ➡️ Đáp án B (Nghĩ ra nhiều ý tưởng phong phú rồi chọn lọc ý tưởng tốt nhất).
+
+---
+
+#### 🛡️ Mẹo nhỏ & 3 Bẫy Thiết Kế Cần Tránh
+
+- 🕳️ **Bẫy 1: Game quá to** (10 thế giới, 50 loại vũ khí) ➡️ *Cách sửa:* Làm 1 màn chơi thật mượt trước, sau này giỏi nâng cấp thêm.
+- 🕳️ **Bẫy 2: Luật quá phức tạp** (nhớ 10 nút bấm) ➡️ *Cách sửa:* Điều khiển đơn giản (chỉ chuột hoặc 4 phím mũi tên).
+- 🕳️ **Bẫy 3: Quên cách kết thúc** (chơi mãi không thắng không thua) ➡️ *Cách sửa:* Luôn lập trình sẵn phông nền Chiến thắng và Game Over.
 
 ---
 
 #### 🎉 Tổng kết (5 phút)
 
-- Nhắc lại: hôm nay em đã **chọn 1 ý tưởng game** và viết được **luật thắng/thua** rõ ràng, có số cụ thể.
-- Mời 1–2 em chia sẻ nhanh: "Game của mình tên tạm là gì, thắng khi nào?"
-- Hẹn gặp lại ở buổi Bài tập tuần này! Em sẽ đặt **tên chính thức** cho game, liệt kê **nhân vật**, và bắt đầu vẽ **storyboard**.
+- **Ghi nhận thành quả:** Mỗi bạn đã có 1 Ý TƯỞNG GAME ĐỘC ĐÁO và BỘ LUẬT THẮNG/THUA CỤ THỂ trên giấy.
+- **Nhiệm vụ Buổi 26 (Buổi Bài tập):** Giữ kỹ tờ giấy ý tưởng mang tới lớp để chính thức đặt tên game, liệt kê danh sách nhân vật/phông nền và tự tay vẽ **Storyboard (Truyện tranh kịch bản game)**!
+
+---
 
 #### 👩‍🏫 Ghi chú cho giáo viên
 
-- **Hỗ trợ nhóm khác tốc độ:** Em xong nhanh 3 ý tưởng → khuyến khích viết thêm 1–2 chi tiết luật thắng/thua hoặc giúp bạn bên cạnh brainstorm. Em còn chậm → cho phép chọn ngay ý tưởng đầu tiên nghĩ ra, không cần đủ 3 ý tưởng hoàn hảo — quan trọng là có 1 ý tưởng **chọn được** để đi tiếp.
-- **Lỗi lập kế hoạch thường gặp:** Game quá to (nhiều màn, nhiều boss, nhiều cơ chế cùng lúc) — nhắc lại nguyên tắc "làm được trong 2–3 tuần", gợi ý cắt bớt ngay từ hôm nay để đỡ phải sửa ở tuần 14–15.
-- **Luật thắng/thua mơ hồ:** Nếu em viết "thắng khi chơi giỏi" hoặc không có số cụ thể — hỏi lại "giỏi là bao nhiêu điểm?" ngay tại chỗ, đừng để qua buổi sau mới sửa.
+- **Hỗ trợ học sinh làm nhanh:** Khuyến khích em nghĩ thêm luật tăng độ khó theo thời gian (sau 30 giây vật rơi nhanh gấp đôi) hoặc hỗ trợ bạn cạnh bàn brainstorm.
+- **Hỗ trợ học sinh còn lúng túng:** Hướng dẫn em lấy 1 game quen thuộc ở Tháng 1–3 (ví dụ: Bắt sao) và *"thay đổi lớp áo"* (đổi thành bắt sushi dưới biển hoặc hứng kem ngoài không gian).
+- **Xử lý ý tưởng quá to:** Khen ngợi trí tưởng tượng của em, rồi hướng dẫn: *"Ý tưởng tuyệt vời! Hôm nay thầy/cô trò mình cùng làm Màn 1 (Demo Version) thật đỉnh trước nhé!"*.
 
 ---
 

@@ -1,80 +1,50 @@
-# Map nội dung curriculum → slide
+# Map nội dung curriculum → slide (Claude Code) 🗺️
 
-> **QUY TẮC QUAN TRỌNG:**
-> 1. **BỎ HOÀN TOÀN Khởi động & Giải lao vận động** khỏi mọi slide deck.
-> 2. **Bài tập nâng độ khó 1 bậc:** Vận dụng kết hợp kiến thức đã học trước đó.
-> 3. **Gợi ý tối giản để tự tư duy:** Tuyệt đối KHÔNG cho sẵn 100% full code hoàn chỉnh ăn liền; chỉ cung cấp yêu cầu và luồng logic / khối chìa khóa gợi mở.
-> 4. **Không dùng checklist** ở bất kỳ slide nào (đã bỏ hoàn toàn — xem SKILL.md). Yêu cầu bài tập = `<ul>` thường dưới nhãn "Yêu cầu".
+Ánh xạ chi tiết từ các phần trong tài liệu markdown `thang-*-*.md` sang slide trình chiếu HTML chuẩn **`tuan-13-buoi-25.html`**.
 
-## Buổi Học (H) — Khung slide chuẩn (đã loại bỏ Khởi động & Giải lao)
+---
 
-| Markdown heading | Slide tag class | Layout |
-|------------------|-----------------|--------|
-| Tiêu đề buổi | `title-slide` | emoji + h1 gradient + badge Tuần/Buổi/độ tuổi |
-| `Hôm nay em học gì?` | `slide-tag purple` (Mục tiêu) | `highlight-box red/orange` + bullet mục tiêu |
-| `Kiến thức mới 1` | `slide-tag red/purple` | `knowledge-grid` + `k-card` theo màu nhóm Scratch |
-| `Kiến thức mới 2 / Debug` | `slide-tag orange/red` | `.cols` hoặc bảng tra cứu / quy trình kỹ năng |
-| `Ví dụ mẫu 1` | `slide-tag` | `.cols`: blocks trái (100% tiếng Việt), Quan sát + Lợi ích phải |
-| `Ví dụ mẫu 2 / Dự đoán` | `slide-tag` | `.cols`: blocks mẫu + Card "Em đoán xem?" kích thích tư duy |
-| `Thực hành 1 (TH1)` (Nâng cao) | `slide-tag green` + `th-label` | `.cols-60-40`: Yêu cầu tổng hợp trái, gợi ý luồng logic/khối then chốt phải |
-| `Thực hành 2 (TH2)` (Nâng cao) | tương TH1 | Yêu cầu đa sprite/tình huống, gợi ý mở để học sinh tự ghép |
-| `Thử thách / Mẹo nhỏ` | `slide-tag orange/yellow` | Thử thách tư duy + `.tip` kỹ thuật |
-| `Câu hỏi ôn / Ôn tập` | `slide-tag purple` | `quiz-item` + `quiz-answer` ẩn (click mở đáp án) |
-| Tổng kết | `title-slide` | bullet ✅ các kiến thức & kỹ năng trọng tâm |
+## 1. Buổi Học (H) — Khung 14–15 slide chuẩn
 
-## Buổi Bài tập (BT)
+| # | Markdown heading / Phần | Slide tag class | Layout & Thành phần giao diện |
+|---|-------------------------|-----------------|--------------------------------|
+| 1 | Tiêu đề buổi học | `title-slide` | Emoji lớn + H1 gradient + Badges Tuần/Buổi/Độ tuổi |
+| 2 | `#### 🎬 Khởi động` | `slide-tag orange` | `highlight-box orange` + 2 card thảo luận & bí mật game hay |
+| 3 | `#### 💡 Kiến thức mới 1` | `slide-tag blue` | `highlight-box blue` + 3 card (Hành động ➡️ Phản hồi ➡️ Thắng/Thua) |
+| 4 | `#### Phân loại / Cẩm nang` | `slide-tag purple` | `table-custom` 5 thể loại game kinh điển trên Scratch |
+| 5 | `#### 🌌 Kho tàng Chủ đề` | `slide-tag cyan` | `universe-grid` 6 card chủ đề (Vũ trụ, Biển, Tiền sử, Ma thuật, Cyberpunk, Kẹo ngọt) |
+| 6 | `#### 🎰 Máy phát Ý tưởng` | `slide-tag orange` | **Slot Machine 3 guồng quay** ngẫu nhiên + nút quay `btnSpin` + banner gợi ý |
+| 7 | `#### 📋 Ví dụ mẫu` | `slide-tag green` | `cols-3` phân tích 3 hồ sơ game mẫu có luật cụ thể |
+| 8 | `#### ✍️ Thực hành 1 (TH1)`| `slide-tag red` + `th-label` | `cols-60-40`: 4 bước brainstorm trái, mẫu kẻ bảng 3 cột phải |
+| 9 | `#### ⚖️ Kiến thức mới 2` | `slide-tag blue` | So sánh 2 card: ❌ Luật Mơ Hồ vs ✅ Luật Cụ Thể (3 biến số vàng) |
+| 10| `#### 🏃 Minigame vận động` | `slide-tag green` | **Đấu trường "Thắng hay Thua?"**: Bộ 9 tình huống, card nảy/rung, chuỗi streak |
+| 11| `#### ✍️ Thực hành 2 (TH2)`| `slide-tag red` + `th-label` | Mẫu điền luật thắng/thua + card kiểm tra mâu thuẫn |
+| 12| `#### 🏆 Đấu trường Quiz` | `slide-tag purple` | **Quiz Arena**: 5 câu hỏi A/B/C/D tương tác trực tiếp, chấm điểm + trao cúp |
+| 13| `#### 🛡️ Mẹo & Bẫy thiết kế`| `slide-tag yellow` | `cols-3` hóa giải 3 bẫy (Game quá to, Luật quá khó, Quên kết thúc) |
+| 14| `#### 🎉 Tổng kết` | `title-slide` | Tuyên dương thành quả, hé lộ nhiệm vụ Storyboard buổi sau |
+| 15| `#### 👩‍🏫 Ghi chú giáo viên` | `slide-tag red` | Hướng dẫn phân hóa tốc độ, xử lý ý tưởng quá to và mẹo điều phối lớp |
 
-Khung chuẩn:
+---
 
-| # | Nội dung | Slide |
-|---|----------|-------|
-| 1 | Tiêu đề "Luyện …" | title-slide |
-| 2 | Ôn nhanh kiến thức nền tảng | bullet + blocks minh họa cốt lõi |
-| 3… | Luyện tập tại lớp (LT1/LT2) — Nâng cao độ khó | yêu cầu (`<ul>`) + gợi ý tư duy / khối then chốt |
-| … | Giới thiệu bài mở rộng A/B/C | highlight-box + `knowledge-grid` 3 `k-card` (tên game mỗi mức) |
-| … | Bài A1 / A2 / B1 / B2 / C1 / C2 — mỗi bài 1 slide | full-width, yêu cầu tích hợp + gợi ý mở |
-| cuối | Tổng kết / Showcase | title-slide |
+## 2. Buổi Bài tập (BT) — Khung 12–13 slide chuẩn
 
-**Mỗi bài A1/A2/B1/B2/C1/C2 là 1 slide riêng** — không gộp cặp "chọn A1 hoặc
-A2" vào 1 slide. Slide giới thiệu vẫn giới thiệu cả 3 mức và nhắc lớp
-dùng chấm điều hướng để nhảy tới bài đã chọn.
+| # | Markdown heading / Phần | Slide tag class | Layout & Thành phần giao diện |
+|---|-------------------------|-----------------|--------------------------------|
+| 1 | Tiêu đề "Luyện tập…" | `title-slide` | Emoji + H1 gradient + Badge Tuần/Buổi/Bài tập |
+| 2 | `#### 🎬 Khởi động ôn tập` | `slide-tag purple` | Mini-quiz phản xạ / Đoán nhanh kiến thức buổi trước |
+| 3 | `#### 🔁 Ôn nhanh cốt lõi` | `slide-tag orange` | Trạm kỹ năng: `knowledge-grid` tổng hợp các khối lệnh then chốt |
+| 4 | `#### ✍️ Luyện tập 1 (LT1)` | `slide-tag red` + `btvn-label` | Refactor / Gom code My Blocks hoặc bài tập kỹ năng nâng cao |
+| 5 | `#### 🩺 Luyện tập 2 (LT2)` | `slide-tag red` + `btvn-label` | **Bác sĩ Debug**: Bảng chẩn đoán 3 ca bệnh lỗi code & phương thuốc sửa |
+| 6 | `#### 🎯 Giới thiệu Mức A/B/C` | `slide-tag green` | `knowledge-grid` 3 cột: Mức A (Cơ bản), Mức B (Debug), Mức C (Game hoàn chỉnh) |
+| 7–11| `#### Thử thách A1/A2/B1/B2/C1/C2`| `slide-tag green/blue/purple` | Mỗi bài 1 slide riêng: Cột trái yêu cầu & mục tiêu, cột phải gợi ý tư duy |
+| 12| `#### 🖼️ Showcase & Tổng kết` | `title-slide` | Mời 3–4 bạn demo game trước lớp, bình chọn và vinh danh |
 
-### Slide 1 bài mở rộng
+---
 
-`<h2>` = `th-label` + tên game (2–4 chữ + emoji, không phải mô tả kỹ thuật)
-→ mô tả 1 câu kể chuyện → `.cols.cols-60-40`: cột trái = "Yêu cầu" dạng
-`<ul>` thường (gộp "Yêu cầu bắt buộc" + tiêu chí markdown thành 1 danh sách,
-KHÔNG viết thành câu `A / B / C`) + "✨ Thử thêm"; cột phải = "Gợi ý khối
-lệnh" dạng `.blocks` (dùng `.block ... optional` cho phần lặp lại nếu bài
-có nhiều bước giống nhau, vd. 5 điểm/6 ô lưới). Chi tiết + ví dụ đầy đủ:
-xem mục "Bài mở rộng" trong [SKILL.md](SKILL.md).
-
-## Màu k-card theo nhóm Scratch
-
-| Nhóm | Class | Ví dụ khối |
-|------|-------|------------|
-| Events / Control | `orange` | when, wait, repeat |
-| Looks | `purple` | switch costume, say |
-| Motion | `blue` | move, glide |
-| Sensing / vận hành | `green` | ask, touching |
-| Đặc biệt / cảnh báo | `red` | show/hide, dừng |
-
-## Metadata cần đổi mỗi buổi
+## 3. Metadata bắt buộc cập nhật mỗi bài
 
 ```javascript
 brandSub.textContent = current === 0 || current === total - 1
   ? '· Scratch'
   : '· Tuần {T} Buổi {B}';
 ```
-
-```html
-<title>Tuần {T} — Buổi {B}: {chủ đề}</title>
-<span class="badge">📅 Tuần {T}</span>
-<span class="badge">📖 Buổi {B} — Học</span>
-```
-
-Giai đoạn curriculum (cho subtitle): xem `curriculum.md` — Tháng 1–4 map từ `thang-1` … `thang-4`.
-
-## Đáp án quiz mẫu
-
-Mỗi `quiz-item` có `quiz-answer` — cô click để hiện. Viết ngắn, đúng thuật ngữ lớp 8–10 tuổi.

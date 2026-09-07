@@ -2,133 +2,89 @@
 name: scratch-slide-deck
 description: >-
   Tạo trang trình chiếu HTML buổi học Scratch (InnoMind) từ curriculum markdown.
-  Dùng khi user yêu cầu slide/trình chiếu/presentation cho buổi học, tuần, hoặc
-  chuyển nội dung từ thang-*-*.md thành deck trình chiếu lớp.
+  Tự động tích hợp Design System hiện đại, Vòng quay ý tưởng (Slot machine),
+  Minigame vận động và Đấu trường Quiz trắc nghiệm. Dùng khi user yêu cầu tạo slide/deck.
 ---
 
-# Scratch Slide Deck (InnoMind)
+# Scratch Slide Deck (InnoMind) 🚀
 
-Tạo file HTML **một file tự chứa** (CSS + JS inline), phong cách Scratch, tiếng Việt, lứa tuổi 8–10.
+Tạo file HTML **một file tự chứa 100%** (CSS + JS inline), phong cách Scratch, 100% tiếng Việt, lứa tuổi 7–10, dựa trên mẫu chuẩn vàng **`tuan-13-buoi-25.html`**.
 
-## Mẫu chuẩn
+---
 
-**Luôn bắt đầu bằng copy** `tuan-3-buoi-5.html` (mẫu chuẩn ở root repo) — đừng viết lại từ đầu.
+## 1. Mẫu Chuẩn Vàng
 
-Chỉ sửa:
-- `<title>`, nội dung slide, `aria-valuemax`, metadata tuần/buổi
-- Biến `brandSub` trong JS (dòng `· Tuần X Buổi Y`)
-- Đặt tên file: `tuan-{tuần}-buoi-{buổi}.html` ở root repo
+**Luôn bắt đầu bằng việc copy hoặc tham chiếu** `tuan-13-buoi-25.html` ở thư mục gốc repo — không viết lại từ các mẫu cũ lỗi thời!
 
-## Nguồn nội dung
+- Tên file chuẩn: `tuan-{tuần}-buoi-{buổi}.html` ở thư mục gốc repo.
+- Đổi metadata: `<title>`, `brandSub` trong JS (`· Tuần X Buổi Y`), `aria-valuemax="15"`, badge Tuần/Buổi/Độ tuổi.
+- Tự chứa 100%: CSS nằm trong `<style>`, JavaScript nằm trong `<script>`, không dùng thư viện ngoài ngoại trừ Google Font Nunito.
 
-1. Đọc buổi tương ứng trong `thang-*-*.md` hoặc `curriculum.md`
-2. Map section markdown → slide theo [slide-map.md](slide-map.md)
-3. Giữ nguyên thuật ngữ Scratch trong `<code>` (mô tả ngoài khối): `` `wait` ``, `` `switch costume` ``, TH1/TH2/BTVN
-4. **Nội dung `.block` (khối Scratch mô phỏng):** song ngữ Anh–Việt — `tên khối tiếng Anh / mô tả tiếng Việt` (vd. `move 10 steps / di chuyển 10 bước`). Phần còn lại của slide vẫn **tiếng Việt**.
+---
 
-## Cấu trúc slide (buổi Học)
+## 2. Tiêu chuẩn 100% Tiếng Việt Chuẩn Scratch
 
-| # | Slide | Nguồn markdown |
-|---|-------|----------------|
-| 1 | Tiêu đề | `### Buổi N — Học: …` |
-| 2 | Mục tiêu | `#### Hôm nay em học gì?` |
-| 3 | Kiến thức mới | `#### Kiến thức mới` → `.k-card` |
-| 4 | Ví dụ mẫu | `#### Ví dụ mẫu` → `.blocks` |
-| 5 | TH1 | `#### Thực hành 1` → `.cols` nếu nhiều khối |
-| 6 | TH1 checklist | checklist → `data-checklist` |
-| 7 | TH2 | `#### Thực hành 2` |
-| 8 | TH2 checklist + gợi ý sáng tạo | checklist + `.card` |
-| 9 | Mẹo nhỏ | `#### Mẹo nhỏ` → `.tip` 2 cột |
-| 10 | Câu hỏi ôn | `#### Câu hỏi ôn` → `data-quiz` + đáp án ẩn |
-| 11 | BTVN1 | `#### Bài tập về nhà 1` |
-| 12 | BTVN2 | `#### Bài tập về nhà 2` |
-| 13 | Tổng kết | tóm tắt khối lệnh buổi học |
+- **Tuyệt đối KHÔNG dùng song ngữ** dạng `move 10 steps / di chuyển 10 bước`.
+- Toàn bộ nội dung bên trong `<div class="block">` dùng **tiếng Việt chuẩn Scratch**:
+  - `khi bấm vào 🏳️` (Event)
+  - `di chuyển 10 bước`, `đi tới điểm x: 0 y: -120` (Motion)
+  - `nói "Xin chào!" trong 2 giây`, `trang phục kế tiếp` (Looks)
+  - `liên tục`, `lặp lại 10 lần`, `nếu <...> thì` (Control)
+  - `đặt [điểm] thành 0`, `thay đổi [điểm] một lượng 1` (Variable)
+  - `tạo bản sao của [tôi]`, `khi tôi bắt đầu là một bản sao` (Clone)
+  - `định nghĩa [tên khối]` (My Blocks)
 
-Buổi **Bài tập (BT)** — điều chỉnh slide-map; xem [slide-map.md](slide-map.md).
+---
 
-## Buổi Khai giảng (kết hợp Buổi 1)
+## 3. Quy chuẩn Game Tương tác & Quiz (BẮT BUỘC)
 
-File: `tuan-1-buoi-1.html` — **18 slide** = 5 khai giảng + 13 buổi Học.
+Mỗi bài giảng cần tạo sự cuốn hút, vận động và tư duy tích cực thông qua các component tương tác:
 
-| # | Slide | Nguồn |
-|---|-------|--------|
-| 1 | Chào mừng / tiêu đề khóa | `curriculum.md` |
-| 2 | Em sẽ làm được gì sau khóa | mục tiêu khóa |
-| 3 | Lộ trình 4 giai đoạn | bảng giai đoạn |
-| 4 | Cách học mỗi tuần (H + BT) | lịch tuần |
-| 5 | Giới thiệu giảng viên | thông tin GV (`.instructor-wrap`) |
-| 6–18 | 13 slide chuẩn Buổi 1 Học | `thang-1-noi-dung-co-ban-phan-1.md` |
+### A. Buổi Học (Lý thuyết — ~14–15 slide)
+1. **🎬 Khởi động tương tác (Slide 2):** Câu hỏi mở gợi cảm xúc, kích thích thảo luận cả lớp.
+2. **🌌 Kho tàng Vũ trụ Chủ đề (Slide 5):** Thẻ trưng bày 6 thế giới (Vũ trụ, Biển, Tiền sử, Ma thuật, Cyberpunk, Kẹo ngọt).
+3. **🎰 Máy phát ý tưởng Slot Machine (Slide 6):** 3 guồng quay ngẫu nhiên [Bối cảnh] × [Nhân vật] × [Nhiệm vụ] kèm hiệu ứng quay số `slotSpin` và nút *"Thử ý tưởng Độc - Lạ"*.
+4. **🏃 Minigame vận động "Thắng hay Thua?" / "Đúng hay Sai?" (Slide 10):**
+   - Vận động lớp học: 🙋 Giơ tay (Thắng) / 🙇 Ngồi thụp xuống (Thua).
+   - Card đổi màu xanh/đỏ, rung lắc `shake` khi sai, nảy nở khi đúng, đếm chuỗi streak `🔥`.
+5. **🏆 Đấu trường Quiz Game Design (Slide 12):**
+   - 5 câu trắc nghiệm A/B/C/D click chọn trực tiếp.
+   - Hiện lời giải thích chi tiết, chấm điểm tự động và trao cúp vinh danh.
+6. **👩‍🏫 Ghi chú cho giáo viên (Slide 15):** Hướng dẫn sư phạm phân hóa học sinh.
 
-`brandSub`: slide 0–4 → `· Khai giảng`; slide 5–17 → `· Tuần 1 Buổi 1`.
+### B. Buổi Bài tập (Thực hành — ~12–13 slide)
+1. **🎬 Khởi động ôn tập:** Đoán game / trắc nghiệm chớp nhoáng củng cố bài trước.
+2. **🔁 Trạm kỹ năng cốt lõi:** Bảng tổng hợp các khối lệnh then chốt.
+3. **🩺 Bác sĩ Scratch sửa lỗi mẫu (Debugging Clinic):** Bảng chẩn đoán bệnh án lỗi logic và phương thuốc điều trị.
+4. **🎯 Thử thách phân tầng 3 mức độ A/B/C:**
+   - Mức A: Cơ bản & My Blocks
+   - Mức B: Bác sĩ Debug
+   - Mức C: Game nâng cao / Remix
+5. **🖼️ Showcase & Tổng kết:** Trình chiếu sản phẩm, khen ngợi và cổ vũ.
 
-## Component nhanh
+---
 
-```html
-<!-- Tag loại slide -->
-<span class="slide-tag green">Thực hành</span>
+## 4. Chính sách Hiệu ứng
 
-<!-- Khối Scratch — song ngữ trong .block, phần khác tiếng Việt -->
-<div class="blocks">
-  <div class="block event">when green flag clicked / khi bấm cờ xanh</div>
-  <div class="block looks indent">say "Xin chào!" for 2 seconds / nói "Xin chào!" trong 2 giây</div>
-  <div class="block control indent">wait 0.5 seconds / chờ 0.5 giây</div>
-</div>
+- **Chỉ dùng visual animation:** CSS keyframes (`shake`, `bounce`, `slotSpin`, `pulse`), màu sắc glow và particle visual.
+- **KHÔNG dùng âm thanh lớn:** Tránh gây ồn ào không gian lớp học khi giáo viên giảng bài.
 
-<!-- Lặp (C-block) -->
-<div class="block control c-block indent">
-  repeat 5 / lặp 5 lần
-  <div class="c-body">
-    <div class="block looks">next costume / trang phục kế tiếp</div>
-    <div class="block control">wait 0.3 seconds / chờ 0.3 giây</div>
-  </div>
-</div>
+---
 
-<!-- Nhãn TH/BTVN -->
-<span class="th-label">TH1</span>
-<span class="th-label btvn-label">BTVN1</span>
-```
+## 5. Navigation & Phím tắt
 
-Class khối: `event` (vàng), `looks` (tím), `control` (cam), `motion` (xanh), `sound` (hồng).
+Giữ nguyên engine điều hướng từ `tuan-13-buoi-25.html`:
+- `ArrowRight` / `Spacebar` / `PageDown`: Tiến slide
+- `ArrowLeft` / `PageUp`: Lùi slide
+- `Home` / `End`: Về đầu / Về cuối
+- `F`: Phóng toàn màn hình
+- `Esc`: Thoát toàn màn hình
+- Chạm vuốt (Touch Swipe) trên tablet / màn hình cảm ứng
+- Dots navigation trên topbar + thanh tiến trình Progress bar trên cùng.
 
-## Quy tắc song ngữ khối lệnh
+---
 
-- **Chỉ** nội dung bên trong `<div class="block">` (và dòng đầu C-block như `repeat 5 / lặp 5 lần`)
-- Format: `English block text / bản dịch tiếng Việt`
-- Giữ nguyên tên khối Scratch bằng tiếng Anh (đúng giao diện Scratch)
-- Lời nói trong `say "…"` giữ nguyên tiếng Việt nếu là câu thoại của học sinh
-- CSS `.block`: `white-space: normal` để dòng song ngữ xuống hàng khi cần
+## 6. Tài liệu tham chiếu
 
-## Quy tắc layout
-
-- Slide dày (TH + nhiều khối): dùng `.cols` hoặc `.cols-60-40`
-- Kiến thức 5 mục: `.knowledge-grid` với `span-2` / `span-3`
-- Không để `.slide-body` tràn — kiểm tra `scrollHeight > clientHeight`
-- Một slide = một ý chính; checklist tách slide riêng cho lớp tự tick
-
-## JS — không được phá
-
-Giữ nguyên logic điều hướng từ mẫu. **Bắt buộc:**
-
-- Mỗi slide có đúng một trong: `active` | `prev` | `next`
-- `keydown` listener riêng, **không** gộp nhầm vào `click` listener
-- Fullscreen: `html:fullscreen` (không `body:fullscreen`), hỗ trợ `webkit`
-- `goTo()` cập nhật: counter, dots, progressBar, `brandSub`, `aria-hidden`
-
-## Kiểm tra trước khi giao
-
-Chạy checklist [checklist.md](checklist.md). Tối thiểu:
-
-1. `python -m http.server 8765` → mở file trong browser
-2. Tiến 3 slide → lùi 3 slide (counter + nội dung khớp)
-3. Phím `F` fullscreen, `Esc` thoát
-4. Click chấm tiến độ, checklist, quiz reveal
-
-## Phạm vi thay đổi
-
-- **Được**: nội dung slide, title, badge tuần/buổi, số slide (cập nhật `total` tự động qua `querySelectorAll`)
-- **Không**: tách file CSS/JS riêng, thêm framework, tạo file `.md` mới trừ khi user yêu cầu
-
-## Tài liệu thêm
-
-- Map markdown → slide: [slide-map.md](slide-map.md)
-- QA đầy đủ: [checklist.md](checklist.md)
+- Ánh xạ chi tiết markdown → slide: [slide-map.md](slide-map.md)
+- Checklist kiểm thử chất lượng: [checklist.md](checklist.md)
