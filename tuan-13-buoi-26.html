@@ -1,0 +1,1224 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 13 — Buổi 26: Storyboard Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-cyan: #00bcd4;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+      
+      --slide-w: min(1120px, 95vw);
+      --slide-h: min(720px, 86vh);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at 10% 20%, #1e3a8a 0%, #0f172a 90%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--scratch-dark);
+      user-select: none;
+    }
+
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 5px; width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow), var(--scratch-green), var(--scratch-cyan));
+      transition: width 0.35s ease;
+      z-index: 200;
+      box-shadow: 0 0 10px rgba(255, 140, 26, 0.6);
+    }
+
+    .deck { width: var(--slide-w); height: var(--slide-h); position: relative; margin-top: 56px; }
+
+    .slide {
+      position: absolute; inset: 0;
+      background: #ffffff;
+      border-radius: 22px;
+      box-shadow: 0 28px 70px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.1);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden;
+      transform: translateX(40px) scale(0.98);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1), transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1; visibility: visible; transform: translateX(0) scale(1);
+      pointer-events: auto; z-index: 10;
+      transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1), transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s;
+    }
+
+    .slide.prev { opacity: 0; visibility: hidden; transform: translateX(-40px) scale(0.98); pointer-events: none; z-index: 0; }
+    .slide.next { opacity: 0; visibility: hidden; transform: translateX(40px) scale(0.98); pointer-events: none; z-index: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .progress-bar { transition: none; }
+    }
+
+    .global-topbar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      width: var(--slide-w);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 22px;
+      background: rgba(255,255,255,0.95);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 16px;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.25);
+      z-index: 150;
+      backdrop-filter: blur(12px);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.92rem; color: var(--scratch-dark); white-space: nowrap; }
+    .brand-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #ff8c1a, #9966ff);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 3px 8px rgba(153,102,255,0.35);
+    }
+    .brand-sub { font-weight: 700; color: #64748b; font-size: 0.8rem; }
+
+    .slide-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 440px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #cbd5e1; border: none; cursor: pointer; padding: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .dot:hover { transform: scale(1.3); background: #94a3b8; }
+    .dot.active { background: var(--scratch-purple); transform: scale(1.3); box-shadow: 0 0 6px rgba(153,102,255,0.8); }
+
+    .topbar-actions { display: flex; gap: 8px; }
+    .icon-btn {
+      width: 36px; height: 36px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s;
+      color: var(--scratch-dark);
+    }
+    .icon-btn:hover { background: #f1f5f9; transform: translateY(-1px); }
+
+    .slide-main { flex: 1; display: flex; flex-direction: column; padding: 24px 44px 20px; min-height: 0; }
+    .title-slide .slide-main { justify-content: center; align-items: center; text-align: center; padding: 36px; }
+
+    .slide-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #fff; background: var(--scratch-blue);
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 10px;
+      align-self: flex-start;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green { background: var(--scratch-green); }
+    .slide-tag.red { background: var(--scratch-red); }
+    .slide-tag.yellow { background: #d97706; }
+    .slide-tag.cyan { background: #0284c7; }
+
+    h1 { font-size: clamp(2rem, 4.2vw, 2.75rem); line-height: 1.2; font-weight: 900; margin-bottom: 8px; }
+    h2 { font-size: clamp(1.35rem, 2.6vw, 1.8rem); font-weight: 900; margin-bottom: 12px; line-height: 1.25; color: #0f172a; }
+    .subtitle { font-size: 1.1rem; color: #475569; font-weight: 700; }
+
+    .slide-body { flex: 1; overflow-y: auto; padding-right: 6px; min-height: 0; }
+    .slide-body::-webkit-scrollbar { width: 6px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    .title-slide { background: radial-gradient(circle at 50% 10%, #faf5ff 0%, #ffffff 65%, #eff6ff 100%); }
+    .title-emoji { font-size: clamp(3.2rem, 7.5vw, 4.8rem); margin-bottom: 8px; line-height: 1; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12)); }
+    .title-slide h1 {
+      background: linear-gradient(135deg, #7c3aed 0%, #db2777 50%, #ea580c 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .title-meta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .badge {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 8px 18px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: #1e293b;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .badge.highlight {
+      background: #faf5ff;
+      border-color: #f3e8ff;
+      color: #7c3aed;
+    }
+    .start-hint { margin-top: 26px; color: #64748b; font-size: 0.9rem; font-weight: 700; animation: pulse 2.5s ease-in-out infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    ul, ol { padding-left: 1.3em; line-height: 1.7; font-size: 0.96rem; font-weight: 600; color: #334155; }
+    li { margin-bottom: 5px; }
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.92em; font-weight: 800;
+      background: #f1f5f9; color: #6b21a8;
+      padding: 2px 7px; border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+    strong { font-weight: 800; color: #0f172a; }
+
+    .highlight-box {
+      background: #eff6ff;
+      border-left: 5px solid var(--scratch-blue);
+      border-radius: 0 14px 14px 0;
+      padding: 13px 18px; margin: 10px 0;
+      font-size: 0.98rem; line-height: 1.6; font-weight: 600;
+      color: #1e3a8a;
+    }
+    .highlight-box.orange { background: #fff7ed; border-color: var(--scratch-orange); color: #9a3412; }
+    .highlight-box.green { background: #f0fdf4; border-color: var(--scratch-green); color: #166534; }
+    .highlight-box.purple { background: #faf5ff; border-color: var(--scratch-purple); color: #581c87; }
+    .highlight-box.red { background: #fff1f2; border-color: var(--scratch-red); color: #9f1239; }
+
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 8px; }
+    .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 8px; }
+    .cols-60-40 { grid-template-columns: 1.2fr 0.8fr; }
+
+    @media (max-width: 768px) {
+      .cols, .cols-3, .cols-60-40 { grid-template-columns: 1fr; }
+      .slide-main { padding: 18px 22px 14px; }
+      .global-topbar { padding: 8px 14px; top: 8px; }
+      .slide-dots { display: none; }
+      .brand-sub { display: none; }
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 15px 18px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .card h3 { font-size: 1rem; font-weight: 800; color: var(--scratch-blue); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .card.purple h3 { color: var(--scratch-purple); }
+    .card.orange h3 { color: var(--scratch-orange); }
+    .card.red h3 { color: var(--scratch-red); }
+    .card.green h3 { color: #16a34a; }
+
+    .section-label { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin: 8px 0 5px; }
+
+    /* Custom Tables & Badges */
+    .table-custom {
+      width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.9rem;
+    }
+    .table-custom th, .table-custom td {
+      border: 1px solid #e2e8f0; padding: 9px 12px; text-align: left;
+    }
+    .table-custom th {
+      background: #f1f5f9; font-weight: 800; color: #1e293b;
+    }
+    .table-custom tr:nth-child(even) td { background: #f8fafc; }
+
+    .tip {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: #fefce8; border: 2px dashed #facc15;
+      border-radius: 12px; padding: 12px 16px; margin-top: 8px;
+      font-size: 0.92rem; line-height: 1.55; font-weight: 600;
+      color: #713f12;
+    }
+    .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    .th-label {
+      display: inline-block; background: var(--scratch-green); color: #fff;
+      font-weight: 800; font-size: 0.75rem; padding: 3px 10px; border-radius: 8px;
+      margin-right: 4px; vertical-align: middle; letter-spacing: 0.03em;
+    }
+    .th-label.btvn-label { background: var(--scratch-purple); }
+    .th-label.level-a { background: #10b981; }
+    .th-label.level-b { background: #0284c7; }
+    .th-label.level-c { background: #8b5cf6; }
+
+    /* Storyboard Frame Visuals */
+    .storyboard-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .sb-frame {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+      transition: all 0.22s ease;
+      cursor: pointer;
+    }
+    .sb-frame:hover {
+      transform: translateY(-3px);
+      border-color: var(--scratch-purple);
+      box-shadow: 0 8px 18px rgba(153, 102, 255, 0.18);
+    }
+    .sb-frame.active {
+      border-color: var(--scratch-orange);
+      background: #fff7ed;
+      transform: scale(1.02);
+    }
+    .sb-screen {
+      background: #f1f5f9;
+      border: 1px dashed #94a3b8;
+      border-radius: 10px;
+      height: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      position: relative;
+    }
+    .sb-num {
+      position: absolute;
+      top: 6px; left: 8px;
+      background: #1e293b;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+    .sb-caption {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #475569;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    /* Interactive Warmup: Guess Game Genre */
+    .guess-container {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .guess-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 22px 20px;
+      text-align: center;
+      border: 2px solid #cbd5e1;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+    .guess-options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .btn-guess {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.18s;
+      text-align: center;
+    }
+    .btn-guess:hover {
+      border-color: var(--scratch-blue);
+      background: #f0f7ff;
+      transform: translateY(-2px);
+    }
+    .btn-guess.correct {
+      background: #dcfce7 !important;
+      border-color: #22c55e !important;
+      color: #15803d !important;
+    }
+    .btn-guess.wrong {
+      background: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #991b1b !important;
+    }
+
+    .nav { position: fixed; bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 100; }
+    .nav button {
+      background: rgba(255,255,255,0.18); border: 2px solid rgba(255,255,255,0.4);
+      color: #fff; width: 46px; height: 46px; border-radius: 50%;
+      font-size: 1.2rem; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(8px);
+    }
+    .nav button:hover:not(:disabled) { background: rgba(255,255,255,0.32); transform: scale(1.08); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+
+    .slide-counter { color: rgba(255,255,255,0.92); font-size: 0.9rem; font-weight: 800; min-width: 56px; text-align: center; }
+
+    .hint { position: fixed; bottom: 76px; color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: 600; transition: opacity 0.4s; }
+
+    html:fullscreen, html:-webkit-full-screen { width: 100%; height: 100%; }
+    html:fullscreen body, html:-webkit-full-screen body { width: 100%; height: 100%; min-height: 100%; background: #0f172a; padding: 0; }
+    html:fullscreen .deck, html:-webkit-full-screen .deck { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0; }
+    html:fullscreen .slide, html:-webkit-full-screen .slide { border-radius: 0; box-shadow: none; }
+    html:fullscreen .global-topbar, html:-webkit-full-screen .global-topbar { display: none; }
+    html:fullscreen .hint, html:-webkit-full-screen .hint { display: none; }
+    html:fullscreen .nav, html:-webkit-full-screen .nav { bottom: 16px; opacity: 0.35; transition: opacity 0.25s; }
+    html:fullscreen .nav:hover, html:-webkit-full-screen .nav:hover { opacity: 1; }
+    html:fullscreen .progress-bar, html:-webkit-full-screen .progress-bar { height: 3px; }
+
+    .fs-exit {
+      display: none; position: fixed; top: 12px; right: 12px; z-index: 300;
+      background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.35);
+      color: #fff; width: 40px; height: 40px; border-radius: 10px;
+      cursor: pointer; font-size: 1rem; backdrop-filter: blur(6px);
+      transition: background 0.15s;
+    }
+    .fs-exit:hover { background: rgba(0,0,0,0.75); }
+    html:fullscreen .fs-exit, html:-webkit-full-screen .fs-exit {
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    @media print {
+      body { background: #fff; overflow: visible; }
+      .nav, .hint, .progress-bar, .global-topbar { display: none !important; }
+      .deck { width: 100%; height: auto; }
+      .slide {
+        position: relative; opacity: 1 !important; transform: none !important;
+        page-break-after: always; box-shadow: none; border: 1px solid #ccc;
+        margin-bottom: 20px; min-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="15" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🎨</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1: Tiêu đề -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji">🎬🎨</div>
+      <h1>Vẽ Storyboard Game</h1>
+      <p class="subtitle">Kể câu chuyện Game bằng hình vẽ — Trước khi bắt tay vào lập trình!</p>
+      <div class="title-meta">
+        <span class="badge highlight">📅 Tuần 13</span>
+        <span class="badge">✏️ Buổi 26 — Bài tập</span>
+        <span class="badge">🎯 Độ tuổi: 7–10</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Phím cách để bắt đầu buổi thực hành sáng tạo!</p>
+    </div>
+  </section>
+
+  <!-- Slide 2: Khởi động ôn tập -->
+  <section class="slide" data-index="1" aria-label="Khởi động ôn tập">
+    <div class="slide-main">
+      <span class="slide-tag purple">🎬 Khởi động ôn tập (5–10 phút)</span>
+      <h2>Trò chơi: "Đoán Thể Loại Game!" 🕹️</h2>
+      <div class="slide-body">
+        <div class="highlight-box purple" style="margin-top:0;">
+          Từng bạn hãy nói thật nhanh <strong>1 câu</strong>: Ý tưởng game của em + 1 luật thắng hoặc thua. Cả lớp cùng click vào nút thể loại phù hợp dưới đây để kiểm tra phản xạ!
+        </div>
+        <div class="guess-container" style="margin-top:10px;">
+          <div class="guess-card" id="guessCard">
+            <div style="font-size:2.2rem;" id="guessEmoji">🚀⭐</div>
+            <div style="font-size:1.3rem; font-weight:900; color:#0f172a;" id="guessPrompt">
+              "Em điều khiển Phi hành gia hứng 15 ngôi sao vàng rơi từ vũ trụ!"
+            </div>
+            <div style="font-size:0.9rem; font-weight:700; color:#64748b;" id="guessFeedback">
+              Game này thuộc thể loại nào trong 4 thể loại dưới đây?
+            </div>
+          </div>
+          <div class="guess-options">
+            <button class="btn-guess" data-genre="catch">🍎 Bắt / Thu thập</button>
+            <button class="btn-guess" data-genre="avoid">☄️ Tránh né / Sinh tồn</button>
+            <button class="btn-guess" data-genre="chase">🐱🐭 Đuổi bắt</button>
+            <button class="btn-guess" data-genre="quiz">🧠 Quiz / Trắc nghiệm</button>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:10px;">
+          <span class="tip-icon">💡</span>
+          <div>Xác định đúng thể loại giúp em chọn đúng các khung hình hành động cần vẽ trong Storyboard hôm nay!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Trạm kỹ năng cốt lõi - Storyboard là gì? -->
+  <section class="slide" data-index="2" aria-label="Storyboard là gì?">
+    <div class="slide-main">
+      <span class="slide-tag orange">🔁 Trạm kỹ năng cốt lõi</span>
+      <h2>Storyboard là gì? Kể chuyện Game bằng hình 📽️</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          <strong>Storyboard (Kịch bản phân cảnh)</strong> là một chuỗi các <strong>khung hình vẽ liên tiếp</strong> (như truyện tranh), kể lại toàn bộ diễn biến game từ lúc <strong>Bắt đầu ➡️ Chơi ➡️ Thắng hoặc Thua</strong>!
+        </div>
+        <div class="storyboard-strip">
+          <div class="sb-frame">
+            <div class="sb-screen">
+              <span class="sb-num">Khung 1</span>
+              <span>🎮▶️</span>
+            </div>
+            <div class="sb-caption"><strong>1. Bắt đầu:</strong> Tên game, nút Play, màn chào đón</div>
+          </div>
+          <div class="sb-frame">
+            <div class="sb-screen">
+              <span class="sb-num">Khung 2</span>
+              <span>🏃‍♂️💨</span>
+            </div>
+            <div class="sb-caption"><strong>2. Vào trận:</strong> Nhân vật xuất hiện, bắt đầu di chuyển</div>
+          </div>
+          <div class="sb-frame">
+            <div class="sb-screen">
+              <span class="sb-num">Khung 3</span>
+              <span>⭐💥</span>
+            </div>
+            <div class="sb-caption"><strong>3. Cao trào:</strong> Ăn điểm, gặp chướng ngại, mất mạng</div>
+          </div>
+          <div class="sb-frame">
+            <div class="sb-screen">
+              <span class="sb-num">Khung 4</span>
+              <span>🏆🎉</span>
+            </div>
+            <div class="sb-caption"><strong>4. Kết thúc:</strong> Màn hình Thắng (Win) hoặc Game Over</div>
+          </div>
+        </div>
+        <div class="cols" style="margin-top:12px;">
+          <div class="card green">
+            <h3>🌟 Vì sao phải vẽ Storyboard trước khi code?</h3>
+            <ul>
+              <li><strong>Hình dung trước kết quả:</strong> Giúp em biết rõ mình sẽ vẽ sprite nào, lập trình ra sao.</li>
+              <li><strong>Không lo bí ý tưởng:</strong> Cứ nhìn vào từng khung hình vẽ sẵn là code được ngay!</li>
+            </ul>
+          </div>
+          <div class="card purple">
+            <h3>🎨 Em có cần vẽ thật đẹp không?</h3>
+            <p style="font-size:0.9rem; font-weight:700; color:#4c1d95; line-height:1.6;">
+              <strong>Không cần hoàn hảo!</strong> Chỉ cần vẽ hình người que (stick figure), hình tròn, hình vuông đơn giản + 1 câu chú thích ngắn gọn là đã đạt điểm 10 rồi! 👍
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: LT1 - Đặt tên game & Slogan -->
+  <section class="slide" data-index="3" aria-label="Luyện tập 1">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp (15–20 phút)</span>
+      <h2><span class="th-label btvn-label">LT1</span> Đặt tên Game &amp; Slogan Siêu Cuốn! 🏷️</h2>
+      <div class="slide-body">
+        <div class="highlight-box red" style="margin-top:0;">
+          Hôm nay em sẽ chia tay "tên tạm thời" để đặt một <strong>Tên game chính thức</strong> thật kêu, dễ nhớ và viết 1 câu slogan lôi cuốn người chơi!
+        </div>
+        <div class="cols cols-60-40" style="margin-top:10px;">
+          <div>
+            <p class="section-label" style="margin-top:0;">📋 4 Tiêu chí tên game hay</p>
+            <ul>
+              <li><strong>Độ dài vàng:</strong> Chỉ từ <strong>2 đến 5 từ</strong> (Ví dụ: <em>"Bắt Sao Không Gian"</em>, <em>"Cá Nhỏ Vượt Sóng"</em>).</li>
+              <li><strong>Gợi hành động:</strong> Có từ ngữ kích thích (Vượt, Thoát, Bắt, Giải cứu, Siêu tốc...).</li>
+              <li><strong>Khớp thể loại:</strong> Nghe tên là đoán được ngay bối cảnh và lối chơi.</li>
+              <li><strong>Slogan 1 câu:</strong> <em>"Trong game này, em sẽ điều khiển... để..."</em></li>
+            </ul>
+            <div class="tip" style="margin-top:10px;">
+              <span class="tip-icon">✨</span>
+              <div>Thử viết 3 tên khác nhau ra nháp, rồi chọn 1 tên em thấy tự hào nhất khi giới thiệu trước lớp!</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Ví dụ mẫu đặt tên</p>
+            <div class="card" style="background:#fff; border:2px solid #cbd5e1;">
+              <div style="margin-bottom:8px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+                <div style="font-size:0.75rem; color:#64748b; font-weight:800;">❌ TÊN CHƯA HAY</div>
+                <div style="font-weight:700; color:#ef4444;">"Trò chơi con mèo đi bắt đồ vật rơi từ trên trời xuống"</div>
+              </div>
+              <div>
+                <div style="font-size:0.75rem; color:#64748b; font-weight:800;">✅ TÊN CHUẨN XỊN</div>
+                <div style="font-weight:900; color:#16a34a; font-size:1.05rem;">"Mèo Con Hứng Kẹo" 🍭</div>
+                <div style="font-size:0.82rem; color:#475569; font-weight:700; margin-top:4px;">
+                  💬 <em>Slogan: "Trong game này, em sẽ giúp Mèo Mun hứng trọn mưa kẹo ngọt và né bom nổ!"</em>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: LT2 - Liệt kê nhân vật -->
+  <section class="slide" data-index="4" aria-label="Luyện tập 2">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
+      <h2><span class="th-label btvn-label">LT2</span> Lập Danh Sách Nhân Vật (Character List) 👥</h2>
+      <div class="slide-body">
+        <div class="highlight-box blue" style="margin-top:0;">
+          Trước khi vẽ khung tranh, em cần biết trong game có <strong>những ai xuất hiện</strong>. Hãy liệt kê <strong>ít nhất 3 nhân vật/vật thể</strong> vào bảng dự án!
+        </div>
+        <table class="table-custom" style="margin-top:10px;">
+          <thead>
+            <tr>
+              <th style="width: 12%;">STT</th>
+              <th style="width: 25%;">Tên Sprite</th>
+              <th style="width: 28%;">Vai trò trong game</th>
+              <th style="width: 35%;">Mô tả hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1 👤</strong></td>
+              <td><strong>Nhân vật chính</strong> (Cat / Phi hành gia / Xe)</td>
+              <td><span style="color:#0284c7; font-weight:800;">Người chơi điều khiển</span></td>
+              <td>Di chuyển bằng phím mũi tên hoặc chuột để bắt đồ / né đòn.</td>
+            </tr>
+            <tr>
+              <td><strong>2 🍎</strong></td>
+              <td><strong>Vật tương tác</strong> (Sao / Táo / Kẹo)</td>
+              <td><span style="color:#16a34a; font-weight:800;">Vật thu thập (+điểm)</span></td>
+              <td>Rơi từ trên xuống ngẫu nhiên, chạm người chơi thì biến mất.</td>
+            </tr>
+            <tr>
+              <td><strong>3 ☄️</strong></td>
+              <td><strong>Chướng ngại vật</strong> (Thiên thạch / Bom)</td>
+              <td><span style="color:#dc2626; font-weight:800;">Vật nguy hiểm (-mạng)</span></td>
+              <td>Bay cắt ngang màn hình, chạm vào thì trừ 1 mạng.</td>
+            </tr>
+            <tr>
+              <td><strong>4 🔘</strong></td>
+              <td><strong>Giao diện UI</strong> (Nút Play / Chữ Win)</td>
+              <td><span style="color:#7c3aed; font-weight:800;">Nút bấm / Báo kết quả</span></td>
+              <td>Bấm vào để bắt đầu chơi hoặc hiện cúp chúc mừng.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="tip" style="margin-top:12px;">
+          <span class="tip-icon">🔍</span>
+          <div><strong>Kiểm tra khớp luật:</strong> Nếu luật của em là <em>"Bắt 15 sao"</em> thì bắt buộc trong danh sách phải có sprite <code>Ngôi sao</code> nhé!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Giới thiệu 3 Mức Thử Thách Storyboard -->
+  <section class="slide" data-index="5" aria-label="Chọn mức thử thách">
+    <div class="slide-main">
+      <span class="slide-tag green">🎯 Thử thách phân tầng (35–40 phút)</span>
+      <h2>Em tự chọn 1 mức Thử Thách Storyboard 🎨</h2>
+      <div class="slide-body">
+        <div class="highlight-box green" style="margin-top:0;">
+          Lớp mình sẽ lấy giấy vẽ (hoặc phiếu mẫu in sẵn). Em hãy chọn <strong>1 trong 3 mức thử thách</strong> (A, B hoặc C) phù hợp với độ dài kịch bản game của em!
+        </div>
+        <div class="cols-3" style="margin-top:14px;">
+          <div class="card green" style="border-top: 4px solid #10b981;">
+            <div style="font-size:1.8rem; margin-bottom:4px;">🅰️</div>
+            <h3>Mức A — 4 Khung Hình</h3>
+            <p style="font-size:0.86rem; color:#475569; line-height:1.5;">
+              Kịch bản cơ bản, tinh gọn: Bắt đầu ➡️ Chơi ➡️ Cao trào ➡️ Kết thúc.<br>
+              <strong>A1:</strong> Luồng game cơ bản<br>
+              <strong>A2:</strong> Thể loại Tránh né
+            </p>
+          </div>
+          <div class="card" style="border-top: 4px solid #0284c7;">
+            <div style="font-size:1.8rem; margin-bottom:4px;">🅱️</div>
+            <h3>Mức B — 5 Khung + Luật</h3>
+            <p style="font-size:0.86rem; color:#475569; line-height:1.5;">
+              Có khung ghi rõ Luật Thắng &amp; Thua hoặc chuyên sâu cơ chế:<br>
+              <strong>B1:</strong> Storyboard + Luật chơi<br>
+              <strong>B2:</strong> Thể loại Bắn / Bắt
+            </p>
+          </div>
+          <div class="card purple" style="border-top: 4px solid #8b5cf6;">
+            <div style="font-size:1.8rem; margin-bottom:4px;">🅲</div>
+            <h3>Mức C — 6 Khung Nâng Cao</h3>
+            <p style="font-size:0.86rem; color:#475569; line-height:1.5;">
+              Chi tiết trọn vẹn kèm Bảng điều khiển phím hoặc Game Quiz:<br>
+              <strong>C1:</strong> 6 Khung + Bảng phím<br>
+              <strong>C2:</strong> Thể loại Quiz trắc nghiệm
+            </p>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:12px;">
+          <span class="tip-icon">💡</span>
+          <div>Bấm các chấm tròn phía trên hoặc dùng phím mũi tên để xem chi tiết hướng dẫn của từng bài!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: Bài A1 -->
+  <section class="slide" data-index="6" aria-label="Bài A1">
+    <div class="slide-main">
+      <span class="slide-tag green">Thử thách · Mức A (4 Khung)</span>
+      <h2><span class="th-label level-a">Bài A1</span> Storyboard 4 Khung: Luồng Game Cơ Bản 🖼️</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu thực hiện</p>
+            <ul>
+              <li>Kẻ <strong>4 ô vuông lớn</strong> có đánh số thứ tự từ 1 đến 4.</li>
+              <li><strong>Khung 1:</strong> Màn hình bắt đầu (Tên game + Nút Start).</li>
+              <li><strong>Khung 2:</strong> Người chơi xuất hiện + bắt đầu di chuyển.</li>
+              <li><strong>Khung 3:</strong> Tình huống gay cấn (Vật rơi xuống / chướng ngại xuất hiện).</li>
+              <li><strong>Khung 4:</strong> Màn hình kết thúc (Thắng hoặc Game Over).</li>
+              <li>Mỗi khung viết <strong>1 câu chú thích</strong> ngắn bên dưới.</li>
+            </ul>
+            <div class="tip" style="margin-top:10px;">
+              <span class="tip-icon">✨</span>
+              <div><strong>Thử thêm:</strong> Dùng bút màu tô điểm cho nhân vật chính thêm nổi bật!</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Minh họa 4 khung mẫu</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div class="sb-frame" style="padding:8px;">
+                <div class="sb-screen" style="height:65px; font-size:1.5rem;"><span class="sb-num">1</span>▶️🎮</div>
+                <div class="sb-caption" style="font-size:0.75rem;">Màn hình Play</div>
+              </div>
+              <div class="sb-frame" style="padding:8px;">
+                <div class="sb-screen" style="height:65px; font-size:1.5rem;"><span class="sb-num">2</span>🏃💨</div>
+                <div class="sb-caption" style="font-size:0.75rem;">Di chuyển hứng vật</div>
+              </div>
+              <div class="sb-frame" style="padding:8px;">
+                <div class="sb-screen" style="height:65px; font-size:1.5rem;"><span class="sb-num">3</span>⭐➕1</div>
+                <div class="sb-caption" style="font-size:0.75rem;">Chạm vật +điểm</div>
+              </div>
+              <div class="sb-frame" style="padding:8px;">
+                <div class="sb-screen" style="height:65px; font-size:1.5rem;"><span class="sb-num">4</span>🏆🎉</div>
+                <div class="sb-caption" style="font-size:0.75rem;">Đủ điểm: Chiến thắng!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: Bài A2 -->
+  <section class="slide" data-index="7" aria-label="Bài A2">
+    <div class="slide-main">
+      <span class="slide-tag green">Thử thách · Mức A (4 Khung)</span>
+      <h2><span class="th-label level-a">Bài A2</span> Storyboard 4 Khung: Thể loại Tránh Né ☄️</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu thực hiện</p>
+            <ul>
+              <li>Dành riêng cho game né chướng ngại vật (thiên thạch, quái, cá mập...).</li>
+              <li><strong>Khung 1:</strong> Màn hình Start + nhân vật đứng ở vị trí an toàn ban đầu.</li>
+              <li><strong>Khung 2:</strong> Chướng ngại vật xuất hiện và lao tới ➡️ Nhân vật né sang một bên.</li>
+              <li><strong>Khung 3:</strong> Tình huống nguy cấp: Chướng ngại bay sát nút hoặc mạng chỉ còn 1!</li>
+              <li><strong>Khung 4:</strong> Kết quả: Sống sót đủ thời gian (Thắng) HOẶC Chạm quái 3 lần (Thua).</li>
+            </ul>
+            <div class="tip" style="margin-top:10px;">
+              <span class="tip-icon">🏹</span>
+              <div><strong>Thử thêm:</strong> Vẽ thêm mũi tên chỉ hướng né tránh (trái ⬅️ / phải ➡️ / nhảy ⬆️).</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khung tình huống</p>
+            <div class="card red" style="background:#fff;">
+              <div style="font-weight:800; font-size:0.9rem; color:#dc2626; margin-bottom:4px;">💥 Điểm nhấn Khung 3:</div>
+              <p style="font-size:0.85rem; line-height:1.5;">
+                Vẽ biểu cảm nhân vật hốt hoảng toát mồ hôi khi né viên thiên thạch khổng lồ! Ghi chú rõ: <em>"Mạng còn 1 - né gấp!"</em>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: Bài B1 -->
+  <section class="slide" data-index="8" aria-label="Bài B1">
+    <div class="slide-main">
+      <span class="slide-tag" style="background:#0284c7;">Thử thách · Mức B (5 Khung)</span>
+      <h2><span class="th-label level-b">Bài B1</span> Storyboard 5 Khung + Luật Thắng Thua ⚖️</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu thực hiện</p>
+            <ul>
+              <li>Vẽ **5 khung hình** liên kết chặt chẽ.</li>
+              <li><strong>Khung 1–3:</strong> Màn Play ➡️ Bắt đầu chơi ➡️ Hành động cao trào.</li>
+              <li><strong>Khung 4 (ĐẶC BIỆT):</strong> Dành trọn ô để ghi rõ <strong>Luật Thắng</strong> (ví dụ: `Điểm = 15`) và <strong>Luật Thua</strong> (ví dụ: `Mạng = 0`).</li>
+              <li><strong>Khung 5:</strong> Chia đôi khung: Nửa trên vẽ màn hình THẮNG 🏆 | Nửa dưới vẽ màn hình THUA 💥.</li>
+            </ul>
+            <div class="tip" style="margin-top:10px;">
+              <span class="tip-icon">📝</span>
+              <div>Tận dụng ngay các con số cụ thể em đã chốt ở buổi 25 tuần trước!</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Mẫu Khung 4 &amp; 5</p>
+            <div class="card" style="background:#fff; border:2px solid #0284c7;">
+              <div style="font-weight:800; color:#0284c7; font-size:0.92rem; margin-bottom:6px;">📋 Ô LUẬT CHƠI (Khung 4)</div>
+              <div style="font-size:0.84rem; line-height:1.6;">
+                🟢 <strong>THẮNG:</strong> Đủ 15 điểm ➡️ Hiện "You Win"<br>
+                🔴 <strong>THUA:</strong> Hết 3 mạng ➡️ Hiện "Game Over"
+              </div>
+              <div style="margin-top:8px; padding-top:8px; border-top:1px dashed #cbd5e1; font-weight:800; font-size:0.85rem; color:#64748b;">
+                🖼️ <strong>Khung 5:</strong> Vẽ cả 2 phông nền kết thúc để chuẩn bị lập trình đổi Backdrop.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: Bài B2 -->
+  <section class="slide" data-index="9" aria-label="Bài B2">
+    <div class="slide-main">
+      <span class="slide-tag" style="background:#0284c7;">Thử thách · Mức B (5 Khung)</span>
+      <h2><span class="th-label level-b">Bài B2</span> Storyboard 5 Khung: Thể loại Bắn / Bắt 🎯</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu thực hiện</p>
+            <ul>
+              <li>Chọn 1 trong 2 thể loại con: <strong>Bắn mục tiêu</strong> hoặc <strong>Hứng / Bắt vật</strong>.</li>
+              <li><strong>Khung 1:</strong> Màn hình chào + Nút Play.</li>
+              <li><strong>Khung 2:</strong> Vị trí nhân vật chính + Mục tiêu xuất hiện.</li>
+              <li><strong>Khung 3:</strong> Hành động: Tia đạn bắn trúng HOẶC giỏ hứng được vật phẩm.</li>
+              <li><strong>Khung 4:</strong> Luật thắng cụ thể (ví dụ: Bắn trúng 10 quái / Hứng đủ 20 quả táo).</li>
+              <li><strong>Khung 5:</strong> Màn hình ăn mừng chiến thắng rực rỡ!</li>
+            </ul>
+            <div class="tip" style="margin-top:10px;">
+              <span class="tip-icon">🚀</span>
+              <div>Vẽ đường bay của tia đạn hoặc vật phẩm rơi bằng nét đứt kèm mũi tên chỉ hướng!</div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý góc nhìn</p>
+            <div class="card" style="background:#fff;">
+              <p style="font-size:0.86rem; line-height:1.6; color:#334155;">
+                • <strong>Game Bắn:</strong> Nhân vật đứng đáy màn hình, bắn hướng lên trên ⬆️.<br>
+                • <strong>Game Hứng táo:</strong> Nhân vật chạy ngang trục X ở đáy, táo rơi dọc trục Y từ trên xuống ⬇️.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: Bài C1 -->
+  <section class="slide" data-index="10" aria-label="Bài C1">
+    <div class="slide-main">
+      <span class="slide-tag purple">Thử thách · Mức C (6 Khung)</span>
+      <h2><span class="th-label level-c">Bài C1</span> Storyboard 6 Khung + Bảng Phím Điều Khiển ⌨️</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu thực hiện</p>
+            <ul>
+              <li>Vẽ **6 khung hình** hoàn chỉnh từ A đến Z (Start ➡️ Gameplay ➡️ Thử thách ➡️ Luật ➡️ Thắng ➡️ Thua &amp; Chơi lại).</li>
+              <li>Bên cạnh Storyboard, kẻ **Bảng điều khiển (ít nhất 3 thao tác)**:
+                <div style="background:#f1f5f9; padding:6px 10px; border-radius:8px; font-size:0.84rem; margin-top:4px;">
+                  • <strong>Phím / Thao tác:</strong> Mũi tên trái / phải / Space / Click chuột<br>
+                  • <strong>Nhân vật làm gì:</strong> Di chuyển trái / phải / Nhảy / Bắn đạn
+                </div>
+              </li>
+              <li>Kiểm tra: Mọi hành động trong khung tranh đều có phím điều khiển tương ứng!</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Mẫu bảng điều khiển</p>
+            <table class="table-custom" style="font-size:0.82rem;">
+              <thead>
+                <tr>
+                  <th>Nút bấm</th>
+                  <th>Hành động của Sprite</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>⬅️ Phím Trái</code></td>
+                  <td>Đi sang trái (x thay đổi -10)</td>
+                </tr>
+                <tr>
+                  <td><code>➡️ Phím Phải</code></td>
+                  <td>Đi sang phải (x thay đổi 10)</td>
+                </tr>
+                <tr>
+                  <td><code>Phím Space</code></td>
+                  <td>Nhảy lên né chướng ngại</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: Bài C2 -->
+  <section class="slide" data-index="11" aria-label="Bài C2">
+    <div class="slide-main">
+      <span class="slide-tag purple">Thử thách · Mức C (6 Khung)</span>
+      <h2><span class="th-label level-c">Bài C2</span> Storyboard 6 Khung: Game Quiz Đố Vui 🧠</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Yêu cầu thực hiện</p>
+            <ul>
+              <li>Dành cho bạn làm game hỏi đáp, đố vui trí tuệ với Robot / Thầy giáo Scratch.</li>
+              <li><strong>Khung 1:</strong> Màn chào đón + Nút "Bắt đầu Quiz".</li>
+              <li><strong>Khung 2:</strong> Robot đặt Câu hỏi 1 + Hiện 3 đáp án (A / B / C).</li>
+              <li><strong>Khung 3:</strong> Người chơi chọn ĐÚNG ➡️ Âm thanh vui + Cộng 10 điểm.</li>
+              <li><strong>Khung 4:</strong> Người chơi chọn SAI ➡️ Âm thanh cảnh báo + Trừ 1 mạng.</li>
+              <li><strong>Khung 5:</strong> Khung ghi Luật: Đúng 5/5 thì Thắng | Sai quá 2 câu thì Thua.</li>
+              <li><strong>Khung 6:</strong> Màn trao Cúp chiến thắng hoặc Bảng điểm cuối cùng.</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý chi tiết</p>
+            <div class="card purple" style="background:#fff;">
+              <p style="font-size:0.85rem; line-height:1.6; color:#4c1d95;">
+                Viết sẵn 1 câu hỏi thật vui vào Khung 2 (Ví dụ: <em>"Đố em loài cá nào bơi nhanh nhất?"</em>) để tuần sau nhập code câu hỏi vào Scratch cực nhanh!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Trạm Showcase & Triển lãm Storyboard -->
+  <section class="slide" data-index="12" aria-label="Showcase Storyboard">
+    <div class="slide-main">
+      <span class="slide-tag orange">🖼️ Triển lãm tranh (5–10 phút)</span>
+      <h2>Showcase: "Triển Lãm Kịch Bản Game Nhí!" 🎨👏</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Đã hết giờ vẽ kịch bản! Tất cả các bạn cùng đặt tác phẩm của mình ngay ngắn trên bàn để mở <strong>Triển lãm Storyboard</strong> toàn lớp!
+        </div>
+        <div class="cols" style="margin-top:12px;">
+          <div class="card">
+            <h3>🚶 Hoạt động 1: Đi tham quan (2 phút)</h3>
+            <p style="font-size:0.88rem; line-height:1.6; color:#334155;">
+              Cả lớp đứng dậy, đi nhẹ nhàng vòng quanh xem bản vẽ của <strong>2–3 bạn gần nhất</strong>:
+            </p>
+            <ul style="margin-top:6px; font-size:0.85rem;">
+              <li>Tên game của bạn có cuốn hút không?</li>
+              <li>Khung hình của bạn vẽ nhân vật gì ngộ nghĩnh?</li>
+              <li>Khen ngợi 1 điểm độc đáo nhất của bạn! 👏</li>
+            </ul>
+          </div>
+          <div class="card purple">
+            <h3>🎤 Hoạt động 2: Thuyết trình nhí (3 phút)</h3>
+            <p style="font-size:0.88rem; line-height:1.6; color:#4c1d95;">
+              Thầy/Cô mời <strong>2–3 bạn xung phong</strong> cầm storyboard lên trước lớp và kể nhanh câu chuyện game trong 1 phút:
+            </p>
+            <div style="background:#f5f3ff; padding:8px 12px; border-radius:8px; font-size:0.84rem; margin-top:6px;">
+              💬 <em>"Game của tớ tên là... Nhân vật chính là... Người chơi sẽ bấm phím... để thắng khi...!"</em>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 14: Tổng kết & Chuẩn bị Buổi 27 -->
+  <section class="slide title-slide" data-index="13" aria-label="Tổng kết">
+    <div class="slide-main">
+      <div class="title-emoji">🎉🏆</div>
+      <h2 style="font-size:1.9rem; margin-bottom:12px;">Hoàn thành Xuất sắc Tuần 13! 🚀</h2>
+      <div class="highlight-box green" style="max-width:720px; text-align:left; margin-bottom:12px;">
+        🌟 <strong>Chúc mừng các Game Designer nhí đã hoàn thành:</strong>
+        <ul style="margin-top:6px;">
+          <li>✅ Đặt xong <strong>Tên game chính thức</strong> và câu Slogan đầy cảm hứng.</li>
+          <li>✅ Liệt kê chi tiết <strong>Danh sách nhân vật</strong> &amp; các sprite cần có.</li>
+          <li>✅ Vẽ xong <strong>Storyboard kịch bản</strong> từng khung hình sống động.</li>
+        </ul>
+      </div>
+      <div class="card" style="max-width:720px; text-align:left; background:#fff; border:2px solid var(--scratch-blue); margin-bottom:10px;">
+        <h3 style="color:var(--scratch-blue);">🔮 Đón chờ Tuần 14 (Buổi 27) — Kế hoạch Kỹ thuật:</h3>
+        <p style="font-size:0.92rem; font-weight:700; color:#1e293b; line-height:1.6;">
+          Em sẽ chuyển toàn bộ hình vẽ hôm nay thành <strong>Kế hoạch lập trình Scratch</strong>: Liệt kê chính xác tên các Sprite, Backdrop và danh sách các khối lệnh Scratch cần lắp ráp! 🧱⚡
+        </p>
+      </div>
+      <p style="margin-top:8px; font-size:1.05rem; color:var(--scratch-orange); font-weight:900;">
+        Kẹp cẩn thận Storyboard vào cặp mang về khoe bố mẹ nhé! ✨
+      </p>
+    </div>
+  </section>
+
+  <!-- Slide 15: Ghi chú cho giáo viên -->
+  <section class="slide" data-index="14" aria-label="Ghi chú giáo viên">
+    <div class="slide-main">
+      <span class="slide-tag red">👩‍🏫 Dành cho Giáo viên</span>
+      <h2>Hướng dẫn Sư phạm &amp; Quản lý Lớp Buổi 26 🍎</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div class="card">
+            <h3>⚡ Hỗ trợ học sinh vẽ chậm hoặc cầu toàn</h3>
+            <ul style="font-size:0.86rem; line-height:1.65; margin-top:4px;">
+              <li>Một số học sinh dành quá nhiều thời gian để vẽ tỉ mỉ từng chi tiết hình người hoặc xóa đi vẽ lại nhiều lần.</li>
+              <li><strong>Nhắc nhở nhẹ nhàng:</strong> <em>"Storyboard là bản nháp kể chuyện, không phải tranh triển lãm mỹ thuật. Em chỉ cần vẽ người que đơn giản hoặc ký hiệu tròn/vuông là tuyệt vời rồi!"</em></li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>🎯 Hướng dẫn học sinh xong sớm</h3>
+            <ul style="font-size:0.86rem; line-height:1.65; margin-top:4px;">
+              <li>Khuyến khích các em hoàn thành mức A/B thử thách thêm bảng phím điều khiển (Mức C) hoặc tô màu trang trí.</li>
+              <li>Cho phép em hỗ trợ bạn cạnh bàn: Xem tranh của bạn và đóng vai người chơi nhận xét xem câu chuyện có dễ hiểu không.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card purple" style="margin-top:12px;">
+          <h3 style="margin-bottom:4px;">⏱️ Phân bổ thời gian gợi ý (90 phút):</h3>
+          <p style="font-size:0.86rem; line-height:1.6; color:#4c1d95; font-weight:600;">
+            • 00–10p: Khởi động ôn tập &amp; Giới thiệu Storyboard (Slide 1–3)<br>
+            • 10–25p: Thực hành LT1 (Tên game) &amp; LT2 (Danh sách nhân vật) (Slide 4–5)<br>
+            • 25–65p: Vẽ Storyboard theo mức A/B/C đã chọn (Slide 6–12)<br>
+            • 65–80p: Triển lãm tranh &amp; Thuyết trình nhí (Slide 13)<br>
+            • 80–90p: Tổng kết, dặn dò &amp; Đánh giá (Slide 14–15)
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 15</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Phím cách · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+
+<script>
+  /* --- Deck Navigation Core --- */
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let hasNavigated = false;
+
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
+
+  function buildDots() {
+    const template = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+    document.getElementById('dots').innerHTML = template;
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.toggle('active', Number(dot.dataset.goto) === current);
+    });
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) {
+      hasNavigated = true;
+      document.body.classList.add('presenting');
+    }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1
+      ? '· Scratch'
+      : '· Tuần 13 Buổi 26';
+    updateDots();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, .btn-guess, .sb-frame, code, .global-topbar, .nav, .guess-container')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') {
+      if (e.target.tagName !== 'BUTTON') { e.preventDefault(); next(); }
+    }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  /* Fullscreen */
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+  function toggleFullscreen() {
+    if (isFullscreen()) exitFullscreen();
+    else enterFullscreen();
+  }
+  function enterFullscreen() {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  }
+  function exitFullscreen() {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+  function onFullscreenChange() {
+    document.body.classList.toggle('is-fullscreen', isFullscreen());
+  }
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+  document.getElementById('btnFullscreen').addEventListener('click', e => { e.stopPropagation(); toggleFullscreen(); });
+  document.getElementById('btnExitFs').addEventListener('click', e => { e.stopPropagation(); exitFullscreen(); });
+
+  /* Touch Swiping */
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1));
+  }, { passive: true });
+
+  /* --- INTERACTIVE WARMUP: Guess Genre Game --- */
+  const guessScenarios = [
+    { prompt: '"Em điều khiển Phi hành gia hứng 15 ngôi sao vàng rơi từ vũ trụ!"', genre: 'catch', emoji: '🚀⭐' },
+    { prompt: '"Chú cá nhỏ bơi né tránh đàn cá mập hung dữ trong 60 giây!"', genre: 'avoid', emoji: '🐟🦈' },
+    { prompt: '"Robot thông thái hỏi 5 câu đố toán học siêu tốc!"', genre: 'quiz', emoji: '🤖🧠' },
+    { prompt: '"Mèo Mun đuổi theo Chuột nhắt khắp căn phòng vui nhộn!"', genre: 'chase', emoji: '🐱🐭' }
+  ];
+
+  let currentGuessIdx = 0;
+  const guessEmoji = document.getElementById('guessEmoji');
+  const guessPrompt = document.getElementById('guessPrompt');
+  const guessFeedback = document.getElementById('guessFeedback');
+  const guessButtons = document.querySelectorAll('.btn-guess');
+
+  function renderGuess() {
+    const g = guessScenarios[currentGuessIdx];
+    guessEmoji.textContent = g.emoji;
+    guessPrompt.textContent = g.prompt;
+    guessFeedback.textContent = 'Game này thuộc thể loại nào trong 4 thể loại dưới đây?';
+    guessButtons.forEach(btn => {
+      btn.className = 'btn-guess';
+      btn.disabled = false;
+    });
+  }
+
+  guessButtons.forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const chosen = btn.dataset.genre;
+      const target = guessScenarios[currentGuessIdx].genre;
+
+      guessButtons.forEach(b => {
+        b.disabled = true;
+        if (b.dataset.genre === target) b.classList.add('correct');
+        else if (b.dataset.genre === chosen) b.classList.add('wrong');
+      });
+
+      if (chosen === target) {
+        guessFeedback.innerHTML = `<span style="color:#16a34a; font-weight:800;">🎉 CHÍNH XÁC! Thể loại rất rõ ràng!</span>`;
+      } else {
+        guessFeedback.innerHTML = `<span style="color:#dc2626; font-weight:800;">💡 Chưa đúng rồi! Đáp án chính xác là nút màu xanh lá nhé!</span>`;
+      }
+
+      setTimeout(() => {
+        currentGuessIdx = (currentGuessIdx + 1) % guessScenarios.length;
+        renderGuess();
+      }, 1500);
+    });
+  });
+
+  renderGuess();
+
+  /* --- INTERACTIVE STORYBOARD FRAME HIGHLIGHT --- */
+  document.querySelectorAll('.sb-frame').forEach(f => {
+    f.addEventListener('click', e => {
+      e.stopPropagation();
+      document.querySelectorAll('.sb-frame').forEach(other => other.classList.remove('active'));
+      f.classList.add('active');
+    });
+  });
+
+  /* --- Initialization --- */
+  buildDots();
+  slides.forEach((s, i) => {
+    s.setAttribute('aria-hidden', i !== 0);
+    if (i === 0) s.classList.add('active');
+    else s.classList.add('next');
+  });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
+</html>

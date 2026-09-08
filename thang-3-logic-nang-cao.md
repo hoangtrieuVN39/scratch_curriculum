@@ -452,7 +452,58 @@ Em chọn **1 mức** A, B hoặc C, rồi chọn **1 trong 2 bài** của mức
 
 ### ✅ Tổng kết (5 phút)
 
-Nhắc lại: hôm nay em đã luyện `pick random`, nhiều biến, và thử sức với các bài mở rộng từ xúc xắc đến game gom điểm có thời gian. Buổi sau (**Buổi 19 — Broadcast**) em sẽ học cách gửi tin nhắn giữa các sprite để chúng phối hợp với nhau.
+Nhắc lại: hôm nay em đã luyện `pick random`, nhiều biến, và thử sức với các bài mở rộng từ xúc xắc đến game gom điểm có thời gian. Buổi sau (**Buổi 18.5 — Game Jam hoặc Buổi 19 — Broadcast**) em sẽ bước vào đấu trường lập trình game đỉnh cao.
+
+---
+
+## Buổi 18.5 — Game Jam: Đấu trường Arcade 6 Game Đỉnh Cao 🕹️🏆
+
+### Hôm nay em làm gì?
+
+Hôm nay là buổi **Arcade Game Jam đặc biệt**! Em sẽ vận dụng toàn bộ "vũ khí tối thượng" đã học trong Tháng 3 (Toán tử `lấy ngẫu nhiên`, `<`, `>`, `=`, `kết hợp`, `và`/`hoặc` cùng các Biến số `điểm`, `mạng`, `thời gian`) để tự tay thiết kế **1 trong 6 tựa game Arcade kinh điển** hoặc sáng tạo game riêng của mình! 🚀🎮
+
+---
+
+### 🎮 Kho tàng 6 Vũ trụ Arcade Game (Phân cấp 3 cấp độ)
+
+| Cấp độ | Tựa Game | Thể loại | Trọng tâm Logic & Toán tử |
+|:---|:---|:---|:---|
+| ⭐ **Dễ** | **1. Đoán Số Thần Tài** 🎯 | Logic / Số học | `lấy ngẫu nhiên từ 1 đến 100`, so sánh `answer > bí mật`, `answer < bí mật`, đếm biến `số lần đoán` |
+| ⭐ **Dễ** | **2. Hứng Táo & Tránh Bom** 🍎💣 | Thu thập / Phản xạ | Tọa độ x ngẫu nhiên `lấy ngẫu nhiên từ -200 đến 200`, rơi từ trên xuống, táo `+1 điểm`, bom `-1 mạng` |
+| ⭐⭐ **Vừa** | **3. Né Thiên Thạch Vũ Trụ** 🚀☄️ | Sinh tồn / Tăng tốc | Phi thuyền di chuyển 4 hướng, thiên thạch tăng tốc dần theo thời gian: `tốc độ = 4 + (điểm / 10)` |
+| ⭐⭐ **Vừa** | **4. Thần Tính Siêu Tốc** 🧠⚡ | Math Battle / Trí tuệ | Tự sinh ngẫu nhiên `số A` và `số B`, dùng khối `kết hợp` tạo câu hỏi toán học, giới hạn thời gian trả lời |
+| ⭐⭐⭐ **Thử thách** | **5. Pong Tâng Bóng Cầu Vồng** 🏓🌈 | Arcade cổ điển | Thanh đỡ hứng bóng, bóng nảy góc ngẫu nhiên `-45 đến 45 độ`, kiểm tra rơi đáy `tọa độ y < -160` |
+| ⭐⭐⭐ **Thử thách** | **6. Khủng Long Vượt Sa Mạc** 🦖🌵 | Runner vô tận | Phím Space nhảy qua chướng ngại vật, cây xương rồng xuất hiện với khoảng cách ngẫu nhiên |
+
+---
+
+### 🧱 Kế hoạch 4 bước hoàn thiện game (35–45 phút)
+
+1. **Bước 1 — Khung sườn (10p):** Chọn 1 nhân vật chính + 1 vật phẩm/chướng ngại vật, tạo sân khấu mang phong cách Retro Arcade.
+2. **Bước 2 — Bộ biến số (10p):** Tạo ít nhất 2 biến (ví dụ: `điểm` và `thời gian`, hoặc `điểm` và `mạng`). Luôn nhớ **đặt giá trị ban đầu khi bấm vào 🏳️**.
+3. **Bước 3 — Linh hồn Toán tử (15p):** Ghép khối `lấy ngẫu nhiên` để vị trí xuất hiện hoặc câu hỏi không bao giờ lặp lại; dùng các phép so sánh `>`, `<`, `=` để xử lý thắng / thua.
+4. **Bước 4 — Hiệu ứng & Đánh bóng (10p):** Thêm âm thanh khi ghi điểm, màn hình Game Over / You Win rực rỡ và đếm kỷ lục `điểm cao nhất`.
+
+---
+
+### 🛡️ 3 Chiêu thức nâng tầm Game Pro
+
+- **Chiêu 1 — Tăng độ khó theo thời gian:** Dùng phép toán `đặt [tốc độ] thành (4 + (điểm / 10))` để điểm càng cao, game càng kịch tính!
+- **Chiêu 2 — Combo Streak thưởng điểm:** Khi đạt chuỗi đúng liên tiếp, thưởng thêm `+5 điểm` và hiệu ứng đổi màu sprite!
+- **Chiêu 3 — Kỷ lục High Score:** Nếu `điểm > điểm cao nhất` thì `đặt [điểm cao nhất] thành (điểm)`.
+
+---
+
+### 👏 Showcase & Trải nghiệm (15 phút)
+
+- **Đổi máy trải nghiệm chéo:** Mỗi học sinh chuyển sang máy bạn bên cạnh chơi thử trong 3 phút, tìm kiếm "kỷ lục gia Arcade" của lớp.
+- **Vinh danh:** Trao danh hiệu *Arcade Master* cho các bạn hoàn thiện game mượt mà, sáng tạo và có độ thử thách cao.
+
+---
+
+### ✅ Tổng kết
+
+Hôm nay em đã thực chiến vận dụng Toán tử và Biến số vào các tựa game Arcade hoàn chỉnh. Buổi sau (**Buổi 19 — Broadcast**) em sẽ học cách gửi tin nhắn giữa các sprite để chúng phối hợp với nhau! 📡✨
 
 ---
 

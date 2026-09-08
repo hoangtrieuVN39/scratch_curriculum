@@ -58,6 +58,7 @@ Tài liệu này là cẩm nang bắt buộc dành cho mọi AI Agent (Antigravi
 Nhằm tạo sự hứng khởi và tương tác tối đa cho lớp học, mỗi slide deck **bắt buộc** phải tích hợp các thành phần tương tác:
 
 ### A. Buổi Học (Lý thuyết — ~14–15 slide):
+
 1. **🎬 Khởi động tương tác:** Câu hỏi gợi mở, khảo sát ý kiến hoặc mini-game thảo luận.
 2. **🌌 Trưng bày chủ đề / Trực quan hóa kiến thức:** Thẻ phân loại trực quan (ví dụ: Kho tàng 6 vũ trụ chủ đề).
 3. **🎰 Công cụ sáng tạo ngẫu nhiên (Slot Machine / Idea Generator):**
@@ -72,13 +73,14 @@ Nhằm tạo sự hứng khởi và tương tác tối đa cho lớp học, mỗ
 6. **👩‍🏫 Ghi chú cho giáo viên:** Slide cuối hướng dẫn phân hóa học sinh và cách điều phối hoạt động.
 
 ### B. Buổi Bài tập (Thực hành — ~12–13 slide):
+
 1. **🎬 Khởi động ôn tập:** Trắc nghiệm nhanh củng cố bài học trước.
 2. **🔁 Trạm kỹ năng cốt lõi:** Bảng tổng hợp các khối lệnh then chốt.
 3. **🩺 Bác sĩ Scratch sửa lỗi mẫu (Debugging Clinic):** Game mẫu có lỗi thực tế, bảng chẩn đoán bệnh án và phương thuốc sửa lỗi.
 4. **🎯 Thử thách phân tầng 3 mức độ (Mức A / B / C):**
-   - *Mức A:* Hoàn thiện cơ bản & Gom code My Blocks.
-   - *Mức B:* Bác sĩ Debug sửa lỗi đa dạng.
-   - *Mức C:* Dự án sáng tạo nâng cao / Remix tính năng độc đáo.
+   - _Mức A:_ Hoàn thiện cơ bản & Gom code My Blocks.
+   - _Mức B:_ Bác sĩ Debug sửa lỗi đa dạng.
+   - _Mức C:_ Dự án sáng tạo nâng cao / Remix tính năng độc đáo.
 5. **🖼️ Trạm Showcase & Tổng kết:** Trình chiếu sản phẩm và vinh danh.
 
 ---

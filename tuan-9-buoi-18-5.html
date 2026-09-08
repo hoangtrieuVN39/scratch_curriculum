@@ -1,0 +1,1389 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 9 — Buổi 18.5: Đấu trường Arcade 6 Game Đỉnh Cao</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-cyan: #00bcd4;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+      
+      --slide-w: min(1120px, 95vw);
+      --slide-h: min(720px, 86vh);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at 10% 20%, #1e3a8a 0%, #0f172a 90%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--scratch-dark);
+      user-select: none;
+    }
+
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 5px; width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow), var(--scratch-green), var(--scratch-cyan));
+      transition: width 0.35s ease;
+      z-index: 200;
+      box-shadow: 0 0 10px rgba(255, 140, 26, 0.6);
+    }
+
+    .deck { width: var(--slide-w); height: var(--slide-h); position: relative; margin-top: 56px; }
+
+    .slide {
+      position: absolute; inset: 0;
+      background: #ffffff;
+      border-radius: 22px;
+      box-shadow: 0 28px 70px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.1);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden;
+      transform: translateX(40px) scale(0.98);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1), transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1; visibility: visible; transform: translateX(0) scale(1);
+      pointer-events: auto; z-index: 10;
+      transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1), transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s;
+    }
+
+    .slide.prev { opacity: 0; visibility: hidden; transform: translateX(-40px) scale(0.98); pointer-events: none; z-index: 0; }
+    .slide.next { opacity: 0; visibility: hidden; transform: translateX(40px) scale(0.98); pointer-events: none; z-index: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .progress-bar { transition: none; }
+    }
+
+    .global-topbar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      width: var(--slide-w);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 22px;
+      background: rgba(255,255,255,0.95);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 16px;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.25);
+      z-index: 150;
+      backdrop-filter: blur(12px);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.92rem; color: var(--scratch-dark); white-space: nowrap; }
+    .brand-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #10b981, #0284c7);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 3px 8px rgba(2,132,199,0.35);
+    }
+    .brand-sub { font-weight: 700; color: #64748b; font-size: 0.8rem; }
+
+    .slide-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 440px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #cbd5e1; border: none; cursor: pointer; padding: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .dot:hover { transform: scale(1.3); background: #94a3b8; }
+    .dot.active { background: var(--scratch-green); transform: scale(1.3); box-shadow: 0 0 6px rgba(89,192,89,0.8); }
+
+    .topbar-actions { display: flex; gap: 8px; }
+    .icon-btn {
+      width: 36px; height: 36px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s;
+      color: var(--scratch-dark);
+    }
+    .icon-btn:hover { background: #f1f5f9; transform: translateY(-1px); }
+
+    .slide-main { flex: 1; display: flex; flex-direction: column; padding: 24px 44px 20px; min-height: 0; }
+    .title-slide .slide-main { justify-content: center; align-items: center; text-align: center; padding: 36px; }
+
+    .slide-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #fff; background: var(--scratch-blue);
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 10px;
+      align-self: flex-start;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green { background: var(--scratch-green); }
+    .slide-tag.red { background: var(--scratch-red); }
+    .slide-tag.yellow { background: #d97706; }
+    .slide-tag.cyan { background: #0284c7; }
+
+    h1 { font-size: clamp(2rem, 4.2vw, 2.75rem); line-height: 1.2; font-weight: 900; margin-bottom: 8px; }
+    h2 { font-size: clamp(1.35rem, 2.6vw, 1.8rem); font-weight: 900; margin-bottom: 12px; line-height: 1.25; color: #0f172a; }
+    .subtitle { font-size: 1.1rem; color: #475569; font-weight: 700; }
+
+    .slide-body { flex: 1; overflow-y: auto; padding-right: 6px; min-height: 0; }
+    .slide-body::-webkit-scrollbar { width: 6px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    .title-slide { background: radial-gradient(circle at 50% 10%, #f0fdf4 0%, #ffffff 65%, #eff6ff 100%); }
+    .title-emoji { font-size: clamp(3.2rem, 7.5vw, 4.8rem); margin-bottom: 8px; line-height: 1; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12)); }
+    .title-slide h1 {
+      background: linear-gradient(135deg, #10b981 0%, #0284c7 50%, #ea580c 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .title-meta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .badge {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 8px 18px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: #1e293b;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .badge.highlight {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      color: #047857;
+    }
+    .start-hint { margin-top: 26px; color: #64748b; font-size: 0.9rem; font-weight: 700; animation: pulse 2.5s ease-in-out infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    ul, ol { padding-left: 1.3em; line-height: 1.7; font-size: 0.96rem; font-weight: 600; color: #334155; }
+    li { margin-bottom: 5px; }
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.92em; font-weight: 800;
+      background: #f1f5f9; color: #6b21a8;
+      padding: 2px 7px; border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+    strong { font-weight: 800; color: #0f172a; }
+
+    .highlight-box {
+      background: #eff6ff;
+      border-left: 5px solid var(--scratch-blue);
+      border-radius: 0 14px 14px 0;
+      padding: 13px 18px; margin: 10px 0;
+      font-size: 0.98rem; line-height: 1.6; font-weight: 600;
+      color: #1e3a8a;
+    }
+    .highlight-box.orange { background: #fff7ed; border-color: var(--scratch-orange); color: #9a3412; }
+    .highlight-box.green { background: #f0fdf4; border-color: var(--scratch-green); color: #166534; }
+    .highlight-box.purple { background: #faf5ff; border-color: var(--scratch-purple); color: #581c87; }
+    .highlight-box.red { background: #fff1f2; border-color: var(--scratch-red); color: #9f1239; }
+
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 8px; }
+    .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 8px; }
+    .cols-60-40 { grid-template-columns: 1.2fr 0.8fr; }
+
+    @media (max-width: 768px) {
+      .cols, .cols-3, .cols-60-40 { grid-template-columns: 1fr; }
+      .slide-main { padding: 18px 22px 14px; }
+      .global-topbar { padding: 8px 14px; top: 8px; }
+      .slide-dots { display: none; }
+      .brand-sub { display: none; }
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 15px 18px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .card h3 { font-size: 1rem; font-weight: 800; color: var(--scratch-blue); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .card.purple h3 { color: var(--scratch-purple); }
+    .card.orange h3 { color: var(--scratch-orange); }
+    .card.red h3 { color: var(--scratch-red); }
+    .card.green h3 { color: #16a34a; }
+
+    .section-label { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin: 8px 0 5px; }
+
+    /* Custom Tables & Badges */
+    .table-custom {
+      width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.9rem;
+    }
+    .table-custom th, .table-custom td {
+      border: 1px solid #e2e8f0; padding: 9px 12px; text-align: left;
+    }
+    .table-custom th {
+      background: #f1f5f9; font-weight: 800; color: #1e293b;
+    }
+    .table-custom tr:nth-child(even) td { background: #f8fafc; }
+
+    .tip {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: #fefce8; border: 2px dashed #facc15;
+      border-radius: 12px; padding: 12px 16px; margin-top: 8px;
+      font-size: 0.92rem; line-height: 1.55; font-weight: 600;
+      color: #713f12;
+    }
+    .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    .th-label {
+      display: inline-block; background: var(--scratch-green); color: #fff;
+      font-weight: 800; font-size: 0.75rem; padding: 3px 10px; border-radius: 8px;
+      margin-right: 4px; vertical-align: middle; letter-spacing: 0.03em;
+    }
+    .th-label.level-easy { background: #10b981; }
+    .th-label.level-med { background: #0284c7; }
+    .th-label.level-hard { background: #8b5cf6; }
+
+    /* Scratch block mockups */
+    .blocks { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin: 8px 0; font-size: 0.86rem; font-weight: 700; }
+    .block {
+      position: relative; display: inline-block;
+      padding: 6px 13px 6px 11px;
+      border-radius: 6px; color: #fff;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.18);
+      white-space: normal; line-height: 1.35; max-width: 100%;
+    }
+    .block::before {
+      content: ''; position: absolute; top: -3px; left: 10px;
+      width: 12px; height: 6px; background: inherit;
+      border-radius: 3px 3px 0 0; filter: brightness(0.92);
+    }
+    .block:first-child::before, .block.event::before, .block.define::before, .block.c-block::before { display: none; }
+
+    .block.event { background: #ffbf00; color: #422c00; border-radius: 14px 6px 6px 6px; padding-top: 8px; }
+    .block.define { background: #ff6680; color: #fff; border-radius: 14px 6px 6px 6px; padding-top: 8px; font-weight: 800; }
+    .block.looks { background: #9966ff; }
+    .block.control { background: #ffab19; color: #422c00; }
+    .block.motion { background: #4c97ff; }
+    .block.sound { background: #cf63cf; }
+    .block.sensing { background: #5cb1d6; }
+    .block.variable { background: #ff8c1a; }
+    .block.operator { background: #59c059; }
+
+    .block.indent { margin-left: 18px; }
+    .block.indent-2 { margin-left: 36px; }
+
+    .block.c-block { border-radius: 6px 6px 4px 4px; padding-bottom: 4px; }
+    .c-body { display: flex; flex-direction: column; gap: 2px; margin: 3px 0 2px 7px; padding-left: 7px; border-left: 3px solid rgba(0,0,0,0.12); }
+
+    /* 6-Game Showcase Grid */
+    .arcade-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .game-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 13px 15px;
+      border: 2px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.22s ease;
+      cursor: pointer;
+    }
+    .game-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+      border-color: var(--scratch-blue);
+    }
+    .game-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .game-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .badge-easy { background: #dcfce7; color: #15803d; }
+    .badge-med { background: #e0f2fe; color: #0369a1; }
+    .badge-hard { background: #f3e8ff; color: #7e22ce; }
+
+    /* Interactive Warmup: Operators Reflex */
+    .reflex-container {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .reflex-status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #64748b;
+    }
+    .reflex-streak {
+      background: #fef3c7;
+      color: #b45309;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 900;
+      border: 1px solid #fde68a;
+    }
+    .reflex-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+    }
+    .reflex-card.correct { border-color: #22c55e; background: #f0fdf4; transform: scale(1.02); }
+    .reflex-card.wrong { border-color: #ef4444; background: #fef2f2; animation: shake 0.3s ease-in-out; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .reflex-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .btn-reflex {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.16s;
+    }
+    .btn-reflex:hover { border-color: var(--scratch-blue); background: #eff6ff; transform: translateY(-2px); }
+
+    /* Interactive Arcade Picker Wheel */
+    .wheel-container {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #022c22 100%);
+      border-radius: 18px;
+      padding: 20px 24px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      border: 2px solid rgba(255,255,255,0.15);
+      box-shadow: 0 16px 36px rgba(6, 78, 59, 0.35);
+    }
+    .wheel-filter-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-filter {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .btn-filter.active { background: #10b981; border-color: #34d399; }
+    .wheel-screen {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 16px 20px;
+      color: #0f172a;
+      width: 100%;
+      text-align: center;
+      min-height: 105px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #34d399;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.1), 0 4px 14px rgba(0,0,0,0.15);
+    }
+    .wheel-screen.spinning .wheel-title { animation: slotSpin 0.12s linear infinite; }
+    @keyframes slotSpin {
+      0% { transform: translateY(-12px); opacity: 0.4; }
+      50% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(12px); opacity: 0.4; }
+    }
+    .wheel-title { font-size: 1.35rem; font-weight: 900; color: #065f46; display: flex; align-items: center; gap: 8px; }
+    .wheel-sub { font-size: 0.88rem; font-weight: 700; color: #475569; margin-top: 4px; }
+    .btn-spin-wheel {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 1.05rem;
+      padding: 11px 26px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-spin-wheel:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.55); }
+
+    .nav { position: fixed; bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 100; }
+    .nav button {
+      background: rgba(255,255,255,0.18); border: 2px solid rgba(255,255,255,0.4);
+      color: #fff; width: 46px; height: 46px; border-radius: 50%;
+      font-size: 1.2rem; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(8px);
+    }
+    .nav button:hover:not(:disabled) { background: rgba(255,255,255,0.32); transform: scale(1.08); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+
+    .slide-counter { color: rgba(255,255,255,0.92); font-size: 0.9rem; font-weight: 800; min-width: 56px; text-align: center; }
+
+    .hint { position: fixed; bottom: 76px; color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: 600; transition: opacity 0.4s; }
+
+    html:fullscreen, html:-webkit-full-screen { width: 100%; height: 100%; }
+    html:fullscreen body, html:-webkit-full-screen body { width: 100%; height: 100%; min-height: 100%; background: #0f172a; padding: 0; }
+    html:fullscreen .deck, html:-webkit-full-screen .deck { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0; }
+    html:fullscreen .slide, html:-webkit-full-screen .slide { border-radius: 0; box-shadow: none; }
+    html:fullscreen .global-topbar, html:-webkit-full-screen .global-topbar { display: none; }
+    html:fullscreen .hint, html:-webkit-full-screen .hint { display: none; }
+    html:fullscreen .nav, html:-webkit-full-screen .nav { bottom: 16px; opacity: 0.35; transition: opacity 0.25s; }
+    html:fullscreen .nav:hover, html:-webkit-full-screen .nav:hover { opacity: 1; }
+    html:fullscreen .progress-bar, html:-webkit-full-screen .progress-bar { height: 3px; }
+
+    .fs-exit {
+      display: none; position: fixed; top: 12px; right: 12px; z-index: 300;
+      background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.35);
+      color: #fff; width: 40px; height: 40px; border-radius: 10px;
+      cursor: pointer; font-size: 1rem; backdrop-filter: blur(6px);
+      transition: background 0.15s;
+    }
+    .fs-exit:hover { background: rgba(0,0,0,0.75); }
+    html:fullscreen .fs-exit, html:-webkit-full-screen .fs-exit {
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    @media print {
+      body { background: #fff; overflow: visible; }
+      .nav, .hint, .progress-bar, .global-topbar { display: none !important; }
+      .deck { width: 100%; height: auto; }
+      .slide {
+        position: relative; opacity: 1 !important; transform: none !important;
+        page-break-after: always; box-shadow: none; border: 1px solid #ccc;
+        margin-bottom: 20px; min-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="15" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🕹️</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1: Tiêu đề -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji">🕹️🚀</div>
+      <h1>Đấu Trường Arcade 6 Game Đỉnh Cao</h1>
+      <p class="subtitle">Tháng 3 — Logic Nâng Cao · Mini Game Jam với Toán tử &amp; Biến số!</p>
+      <div class="title-meta">
+        <span class="badge highlight">📅 Tuần 9</span>
+        <span class="badge">🎮 Buổi 18.5 — Game Jam</span>
+        <span class="badge">🎯 Độ tuổi: 7–10</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Phím cách để tiến vào đấu trường Arcade!</p>
+    </div>
+  </section>
+
+  <!-- Slide 2: Khởi động tương tác - Vũ khí Toán tử & Biến số -->
+  <section class="slide" data-index="1" aria-label="Khởi động phản xạ">
+    <div class="slide-main">
+      <span class="slide-tag green">🎬 Khởi động phản xạ (5–10 phút)</span>
+      <h2>Minigame: "Vũ Khí Toán Tử &amp; Biến Số" ⚡</h2>
+      <div class="slide-body">
+        <div class="reflex-container">
+          <div class="reflex-status-bar">
+            <span>Đọc tình huống code Scratch ➡️ Click chọn đáp án đúng nhất!</span>
+            <span class="reflex-streak" id="reflexStreak">🔥 Chuỗi đúng: 0</span>
+          </div>
+          <div class="reflex-card" id="reflexCard">
+            <div style="font-size:2rem;" id="reflexEmoji">🎲</div>
+            <div style="font-size:1.25rem; font-weight:900; color:#0f172a;" id="reflexQuestion">
+              Khối <code>lấy ngẫu nhiên từ (1) đến (6)</code> có thể tạo ra số nào?
+            </div>
+            <div style="font-size:0.88rem; font-weight:700; color:#64748b;" id="reflexFeedback">
+              Cả lớp cùng biểu quyết nhanh trước khi click!
+            </div>
+          </div>
+          <div class="reflex-options" id="reflexOptions">
+            <button class="btn-reflex" data-ans="true">Các số nguyên: 1, 2, 3, 4, 5, 6</button>
+            <button class="btn-reflex" data-ans="false">Chỉ có số 1 hoặc số 6</button>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:10px;">
+          <span class="tip-icon">💡</span>
+          <div>Số ngẫu nhiên <code>pick random</code> và biến số chính là <strong>"trái tim"</strong> tạo nên sự bất ngờ cho mọi tựa game Arcade!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Trạm kỹ năng - Cốt lõi của Game Arcade -->
+  <section class="slide" data-index="2" aria-label="Cốt lõi Game Arcade">
+    <div class="slide-main">
+      <span class="slide-tag orange">💡 Trạm kỹ năng cốt lõi</span>
+      <h2>3 Bí Quyết Tạo Game Arcade Gây Nghiện 🏆</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Game Arcade là thể loại game chơi nhanh, cuốn hút, thử thách phản xạ và người chơi luôn muốn bấm <em>"Chơi lại ván nữa!"</em>.
+        </div>
+        <div class="cols-3" style="margin-top:12px;">
+          <div class="card green" style="border-top: 4px solid #10b981;">
+            <div style="font-size:2.2rem; margin-bottom:4px;">🎲</div>
+            <h3>1. Yếu tố Ngẫu nhiên</h3>
+            <p style="font-size:0.86rem; color:#475569; line-height:1.5;">
+              Dùng <code>lấy ngẫu nhiên</code> để vị trí vật rơi, tốc độ xuất hiện và câu hỏi đố thay đổi liên tục — không ván nào giống ván nào!
+            </p>
+          </div>
+          <div class="card" style="border-top: 4px solid #0284c7;">
+            <div style="font-size:2.2rem; margin-bottom:4px;">⏱️❤️</div>
+            <h3>2. Mạng &amp; Thời gian</h3>
+            <p style="font-size:0.86rem; color:#475569; line-height:1.5;">
+              Hệ thống 3 mạng sống hoặc đồng hồ đếm ngược 60s tạo cảm giác hồi hộp, kịch tính từng giây khi né chướng ngại vật!
+            </p>
+          </div>
+          <div class="card purple" style="border-top: 4px solid #8b5cf6;">
+            <div style="font-size:2.2rem; margin-bottom:4px;">📈🔥</div>
+            <h3>3. Tăng tốc độ theo điểm</h3>
+            <p style="font-size:0.86rem; color:#475569; line-height:1.5;">
+              Càng đạt điểm cao, game chạy càng nhanh: Dùng công thức toán tử <code>tốc độ = (5) + (điểm / 10)</code> để tạo thử thách đỉnh cao.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: Tổng quan 6 Vũ trụ Arcade Game -->
+  <section class="slide" data-index="3" aria-label="Tổng quan 6 Game">
+    <div class="slide-main">
+      <span class="slide-tag cyan">🌟 Kho game sáng tạo</span>
+      <h2>Tổng Quan 6 Siêu Phẩm Arcade Hôm Nay 🎮</h2>
+      <div class="slide-body">
+        <p style="font-size:0.9rem; font-weight:700; color:#64748b; margin-bottom:6px;">
+          Được phân tầng theo 3 cấp độ: Dễ (⭐), Vừa (⭐⭐), Thử thách (⭐⭐⭐) để em tự do lựa chọn thử sức:
+        </p>
+        <div class="arcade-grid">
+          <div class="game-card">
+            <div class="game-card-header">
+              <span style="font-size:1.4rem;">🎯</span>
+              <span class="game-badge badge-easy">⭐ Dễ</span>
+            </div>
+            <strong>1. Đoán Số Thần Tài</strong>
+            <p style="font-size:0.82rem; color:#475569;">Máy bốc số bí mật 1–100, so sánh lớn hơn/nhỏ hơn để săn thưởng.</p>
+          </div>
+          <div class="game-card">
+            <div class="game-card-header">
+              <span style="font-size:1.4rem;">🍎💣</span>
+              <span class="game-badge badge-easy">⭐ Dễ</span>
+            </div>
+            <strong>2. Hứng Táo &amp; Tránh Bom</strong>
+            <p style="font-size:0.82rem; color:#475569;">Hứng táo đỏ tích điểm, nhanh tay né bom nổ rơi ngẫu nhiên.</p>
+          </div>
+          <div class="game-card">
+            <div class="game-card-header">
+              <span style="font-size:1.4rem;">🚀☄️</span>
+              <span class="game-badge badge-med">⭐⭐ Vừa</span>
+            </div>
+            <strong>3. Né Thiên Thạch Vũ Trụ</strong>
+            <p style="font-size:0.82rem; color:#475569;">Phi thuyền lượn sóng né bão đá, tốc độ tăng dần theo thời gian.</p>
+          </div>
+          <div class="game-card">
+            <div class="game-card-header">
+              <span style="font-size:1.4rem;">🧠⚡</span>
+              <span class="game-badge badge-med">⭐⭐ Vừa</span>
+            </div>
+            <strong>4. Thần Tính Siêu Tốc</strong>
+            <p style="font-size:0.82rem; color:#475569;">Máy tự sinh 2 số ngẫu nhiên đố toán, trả lời trong 5 giây.</p>
+          </div>
+          <div class="game-card">
+            <div class="game-card-header">
+              <span style="font-size:1.4rem;">🏓🌈</span>
+              <span class="game-badge badge-hard">⭐⭐⭐ Thử thách</span>
+            </div>
+            <strong>5. Pong Tâng Bóng Cầu Vồng</strong>
+            <p style="font-size:0.82rem; color:#475569;">Thanh trượt đón bóng nảy góc ngẫu nhiên, không để rơi chạm đáy.</p>
+          </div>
+          <div class="game-card">
+            <div class="game-card-header">
+              <span style="font-size:1.4rem;">🦖🌵</span>
+              <span class="game-badge badge-hard">⭐⭐⭐ Thử thách</span>
+            </div>
+            <strong>6. Khủng Long Vượt Sa Mạc</strong>
+            <p style="font-size:0.82rem; color:#475569;">Phím Space nhảy né xương rồng trôi vô tận, săn điểm kỷ lục.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: Game 1 - Đoán Số Thần Tài -->
+  <section class="slide" data-index="4" aria-label="Game 1">
+    <div class="slide-main">
+      <span class="slide-tag green">Game 1 · Cấp độ Dễ (⭐)</span>
+      <h2><span class="th-label level-easy">Game 1</span> Đoán Số Thần Tài 🎯</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Luật chơi &amp; Cơ chế chính</p>
+            <ul>
+              <li>Máy tính tự chọn 1 số bí mật: <code>đặt [số bí mật] thành (lấy ngẫu nhiên từ 1 đến 100)</code>.</li>
+              <li>Người chơi dùng khối <code>hỏi [Em đoán số mấy?] và đợi</code>.</li>
+              <li>So sánh bằng khối toán tử:
+                <div style="margin-top:4px;">• Nếu <code>&lt;câu trả lời &gt; số bí mật&gt;</code> ➡️ Nói <em>"Số bí mật nhỏ hơn!"</em></div>
+                <div>• Nếu <code>&lt;câu trả lời &lt; số bí mật&gt;</code> ➡️ Nói <em>"Số bí mật lớn hơn!"</em></div>
+                <div>• Nếu <code>&lt;câu trả lời = số bí mật&gt;</code> ➡️ Nói <em>"Chúc mừng em đoán trúng!"</em></div>
+              </li>
+              <li>Dùng biến <code>số lần đoán</code> để ghi nhận thành tích!</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối Scratch</p>
+            <div class="blocks">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block variable indent">đặt [số bí mật] thành (lấy ngẫu nhiên từ (1) đến (100))</div>
+              <div class="block variable indent">đặt [số lần đoán] thành (0)</div>
+              <div class="block control c-block indent">
+                lặp lại cho đến khi &lt;(câu trả lời) = (số bí mật)&gt;
+                <div class="c-body">
+                  <div class="block sensing">hỏi [Em đoán số mấy?] và đợi</div>
+                  <div class="block variable">thay đổi [số lần đoán] một lượng (1)</div>
+                  <div class="block control c-block">
+                    nếu &lt;(câu trả lời) &gt; (số bí mật)&gt; thì
+                    <div class="c-body">
+                      <div class="block looks">nói [Số bí mật NHỎ hơn!] trong (1.5) giây</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Game 2 - Hứng Táo & Tránh Bom -->
+  <section class="slide" data-index="5" aria-label="Game 2">
+    <div class="slide-main">
+      <span class="slide-tag green">Game 2 · Cấp độ Dễ (⭐)</span>
+      <h2><span class="th-label level-easy">Game 2</span> Hứng Táo &amp; Tránh Bom Nổ 🍎💣</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Luật chơi &amp; Cơ chế chính</p>
+            <ul>
+              <li><strong>Người chơi:</strong> Giỏ đựng di chuyển theo chuột <code>đặt x thành (tọa độ x của con trỏ chuột)</code>.</li>
+              <li><strong>Vật phẩm rơi:</strong> Xuất hiện ngẫu nhiên trên đỉnh màn hình <code>đi tới điểm x: (lấy ngẫu nhiên -220 đến 220) y: (170)</code>.</li>
+              <li><strong>Hứng Táo:</strong> Chạm giỏ ➡️ <code>thay đổi [điểm] một lượng (1)</code>.</li>
+              <li><strong>Chạm Bom:</strong> Chạm giỏ ➡️ <code>thay đổi [mạng] một lượng (-1)</code> và nổ tung!</li>
+              <li><strong>Kết thúc:</strong> Hết 60 giây hoặc mạng = 0 thì dừng game.</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối Scratch (Táo rơi)</p>
+            <div class="blocks">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block control c-block indent">
+                liên tục
+                <div class="c-body">
+                  <div class="block motion">đi tới điểm x: (lấy ngẫu nhiên từ (-220) đến (220)) y: (170)</div>
+                  <div class="block control c-block">
+                    lặp lại cho đến khi &lt;(tọa độ y) &lt; (-160)&gt;
+                    <div class="c-body">
+                      <div class="block motion">thay đổi y một lượng (-6)</div>
+                      <div class="block control c-block">
+                        nếu &lt;đang chạm [Giỏ v]?&gt; thì
+                        <div class="c-body">
+                          <div class="block variable">thay đổi [điểm] một lượng (1)</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: Game 3 - Phi Thuyền Né Thiên Thạch -->
+  <section class="slide" data-index="6" aria-label="Game 3">
+    <div class="slide-main">
+      <span class="slide-tag cyan">Game 3 · Cấp độ Vừa (⭐⭐)</span>
+      <h2><span class="th-label level-med">Game 3</span> Phi Thuyền Né Thiên Thạch Vũ Trụ 🚀☄️</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Luật chơi &amp; Cơ chế chính</p>
+            <ul>
+              <li><strong>Phi thuyền:</strong> 4 phím mũi tên di chuyển tự do trong không gian.</li>
+              <li><strong>Thiên thạch:</strong> Bay từ cạnh màn hình hướng về phía phi thuyền.</li>
+              <li><strong>Điểm sinh tồn:</strong> Cứ sống sót mỗi 1 giây ➡️ <code>thay đổi [điểm] một lượng (1)</code>.</li>
+              <li><strong>Cơ chế Tăng Tốc Độ:</strong> Dùng toán tử tăng dần độ khó:
+                <div style="background:#eff6ff; padding:6px 10px; border-radius:8px; margin-top:4px;">
+                  <code>đặt [tốc độ] thành ((4) + ([điểm] / (10)))</code>
+                </div>
+              </li>
+              <li>Chạm thiên thạch 3 lần ➡️ Báo Game Over.</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối Scratch</p>
+            <div class="blocks">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block variable indent">đặt [điểm] thành (0)</div>
+              <div class="block variable indent">đặt [tốc độ] thành (4)</div>
+              <div class="block control c-block indent">
+                liên tục
+                <div class="c-body">
+                  <div class="block motion">di chuyển (tốc độ) bước</div>
+                  <div class="block control c-block">
+                    nếu &lt;đang chạm [Phi thuyền v]?&gt; thì
+                    <div class="c-body">
+                      <div class="block looks">nói [Game Over!] trong (2) giây</div>
+                      <div class="block control">dừng lại [tất cả v]</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: Game 4 - Thần Tính Siêu Tốc -->
+  <section class="slide" data-index="7" aria-label="Game 4">
+    <div class="slide-main">
+      <span class="slide-tag cyan">Game 4 · Cấp độ Vừa (⭐⭐)</span>
+      <h2><span class="th-label level-med">Game 4</span> Đấu Trường: Thần Tính Siêu Tốc 🧠⚡</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Luật chơi &amp; Cơ chế chính</p>
+            <ul>
+              <li>Máy tính tự bốc 2 số: <code>đặt [số A] thành (pick random 1 to 20)</code> và <code>đặt [số B] thành (pick random 1 to 20)</code>.</li>
+              <li>Máy tính tính sẵn đáp án chuẩn: <code>đặt [đáp án đúng] thành ((số A) + (số B))</code>.</li>
+              <li>Khối <code>kết hợp (join)</code> tạo câu hỏi:
+                <div style="background:#faf5ff; padding:6px 10px; border-radius:8px; margin-top:4px;">
+                  <code>hỏi (kết hợp (kết hợp (số A) [ + ]) (số B)) và đợi</code>
+                </div>
+              </li>
+              <li>Nhập đúng trong 5 giây ➡️ Cộng 10 điểm! Trả lời sai hoặc quá giờ ➡️ Trừ 1 mạng.</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối Scratch</p>
+            <div class="blocks">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block control c-block indent">
+                lặp lại (5) lần
+                <div class="c-body">
+                  <div class="block variable">đặt [số A] thành (lấy ngẫu nhiên từ (1) đến (20))</div>
+                  <div class="block variable">đặt [số B] thành (lấy ngẫu nhiên từ (1) đến (20))</div>
+                  <div class="block variable">đặt [kết quả] thành ((số A) + (số B))</div>
+                  <div class="block sensing">hỏi (kết hợp (kết hợp (số A) [ + ]) (số B)) và đợi</div>
+                  <div class="block control c-block">
+                    nếu &lt;(câu trả lời) = (kết quả)&gt; thì
+                    <div class="c-body">
+                      <div class="block variable">thay đổi [điểm] một lượng (10)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: Game 5 - Pong Tâng Bóng Cầu Vồng -->
+  <section class="slide" data-index="8" aria-label="Game 5">
+    <div class="slide-main">
+      <span class="slide-tag purple">Game 5 · Thử thách (⭐⭐⭐)</span>
+      <h2><span class="th-label level-hard">Game 5</span> Pong Tâng Bóng Cầu Vồng 🏓🌈</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Luật chơi &amp; Cơ chế chính</p>
+            <ul>
+              <li><strong>Thanh đỡ:</strong> Di chuyển theo chuột ngang ở đáy màn hình (y: -140).</li>
+              <li><strong>Quả bóng nảy:</strong> Di chuyển liên tục, chạm cạnh thì bật lại.</li>
+              <li><strong>Góc nảy ngẫu nhiên:</strong> Chạm thanh đỡ ➡️ quay hướng ngẫu nhiên:
+                <div style="background:#f0fdf4; padding:6px 10px; border-radius:8px; margin-top:4px;">
+                  <code>đặt hướng bằng (lấy ngẫu nhiên từ -45 đến 45)</code>
+                </div>
+              </li>
+              <li><strong>Bẫy thua cuộc:</strong> Nếu <code>&lt;(tọa độ y) &lt; (-160)&gt;</code> (bóng rơi qua thanh đỡ) ➡️ Báo Game Over.</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối Scratch</p>
+            <div class="blocks">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block motion indent">đi tới điểm x: (0) y: (120)</div>
+              <div class="block motion indent">đặt hướng bằng (135)</div>
+              <div class="block control c-block indent">
+                liên tục
+                <div class="c-body">
+                  <div class="block motion">di chuyển (8) bước</div>
+                  <div class="block motion">bật lại nếu chạm cạnh</div>
+                  <div class="block control c-block">
+                    nếu &lt;đang chạm [Thanh đỡ v]?&gt; thì
+                    <div class="c-body">
+                      <div class="block motion">đặt hướng bằng (lấy ngẫu nhiên từ (-45) đến (45))</div>
+                      <div class="block variable">thay đổi [điểm] một lượng (1)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: Game 6 - Khủng Long Vượt Sa Mạc -->
+  <section class="slide" data-index="9" aria-label="Game 6">
+    <div class="slide-main">
+      <span class="slide-tag purple">Game 6 · Thử thách (⭐⭐⭐)</span>
+      <h2><span class="th-label level-hard">Game 6</span> Khủng Long Vượt Sa Mạc 🦖🌵</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Luật chơi &amp; Cơ chế chính</p>
+            <ul>
+              <li>Lấy cảm hứng từ game Dino T-Rex huyền thoại trên trình duyệt!</li>
+              <li><strong>Khủng long:</strong> Đứng cố định ở x: -160, bấm <code>Phím Space</code> để nhảy lên rồi hạ xuống sàn cát.</li>
+              <li><strong>Cây Xương Rồng:</strong> Chạy lướt từ phải sang trái <code>thay đổi x một lượng (-8)</code>.</li>
+              <li><strong>Khoảng cách ngẫu nhiên:</strong> Cây xương rồng xuất hiện cách nhau một khoảng thời gian bất ngờ:
+                <div style="background:#fff7ed; padding:6px 10px; border-radius:8px; margin-top:4px;">
+                  <code>đợi (lấy ngẫu nhiên từ (1.5) đến (3.0)) giây</code>
+                </div>
+              </li>
+              <li>Nhảy qua an toàn ➡️ Cộng 1 điểm!</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý khối Nhảy Khủng Long</p>
+            <div class="blocks">
+              <div class="block event">khi bấm phím [khoảng trắng v]</div>
+              <div class="block control c-block indent">
+                lặp lại (10) lần
+                <div class="c-body">
+                  <div class="block motion">thay đổi y một lượng (10)</div>
+                </div>
+              </div>
+              <div class="block control c-block indent">
+                lặp lại (10) lần
+                <div class="c-body">
+                  <div class="block motion">thay đổi y một lượng (-10)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: TƯƠNG TÁC - Vòng quay Bốc thăm Game Arcade -->
+  <section class="slide" data-index="10" aria-label="Vòng quay Arcade">
+    <div class="slide-main">
+      <span class="slide-tag orange">🎰 Bốc thăm thử thách</span>
+      <h2>Máy Chọn Game Arcade Ngẫu Nhiên 🎲</h2>
+      <div class="slide-body">
+        <div class="wheel-container">
+          <div class="wheel-filter-tabs">
+            <button class="btn-filter active" data-filter="all">🌟 Tất cả 6 Game</button>
+            <button class="btn-filter" data-filter="easy">⭐ Dễ (Game 1 &amp; 2)</button>
+            <button class="btn-filter" data-filter="med">⭐⭐ Vừa (Game 3 &amp; 4)</button>
+            <button class="btn-filter" data-filter="hard">⭐⭐⭐ Thử thách (Game 5 &amp; 6)</button>
+          </div>
+          <div class="wheel-screen" id="wheelScreen">
+            <div class="wheel-title" id="wheelTitle">🎯 1. Đoán Số Thần Tài</div>
+            <div class="wheel-sub" id="wheelSub">Thể loại: Logic / Số học · Độ khó: ⭐ Dễ</div>
+          </div>
+          <button class="btn-spin-wheel" id="btnSpinWheel">🎰 QUAY NGẪU NHIÊN THỬ THÁCH!</button>
+        </div>
+        <div class="tip" style="margin-top:12px;">
+          <span class="tip-icon">✨</span>
+          <div>Em có thể tự chọn tựa game em yêu thích nhất, hoặc bấm quay ngẫu nhiên để đón nhận thử thách bất ngờ hôm nay!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: Kế hoạch Game Jam 35–45 phút -->
+  <section class="slide" data-index="11" aria-label="Kế hoạch Game Jam">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Game Jam tại lớp (35–45 phút)</span>
+      <h2>Kế Hoạch 4 Bước Xây Dựng Game Arcade 🧱</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div class="card">
+            <h3>📋 4 Bước lập trình thần tốc</h3>
+            <ol style="line-height:1.8; font-size:0.9rem;">
+              <li><strong>Bước 1: Chuẩn bị Sprite</strong> — Chọn 1 nhân vật chính, 1 vật tương tác và 1 phông nền phù hợp.</li>
+              <li><strong>Bước 2: Lập trình di chuyển</strong> — Gắn phím mũi tên hoặc chuột cho nhân vật mượt mà.</li>
+              <li><strong>Bước 3: Gắn Toán tử &amp; Biến số</strong> — Dùng <code>pick random</code> cho vật rơi/đoán số và biến <code>Điểm</code>, <code>Mạng</code>.</li>
+              <li><strong>Bước 4: Thử nghiệm &amp; Bắt lỗi</strong> — Nhờ bạn bên cạnh chơi thử 1 phút xem có mượt không!</li>
+            </ol>
+          </div>
+          <div class="card green">
+            <h3>🏆 Tiêu chí Đạt Danh Hiệu Arcade Master</h3>
+            <ul style="line-height:1.8; font-size:0.9rem;">
+              <li>✅ Game có tính điểm và có thể chơi lại từ đầu (Reset điểm về 0).</li>
+              <li>✅ Có ít nhất 1 khối <code>lấy ngẫu nhiên (pick random)</code> tạo sự bất ngờ.</li>
+              <li>✅ Có điều kiện Thắng hoặc Thua rõ ràng khi chơi.</li>
+              <li>🌟 <em>Điểm cộng:</em> Có hiệu ứng âm thanh hoặc đổi trang phục khi ăn điểm!</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Mẹo nâng cấp Game Pro -->
+  <section class="slide" data-index="12" aria-label="Mẹo nâng cấp Game">
+    <div class="slide-main">
+      <span class="slide-tag yellow">⚠️ Bí kíp lập trình</span>
+      <h2>3 Chiêu Thức Nâng Tầm Game Arcade Cực Đỉnh 🛡️</h2>
+      <div class="slide-body">
+        <div class="cols-3">
+          <div class="card orange">
+            <h3>💥 1. Hiệu ứng Va chạm</h3>
+            <p style="font-size:0.86rem; color:#334155; line-height:1.5;">
+              Khi ăn điểm hoặc va chạm, hãy cho nhân vật đổi trang phục sang mặt cười 😄 hoặc giật mình 😱 trong 0.2 giây rồi trở lại bình thường!
+            </p>
+          </div>
+          <div class="card green">
+            <h3>🌈 2. Đổi màu trang phục</h3>
+            <p style="font-size:0.86rem; color:#334155; line-height:1.5;">
+              Khối <code>thay đổi hiệu ứng [màu v] một lượng (25)</code> sẽ biến quả bóng Pong hoặc quả táo thành vật phẩm cầu vồng siêu lấp lánh!
+            </p>
+          </div>
+          <div class="card purple">
+            <h3>🔊 3. Âm thanh phản hồi</h3>
+            <p style="font-size:0.86rem; color:#334155; line-height:1.5;">
+              Gắn khối <code>bắt đầu âm thanh [Collect v]</code> khi ăn điểm và âm thanh <code>[Boing v]</code> khi nảy giúp người chơi phấn khích gấp đôi!
+            </p>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:14px;">
+          <span class="tip-icon">💡</span>
+          <div><strong>Nhớ quy tắc reset:</strong> Luôn đặt <code>đặt [điểm] thành (0)</code> ngay dưới khối <code>khi bấm vào 🏳️</code> để mỗi ván chơi mới đều công bằng!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 14: Showcase & Đấu trường Arcade -->
+  <section class="slide title-slide" data-index="13" aria-label="Showcase Arcade">
+    <div class="slide-main">
+      <div class="title-emoji">🏆🎉</div>
+      <h2 style="font-size:1.9rem; margin-bottom:12px;">Showcase: Đấu Trường Arcade Master! 👏</h2>
+      <div class="highlight-box green" style="max-width:720px; text-align:left; margin-bottom:12px;">
+        🕹️ <strong>Đổi máy chơi thử (5 phút):</strong>
+        <ul style="margin-top:6px;">
+          <li>Cả lớp đổi chỗ sang máy bạn bên cạnh, bấm cờ xanh chơi thử game của bạn 1 ván!</li>
+          <li>Khen ngợi 1 điểm độc đáo nhất trong game của bạn (Nhân vật đẹp / Cách chơi hay / Nhạc vui).</li>
+          <li>Cùng bình chọn <strong>"Tựa game sáng tạo nhất"</strong> và <strong>"Tựa game gay cấn nhất"</strong> của buổi học! 🌟</li>
+        </ul>
+      </div>
+      <p style="margin-top:12px; font-size:1.05rem; color:var(--scratch-orange); font-weight:900;">
+        Chúc mừng tất cả các bạn đã làm chủ sức mạnh Toán tử &amp; Biến số hôm nay! 🚀
+      </p>
+    </div>
+  </section>
+
+  <!-- Slide 15: Ghi chú cho giáo viên -->
+  <section class="slide" data-index="14" aria-label="Ghi chú giáo viên">
+    <div class="slide-main">
+      <span class="slide-tag red">👩‍🏫 Dành cho Giáo viên</span>
+      <h2>Hướng dẫn Sư phạm &amp; Phân Hóa Lớp Buổi 18.5 🍎</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div class="card">
+            <h3>⚡ Chiến thuật phân hóa học sinh</h3>
+            <ul style="font-size:0.86rem; line-height:1.65; margin-top:4px;">
+              <li><strong>Nhóm cần hỗ trợ:</strong> Định hướng các em chọn <strong>Game 1 (Đoán số)</strong> hoặc <strong>Game 2 (Hứng táo)</strong> vì logic rất ngắn gọn (dưới 10 khối lệnh), dễ thấy thành quả ngay.</li>
+              <li><strong>Nhóm khá - giỏi:</strong> Thử thách làm <strong>Game 5 (Pong tâng bóng)</strong> hoặc <strong>Game 6 (Khủng long nhảy)</strong>, khuyến khích các em tự thêm cơ chế tăng tốc độ khi điểm cao.</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>🎯 3 Lỗi học sinh hay gặp nhất</h3>
+            <ul style="font-size:0.86rem; line-height:1.65; margin-top:4px;">
+              <li><strong>Lỗi 1:</strong> Quên đặt lại biến về 0 khi bấm cờ xanh ➡️ Nhắc các em thêm <code>set điểm to 0</code>.</li>
+              <li><strong>Lỗi 2:</strong> Vật rơi ra ngoài màn hình không quay lại ➡️ Kiểm tra điều kiện <code>tọa độ y &lt; -160</code>.</li>
+              <li><strong>Lỗi 3:</strong> Nhầm lẫn giữa <code>đặt thành (set)</code> và <code>thay đổi (change)</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card purple" style="margin-top:12px;">
+          <h3 style="margin-bottom:4px;">⏱️ Phân bổ thời lượng gợi ý (90 phút):</h3>
+          <p style="font-size:0.86rem; line-height:1.6; color:#4c1d95; font-weight:600;">
+            • 00–10p: Khởi động phản xạ &amp; Giới thiệu 6 Game Arcade (Slide 1–4)<br>
+            • 10–25p: Phân tích cơ chế các game &amp; Quay bốc thăm thử thách (Slide 5–11)<br>
+            • 25–70p: Thực hành Game Jam — Code &amp; Kiểm thử (Slide 12–13)<br>
+            • 70–85p: Showcase Đấu trường Arcade — Đổi máy chơi thử (Slide 14)<br>
+            • 85–90p: Tổng kết, trao danh hiệu Arcade Master (Slide 15)
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 15</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Phím cách · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+
+<script>
+  /* --- Deck Navigation Core --- */
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let hasNavigated = false;
+
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
+
+  function buildDots() {
+    const template = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+    document.getElementById('dots').innerHTML = template;
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.toggle('active', Number(dot.dataset.goto) === current);
+    });
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) {
+      hasNavigated = true;
+      document.body.classList.add('presenting');
+    }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1
+      ? '· Scratch'
+      : '· Tuần 9 Buổi 18.5';
+    updateDots();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, .btn-reflex, .game-card, code, .global-topbar, .nav, .wheel-container, .reflex-container')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') {
+      if (e.target.tagName !== 'BUTTON') { e.preventDefault(); next(); }
+    }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  /* Fullscreen */
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+  function toggleFullscreen() {
+    if (isFullscreen()) exitFullscreen();
+    else enterFullscreen();
+  }
+  function enterFullscreen() {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  }
+  function exitFullscreen() {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+  function onFullscreenChange() {
+    document.body.classList.toggle('is-fullscreen', isFullscreen());
+  }
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+  document.getElementById('btnFullscreen').addEventListener('click', e => { e.stopPropagation(); toggleFullscreen(); });
+  document.getElementById('btnExitFs').addEventListener('click', e => { e.stopPropagation(); exitFullscreen(); });
+
+  /* Touch Swiping */
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1));
+  }, { passive: true });
+
+  /* --- INTERACTIVE COMPONENT 1: Reflex Minigame --- */
+  const reflexQuestions = [
+    {
+      emoji: "🎲",
+      q: "Khối [lấy ngẫu nhiên từ (1) đến (6)] có thể tạo ra những số nào?",
+      opts: [
+        { text: "Các số nguyên: 1, 2, 3, 4, 5, 6", correct: true },
+        { text: "Chỉ có thể ra số 1 hoặc số 6", correct: false }
+      ]
+    },
+    {
+      emoji: "⏳",
+      q: "Để đồng hồ đếm ngược từ 60 về 0, em dùng khối nào?",
+      opts: [
+        { text: "thay đổi [thời gian] một lượng (-1)", correct: true },
+        { text: "đặt [thời gian] thành (-1)", correct: false }
+      ]
+    },
+    {
+      emoji: "⚖️",
+      q: "Điều kiện để kiểm tra điểm lớn hơn 10 VÀ thời gian còn lớn hơn 0 là gì?",
+      opts: [
+        { text: "<(điểm > 10) và (thời gian > 0)>", correct: true },
+        { text: "<(điểm > 10) hoặc (thời gian = 0)>", correct: false }
+      ]
+    },
+    {
+      emoji: "🔤",
+      q: "Khối [kết hợp [Điểm số: ] (điểm)] dùng để làm gì?",
+      opts: [
+        { text: "Nối chữ và giá trị biến thành 1 câu nói", correct: true },
+        { text: "Cộng 2 số lại với nhau", correct: false }
+      ]
+    }
+  ];
+
+  let currentReflexIdx = 0;
+  let reflexStreakCount = 0;
+  const reflexCard = document.getElementById('reflexCard');
+  const reflexEmoji = document.getElementById('reflexEmoji');
+  const reflexQuestion = document.getElementById('reflexQuestion');
+  const reflexFeedback = document.getElementById('reflexFeedback');
+  const reflexStreak = document.getElementById('reflexStreak');
+  const reflexOptions = document.getElementById('reflexOptions');
+
+  function renderReflex() {
+    const rq = reflexQuestions[currentReflexIdx];
+    reflexEmoji.textContent = rq.emoji;
+    reflexQuestion.textContent = rq.q;
+    reflexFeedback.textContent = "Cả lớp cùng biểu quyết nhanh trước khi click!";
+    reflexCard.className = "reflex-card";
+
+    reflexOptions.innerHTML = rq.opts.map(opt => `
+      <button class="btn-reflex" data-ans="${opt.correct}">${opt.text}</button>
+    `).join('');
+
+    reflexOptions.querySelectorAll('.btn-reflex').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const isCorrect = (btn.dataset.ans === 'true');
+        if (isCorrect) {
+          reflexStreakCount++;
+          reflexCard.className = "reflex-card correct";
+          reflexFeedback.innerHTML = `<span style="color:#16a34a; font-weight:800;">🎉 CHÍNH XÁC! Phản xạ xuất sắc!</span>`;
+        } else {
+          reflexStreakCount = 0;
+          reflexCard.className = "reflex-card wrong";
+          reflexFeedback.innerHTML = `<span style="color:#dc2626; font-weight:800;">💡 Chưa chuẩn rồi, đáp án đúng là phương án kia nhé!</span>`;
+        }
+        reflexStreak.textContent = `🔥 Chuỗi đúng: ${reflexStreakCount}`;
+
+        setTimeout(() => {
+          currentReflexIdx = (currentReflexIdx + 1) % reflexQuestions.length;
+          renderReflex();
+        }, 1300);
+      });
+    });
+  }
+  renderReflex();
+
+  /* --- INTERACTIVE COMPONENT 2: Arcade Game Picker Wheel --- */
+  const arcadeGames = [
+    { title: "🎯 1. Đoán Số Thần Tài", sub: "Thể loại: Logic / Số học · Độ khó: ⭐ Dễ", level: "easy", slideGo: 4 },
+    { title: "🍎💣 2. Hứng Táo & Tránh Bom", sub: "Thể loại: Thu thập / Phản xạ · Độ khó: ⭐ Dễ", level: "easy", slideGo: 5 },
+    { title: "🚀☄️ 3. Né Thiên Thạch Vũ Trụ", sub: "Thể loại: Sinh tồn / Tăng tốc · Độ khó: ⭐⭐ Vừa", level: "med", slideGo: 6 },
+    { title: "🧠⚡ 4. Thần Tính Siêu Tốc", sub: "Thể loại: Math Battle / Trí tuệ · Độ khó: ⭐⭐ Vừa", level: "med", slideGo: 7 },
+    { title: "🏓🌈 5. Pong Tâng Bóng Cầu Vồng", sub: "Thể loại: Arcade cổ điển · Độ khó: ⭐⭐⭐ Thử thách", level: "hard", slideGo: 8 },
+    { title: "🦖🌵 6. Khủng Long Vượt Sa Mạc", sub: "Thể loại: Runner vô tận · Độ khó: ⭐⭐⭐ Thử thách", level: "hard", slideGo: 9 }
+  ];
+
+  let currentFilter = "all";
+  const wheelScreen = document.getElementById('wheelScreen');
+  const wheelTitle = document.getElementById('wheelTitle');
+  const wheelSub = document.getElementById('wheelSub');
+  const btnSpinWheel = document.getElementById('btnSpinWheel');
+  const filterButtons = document.querySelectorAll('.btn-filter');
+
+  let isWheelSpinning = false;
+
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+
+      const filtered = (currentFilter === "all")
+        ? arcadeGames
+        : arcadeGames.filter(g => g.level === currentFilter);
+
+      const pick = filtered[0];
+      wheelTitle.textContent = pick.title;
+      wheelSub.textContent = pick.sub;
+    });
+  });
+
+  btnSpinWheel.addEventListener('click', e => {
+    e.stopPropagation();
+    if (isWheelSpinning) return;
+    isWheelSpinning = true;
+    wheelScreen.classList.add('spinning');
+    btnSpinWheel.disabled = true;
+
+    const filtered = (currentFilter === "all")
+      ? arcadeGames
+      : arcadeGames.filter(g => g.level === currentFilter);
+
+    let counter = 0;
+    const interval = setInterval(() => {
+      const tempPick = filtered[Math.floor(Math.random() * filtered.length)];
+      wheelTitle.textContent = tempPick.title;
+      wheelSub.textContent = tempPick.sub;
+      counter++;
+      if (counter > 14) {
+        clearInterval(interval);
+        wheelScreen.classList.remove('spinning');
+        btnSpinWheel.disabled = false;
+        isWheelSpinning = false;
+
+        const finalPick = filtered[Math.floor(Math.random() * filtered.length)];
+        wheelTitle.textContent = finalPick.title;
+        wheelSub.innerHTML = `${finalPick.sub} &nbsp;|&nbsp; <strong style="color:#059669; cursor:pointer;" onclick="goTo(${finalPick.slideGo})">👉 Bấm để xem Slide hướng dẫn</strong>`;
+      }
+    }, 80);
+  });
+
+  /* Click game card on slide 4 to jump to detail slide */
+  document.querySelectorAll('.game-card').forEach((gc, idx) => {
+    gc.addEventListener('click', e => {
+      e.stopPropagation();
+      goTo(idx + 4);
+    });
+  });
+
+  /* --- Slide Initialization --- */
+  buildDots();
+  slides.forEach((s, i) => {
+    s.setAttribute('aria-hidden', i !== 0);
+    if (i === 0) s.classList.add('active');
+    else s.classList.add('next');
+  });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
+</html>
