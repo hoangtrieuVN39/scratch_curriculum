@@ -8,10 +8,11 @@
 
 | Tuần | Buổi | Em làm gì |
 |------|------|-----------|
-| 13 | 25–26 | Nghĩ ý tưởng game + vẽ storyboard |
-| 14 | 27–28 | Lên kế hoạch kỹ thuật (sprite, khối lệnh) |
-| 15 | 29–30 | Code game — mục tiêu hoàn thành ~50% |
-| 16 | 31–32 | Hoàn thiện + thuyết trình showcase |
+| 13 | 25–26 | Nghĩ ý tưởng game + vẽ Storyboard |
+| 14 | 27–28 | Lên kế hoạch kỹ thuật + **Bắt tay mở Scratch code di chuyển** |
+| 15 | 29–30 | Code tương tác (Clone) + Điểm, Mạng & Thắng/Thua |
+| 16 | 31–32 | Giao diện, Âm thanh + Playtest thử nghiệm chéo & Sửa lỗi toàn diện |
+| 17 (T5) | 33–34 | Hoàn thiện (Polish), Bảng điểm cao (List) & Thuyết trình Showcase |
 
 ---
 
@@ -25,7 +26,7 @@ Hôm nay em chính thức bước vào **Dự án Game lớn cuối khóa**! Em 
 1. Khám phá **Kho tàng 6 Vũ trụ Chủ đề** và trải nghiệm **Máy phát ý tưởng Slot Machine**.
 2. Brainstorm (động não) **3 ý tưởng game** đa dạng và chọn ra **1 ý tưởng tâm đắc nhất** để làm suốt tháng này.
 3. Viết **Luật Thắng** và **Luật Thua** rõ ràng với **con số cụ thể** (điểm số, mạng sống, thời gian).
-4. Tham gia minigame vận động **"Thắng hay Thua?"** và tranh tài tại **Đấu trường Quiz Game Design**.
+4. Phân tích các tình huống Thắng / Thua thực tế và củng cố tại **Đấu trường Quiz Game Design**.
 
 Đây là bước quan trọng nhất — một game kinh điển luôn bắt đầu từ ý tưởng sáng tạo và luật chơi chặt chẽ!
 
@@ -118,23 +119,7 @@ Giáo viên giới thiệu **6 thế giới kỳ thú** để khơi dậy trí t
 
 ---
 
-#### 🏃 Giải lao vận động: Minigame "Thắng hay Thua?" (5 phút)
 
-**Cách tổ chức trong lớp:**
-- Cả lớp đứng dậy vận động toàn thân:
-  - 🙋 Nếu tình huống trên bảng là **THẮNG** ➡️ Giơ 2 tay lên cao ăn mừng!
-  - 🙇 Nếu tình huống trên bảng là **THUA** ➡️ Ngồi thụp xuống sàn trốn thoát!
-- Giáo viên bấm các tình huống trên slide (hoặc đọc to):
-  1. *"Bắt đủ 15 quả táo đỏ!"* ➡️ THẮNG (Giơ tay)
-  2. *"Chạm thiên thạch hết 3 mạng!"* ➡️ THUA (Ngồi xuống)
-  3. *"Sống sót trọn vẹn 60 giây!"* ➡️ THẮNG
-  4. *"Để bóng rơi chạm đất 3 lần!"* ➡️ THUA
-  5. *"Trả lời đúng 5/5 câu hỏi quiz!"* ➡️ THẮNG
-  6. *"Bị mèo chạm vào chú chuột!"* ➡️ THUA
-  7. *"Về tới đích trước khi hết giờ!"* ➡️ THẮNG
-- Giúp học sinh xả stress sau 20 phút ngồi viết, đồng thời thấm nhuần tư duy Thắng/Thua có con số cụ thể!
-
----
 
 #### 💡 Kiến thức mới 2: Luật Thắng & Luật Thua (10 phút)
 
@@ -454,13 +439,6 @@ Danh sách chi tiết **em sẽ làm gì trong Scratch** — không vẽ nữa, 
 
 ---
 
-#### 🤸 Giải lao vận động (5 phút)
-
-**Trò chơi "Làm sprite"**
-
-- Cả lớp đứng dậy, giáo viên hô tên khối lệnh, học sinh làm động tác tương ứng: "Move!" → bước lên. "Turn!" → xoay người. "Touching!" → 2 bạn gần nhau chạm tay. "Hide!" → ngồi thụp xuống. "Show!" → đứng bật dậy.
-- Chơi 2–3 vòng nhanh dần — giúp em vận động sau khi ngồi viết bảng, đồng thời nhớ lại tên các khối lệnh trước khi làm TH2.
-
 #### TH2 — Liệt kê khối lệnh cần dùng (20 phút)
 
 **Mô tả:** Với **mỗi sprite quan trọng** (ít nhất nhân vật chính + 1 sprite tương tác), em ghi **danh sách khối lệnh** sẽ dùng — chưa cần code, chỉ liệt kê.
@@ -525,329 +503,244 @@ Danh sách chi tiết **em sẽ làm gì trong Scratch** — không vẽ nữa, 
 
 ---
 
-### Buổi 28 — Bài tập (BT): Hoàn thiện kế hoạch
+### Buổi 28 — Bài tập (BT): Bắt tay vào làm — Setup & Code di chuyển 🚀
 
-#### 🎬 Khởi động ôn tập (5–10 phút)
+#### Hôm nay em làm gì?
 
-**"Đoán sprite của bạn"**
+Sau 3 buổi chuẩn bị ý tưởng, storyboard và kế hoạch kỹ thuật, hôm nay em chính thức **mở Scratch và bắt tay vào code thật**!
+- Khởi tạo project game chính thức và đặt tên chuẩn.
+- Dựng sân khấu (Backdrop) và trang phục cho nhân vật chính.
+- Lập trình di chuyển mượt mà bằng 4 phím mũi tên hoặc chuột.
+- Đặt vị trí xuất phát cố định để nhân vật luôn sẵn sàng mỗi khi bấm cờ xanh.
 
-- Từng cặp bạn đọc nhanh 1 dòng trong bảng sprite của mình (không đọc tên sprite) — bạn kia đoán đó là nhân vật chính, vật cần bắt/tránh, hay UI.
-- Dẫn vào bài: "Hôm nay mình viết **checklist việc phải làm** và **phác thảo hình sprite** để tuần sau code cho nhanh!"
+> ⏱️ **Thời lượng chuẩn:** 15–20 phút nghe thầy/cô hướng dẫn & demo ➡️ **60–65 phút mở máy code thực chiến** có giáo viên kèm cặp và sửa lỗi tại chỗ!
 
-#### Ôn nhanh
+---
 
-- **Sprite list** — ai làm gì trong game.
-- **Block list** — khối lệnh cho từng sprite.
-- Tuần sau em **bắt đầu code** — kế hoạch càng rõ, code càng nhanh!
+#### 🎬 Khởi động (5 phút)
 
-#### ✍️ Luyện tập 1, 2 (LT1/LT2) (15–20 phút)
+**"Mảnh ghép xuất phát"**
+- Thầy/cô chiếu nhanh 2 đoạn code và hỏi cả lớp: *"Khi bấm cờ xanh 🏳️, làm sao để nhân vật luôn bắt đầu ở giữa đáy màn hình và không bị cắm đầu lộn ngược khi quay sang trái?"*
+- Đáp án nhanh: Dùng khối `đi tới điểm x: 0 y: -120` và `đặt kiểu xoay [trái-phải]`.
+- Dẫn dắt: "Hôm nay mình mở máy lập trình những dòng code đầu tiên cho siêu phẩm của mình!"
 
-Ngay đầu buổi, em làm tại lớp hai bài luyện tập ngắn để hoàn thiện kế hoạch — có giáo viên hỗ trợ tại chỗ, không phải bài mang từ nhà.
+---
 
-#### Luyện tập 1 (LT1) — Checklist 8 mục cho game
+#### 📘 Hướng dẫn kỹ thuật & Demo mẫu (15 phút)
 
-**Mô tả:** Em viết **checklist 8 mục** — 8 việc em **bắt buộc phải làm** để game hoàn chỉnh. Đây là "danh sách việc" trước khi code tuần sau.
+**4 Bước Khởi tạo Game Chuẩn Kỹ Sư Nhí:**
+
+1. **Bước 1 — Đặt tên Project:** Nhập tên game vào ô trên cùng: `[TênGame] - [TênEm]` (Ví dụ: `BatSaoVang - MinhAn`).
+2. **Bước 2 — Dựng Sân khấu (Stage):** Chọn hoặc tự vẽ Backdrop phù hợp bối cảnh Storyboard đã vẽ ở Buổi 26.
+3. **Bước 3 — Tạo Nhân vật chính:**
+   - Chọn sprite từ thư viện hoặc tự vẽ costume.
+   - **Tâm nhân vật (Costume center):** Kéo hình vào chính giữa dấu cộng tâm trong trình vẽ costume để nhân vật không bị lệch khi xoay.
+   - **Đặt tên sprite không dấu:** `NhanVatChinh` hoặc `PhiHanhGia`.
+4. **Bước 4 — Khối lệnh xuất phát & Di chuyển chuẩn:**
+   - Khi bấm cờ xanh: Đặt vị trí ban đầu `đi tới điểm x: 0 y: -120` và `đặt kiểu xoay [trái-phải]`.
+   - Di chuyển bằng 4 phím với nhóm khối Chuyển động: `thay đổi x một lượng (10)` (sang phải), `thay đổi x một lượng (-10)` (sang trái), `thay đổi y một lượng (10)` (lên trên), `thay đổi y một lượng (-10)` (xuống dưới).
+
+**🩺 Bác sĩ Scratch (Debugging Clinic) — 3 Bệnh di chuyển hay gặp:**
+- 🚑 *Bệnh 1 — Cắm đầu lộn ngược:* Khi quay trái, nhân vật bị lộn ngược đầu xuống đất! ➡️ **Đơn thuốc:** Thêm khối `đặt kiểu xoay [trái-phải]` ngay dưới cờ xanh.
+- 🚑 *Bệnh 2 — Bay mất khỏi màn hình:* Giữ phím quá lâu khiến sprite biến mất ra ngoài mép! ➡️ **Đơn thuốc:** Thêm khối `nếu tiếp xúc với cạnh, bật lại`.
+- 🚑 *Bệnh 3 — Di chuyển giật cục:* Dùng sự kiện `khi bấm phím [...]` bị khựng 0.5s. ➡️ **Đơn thuốc:** Sử dụng vòng lặp `liên tục` kết hợp `nếu <phím [...] được nhấn?> thì` để di chuyển siêu mượt!
+
+---
+
+#### 💻 Bắt tay vào làm game (60–65 phút)
+
+#### Luyện tập 1 (LT1) — Dựng Sân khấu & Nhân vật chính (15 phút)
+
+**Mô tả:** Em mở Scratch, tạo project mới và hoàn thành toàn bộ phần hình ảnh nền + nhân vật chính.
 
 **Yêu cầu:**
-- Đúng **8 mục**, mỗi mục **1 câu** rõ ràng, bắt đầu bằng động từ (Thêm, Làm, Code, Tạo…).
-- Ít nhất 3 mục về **code** (di chuyển, điểm, thắng/thua…).
-- Ít nhất 2 mục về **hình ảnh / âm thanh** (backdrop, costume, sound).
-- Ít nhất 1 mục về **kiểm tra / sửa lỗi**.
+- Đặt tên project chuẩn theo cú pháp: `[TênGame] - [TênEm]`.
+- Thêm **Backdrop** phù hợp với Storyboard (từ thư viện hoặc tự vẽ).
+- Thêm **Sprite nhân vật chính**, đổi tên thành tiếng Việt không dấu (ví dụ: `PhiHanhGia`, `MeoMun`).
+- Căn tâm costume vào chính giữa và chỉnh kích thước (Size) vừa vặn trên sân khấu (khoảng 60% – 80%).
 
-**Gợi ý 8 mục mẫu (em tự viết theo game của mình):**
+**Checklist tự kiểm LT1:**
+- [ ] Project đã đổi tên chính thức
+- [ ] Stage đã có phông nền đẹp mắt
+- [ ] Nhân vật chính đã có mặt, kích thước vừa vặn
+- [ ] Tâm hình đã căn chính giữa
 
-| # | Ví dụ mục checklist |
-|---|---------------------|
-| 1 | Tạo backdrop và thêm tất cả sprite |
-| 2 | Code di chuyển nhân vật chính bằng 4 phím |
-| 3 | Làm vật rơi hoặc xuất hiện (clone hoặc glide) |
-| 4 | Thêm biến Điểm và hiển thị trên Stage |
-| 5 | Khi chạm vật tốt → tăng điểm |
-| 6 | Khi chạm vật xấu → giảm mạng hoặc Game Over |
-| 7 | Thêm âm thanh khi bắt / khi thua |
-| 8 | Test game 3 lần và sửa ít nhất 1 lỗi |
+---
 
-**Checklist tự kiểm:**
-- [ ] Đủ 8 mục
-- [ ] Mỗi mục 1 câu, dễ hiểu
-- [ ] Có mục code, hình/âm thanh, và kiểm tra
-- [ ] Checklist khớp storyboard và bảng sprite
+#### Luyện tập 2 (LT2) — Lập trình Di chuyển & Xuất phát (15 phút)
 
-#### Luyện tập 2 (LT2) — Phác thảo sprite trên giấy
-
-**Mô tả:** Em **vẽ phác** (sketch) từng sprite chính trên giấy — không cần đẹp, chỉ cần nhớ hình dạng khi vẽ trong Scratch.
+**Mô tả:** Lập trình để nhân vật luôn xuất phát ở vị trí cố định và di chuyển được khi em bấm phím.
 
 **Yêu cầu:**
-- Phác **ít nhất 3 sprite** (không tính Stage).
-- Mỗi phác thảo ghi **tên sprite** (trùng bảng TH1 buổi 27).
-- Mỗi sprite vẽ **1 hình** — có thể stick figure hoặc hình khối.
-- (Tuỳ chọn) Ghi kích thước: lớn / vừa / nhỏ so với Stage.
+- Có khối `khi bấm vào 🏳️`:
+  - Đặt vị trí xuất phát: `đi tới điểm x: (...) y: (...)`
+  - Đặt kiểu xoay: `đặt kiểu xoay [trái-phải]`
+  - Đặt hướng di chuyển ban đầu: `đặt hướng bằng (90)`
+- Lập trình ít nhất **2 hướng di chuyển** (Trái/Phải) hoặc **4 hướng** (Lên/Xuống/Trái/Phải).
 
-**Gợi ý từng bước:**
-1. Chia giấy thành 3–4 ô.
-2. Ô 1: Nhân vật chính — vẽ to, dễ nhìn.
-3. Ô 2–3: Vật bắt / vật tránh.
-4. Ô 4 (nếu có): Nút Play hoặc icon điểm.
-5. Giữ phác thảo ngay trên bàn — sẽ dùng ngay khi làm kế hoạch đầy đủ bên dưới!
+**Mẫu khối lệnh chuẩn:**
+```scratch
+khi bấm vào 🏳️
+đi tới điểm x: (0) y: (-120)
+đặt kiểu xoay [trái-phải v]
+liên tục
+  nếu <phím [mũi tên phải v] được bấm?> thì
+    đặt hướng bằng (90)
+    thay đổi x một lượng (8)
+  end
+  nếu <phím [mũi tên trái v] được bấm?> thì
+    đặt hướng bằng (-90)
+    thay đổi x một lượng (-8)
+  end
+end
+```
 
-**Checklist tự kiểm:**
-- [ ] Phác ít nhất 3 sprite
-- [ ] Mỗi hình có tên sprite
-- [ ] Tên khớp bảng sprite buổi 27
-
-*Mẹo:* Dùng phác thảo này khi vẽ costume trong Scratch — hoặc dùng Paint để tô màu theo phác!
-
-#### Chọn bài mở rộng (10 phút)
-
-Em chọn **1 mức** A, B hoặc C, rồi chọn **1 trong 2 bài** của mức đó để hoàn thiện kế hoạch trên giấy hoặc trong sổ:
-
-| Mức | Khi nào chọn |
-|-----|--------------|
-| **A1 hoặc A2** | Em muốn checklist ngắn — **5 mục** hoặc **6 mục** rút gọn |
-| **B1 hoặc B2** | Em muốn bảng sprite–khối lệnh hoặc thêm **âm thanh** |
-| **C1 hoặc C2** | Em muốn kế hoạch đầy đủ hoặc thêm **phác 2 sprite** |
-
----
-
-#### ✍️ Làm bài mở rộng (30–35 phút)
-
-#### Bài A1 — Checklist đơn giản
-
-| | |
-|---|---|
-| **Mô tả** | Em viết **checklist 5 mục** (rút gọn từ 8 mục LT1) và **danh sách sprite** đầy đủ trên 1 tờ giấy. |
-| **Yêu cầu bắt buộc** | Checklist 5 mục — mỗi mục 1 câu; bảng sprite ít nhất 4 dòng (gồm Stage); có cột "Đã xong?" để em tick sau này. |
-| **Gợi ý bước** | 1. Chọn 5 việc quan trọng nhất từ checklist 8 mục. 2. Viết bảng sprite (copy từ buổi 27, sửa nếu cần). 3. Thêm cột trống "✓" bên phải mỗi dòng. 4. Dán hoặc cài vào sổ dự án — dùng suốt tuần 15–16. |
-| **Checklist** | - [ ] 5 mục checklist rõ ràng<br>- [ ] Bảng sprite ≥ 4 dòng<br>- [ ] Có cột đánh dấu hoàn thành<br>- [ ] Khớp storyboard |
-| **Thử thêm** | Vẽ icon nhỏ cạnh mỗi tên sprite (giống phác thảo LT2). |
+**Checklist tự kiểm LT2:**
+- [ ] Bấm cờ xanh: nhân vật quay về vị trí ban đầu
+- [ ] Bấm phím mũi tên: nhân vật di chuyển đúng hướng
+- [ ] Nhân vật quay mặt sang trái/phải không bị lộn ngược
 
 ---
 
-#### Bài A2 — Checklist 6 mục rút gọn
+#### 🎯 Thử thách phân tầng A, B, C (30–35 phút)
 
-| | |
-|---|---|
-| **Mô tả** | Em viết **checklist 6 mục** (rút gọn từ 8 mục LT1) — mỗi mục 1 câu, tập trung việc quan trọng nhất trước khi code. |
-| **Yêu cầu bắt buộc** | Đúng **6 mục**, mỗi mục 1 câu bắt đầu bằng động từ; ít nhất 2 mục về **code**, 1 mục về **hình/âm thanh**, 1 mục về **kiểm tra**; có cột "✓" để tick sau. |
-| **Gợi ý bước** | 1. Mở checklist 8 mục LT1 — gạch 2 mục ít quan trọng nhất (hoặc gộp 2 mục thành 1). 2. Sắp xếp 6 mục theo thứ tự em sẽ code (nền → di chuyển → tương tác → điểm → thắng/thua → test). 3. Viết lại ngắn gọn — không quá 15 từ/mục. 4. Dán vào sổ dự án. |
-| **Checklist** | - [ ] Đủ 6 mục, mỗi mục 1 câu<br>- [ ] Có mục code, hình/âm thanh, kiểm tra<br>- [ ] Có cột đánh dấu hoàn thành<br>- [ ] Khớp storyboard buổi 26 |
-| **Thử thêm** | Ước lượng thời gian mỗi mục (15 ph / 30 ph…). |
+Em chọn **1 trong 3 mức thử thách** dưới đây để hoàn thiện hệ thống di chuyển cho game của mình:
 
----
+#### 🅰️ Mức A — Di chuyển Cơ bản & Giới hạn Màn hình
 
-#### Bài B1 — Bảng sprite–khối lệnh
+- **Bài A1 (Game Hứng / Bắt vật):** Lập trình nhân vật di chuyển ngang Trái ⬅️ và Phải ➡️ dọc đáy màn hình. Thêm điều kiện chặn mép màn hình: nếu `tọa độ x > 220` thì đặt `x = 220` (không đi lố ra ngoài).
+- **Bài A2 (Game Vượt chướng ngại vật):** Lập trình nhân vật chạy ngang và biết **Nhảy né** khi bấm phím `Space`: khi bấm Space ➡️ thay đổi y +80 ➡️ đợi 0.2 giây ➡️ thay đổi y -80.
 
-| | |
-|---|---|
-| **Mô tả** | Em tạo **bảng 2 cột**: cột trái = tên sprite, cột phải = khối lệnh / hành động chính. |
-| **Yêu cầu bắt buộc** | Ít nhất **4 sprite** (hoặc 3 sprite + Stage); mỗi sprite có **≥ 3 khối/hành động** ghi ở cột phải; ghi **tên biến** ở đầu hoặc cuối bảng. |
-| **Gợi ý bước** | 1. Vẽ bảng lớn trên giấy hoặc dùng bảng markdown trong sổ.<br>2. Hàng 1: Stage → backdrop, nhạc, `when green flag`.<br>3. Hàng 2: Nhân vật chính → di chuyển, chạm, điểm.<br>4. Hàng 3–4: Vật tương tác → clone, rơi, xóa.<br>5. Cuối bảng: Biến: `Điểm`, `Mạng`… + Luật thắng/thua.<br><br>**Mẫu:**<br><br>\| Sprite \| Khối / Hành động chính \|<br>\|--------|------------------------\|<br>\| PhiHanhGia \| 4 phím di chuyển; if touching Sao → +điểm; if touching ThienThach → -mạng \|<br>\| Sao \| create clone; when clone → rơi; delete ở đáy \|<br>\| … | … \| |
-| **Checklist** | - [ ] Bảng ≥ 4 hàng<br>- [ ] Mỗi hàng ≥ 3 khối/hành động<br>- [ ] Có tên biến<br>- [ ] Có luật thắng/thua |
-| **Thử thêm** | Tô màu theo nhóm khối Scratch (Events = vàng, Motion = xanh dương…). |
+#### 🅱️ Mức B — Di chuyển 4 Hướng & Hoạt hình Bước đi
+
+- **Bài B1 (Di chuyển 4 Hướng Hoàn Chỉnh):** Lập trình đủ 4 phím (↑, ↓, ←, →). Thêm khối `nếu tiếp xúc với cạnh, bật lại` hoặc giới hạn tọa độ để nhân vật không bao giờ lọt ra ngoài mép sân khấu.
+- **Bài B2 (Hoạt hình Chân bước):** Nhân vật có ít nhất 2 trang phục (costume 1 và costume 2). Khi di chuyển, thêm khối `trang phục kế tiếp` kèm `đợi 0.08 giây` để tạo hiệu ứng chân bước hoặc vỗ cánh sinh động!
+
+#### 🅲 Mức C — Di chuyển Mượt theo Chuột / Gia tốc & Hiệu ứng
+
+- **Bài C1 (Di chuyển theo Chuột / Gia tốc mượt):** Nhân vật lướt theo vị trí con trỏ chuột mượt mà bằng khối `lướt trong (0.1) giây tới [con trỏ chuột v]` hoặc nhân vật chạy có quán tính (gia tốc tăng dần tốc độ khi giữ phím).
+- **Bài C2 (Hiệu ứng Bụi khói / Vệt sáng):** Mỗi khi nhân vật di chuyển, tạo bản sao nhỏ của chính mình với hiệu ứng mờ dần (`thay đổi hiệu ứng [bóng ma] một lượng (20)`) rồi xóa bản sao để tạo vệt sáng đuôi siêu ngầu!
 
 ---
 
-#### Bài B2 — Bảng sprite + âm thanh
+#### 🖼️ Rà soát lỗi & Lưu bài (5–10 phút)
 
-| | |
-|---|---|
-| **Mô tả** | Em tạo **bảng sprite** (như buổi 27) và thêm cột / bảng phụ ghi **âm thanh** sẽ dùng trong game. |
-| **Yêu cầu bắt buộc** | Bảng sprite ≥ 4 dòng (gồm Stage); mỗi sprite ghi **vai trò**; liệt kê **ít nhất 3 âm thanh** (nhạc nền, khi bắt/thắng, khi thua…) kèm **khi nào phát**; ghi tên biến chính. |
-| **Gợi ý bước** | 1. Copy bảng sprite từ buổi 27 — sửa nếu cần.<br>2. Thêm bảng âm thanh:<br><br>\| Âm thanh \| Phát khi nào? \| Sprite / Stage \|<br>\|----------|----------------|-------------------\|<br>\| Nhạc nền | Cờ xanh, lặp | Stage \|<br>\| Pop / Ding | Chạm vật tốt | NhanVatChinh \|<br>\| Buzz / Game Over | Thua | Stage hoặc UI \|<br><br>3. Đối chiếu storyboard — âm thanh có khớp khung hình không?<br>4. Ghi luật thắng/thua cuối trang. |
-| **Checklist** | - [ ] Bảng sprite ≥ 4 dòng<br>- [ ] Có ≥ 3 âm thanh + thời điểm phát<br>- [ ] Có tên biến<br>- [ ] Khớp storyboard |
-| **Thử thêm** | Mở Scratch → thử nghe 2–3 sound có sẵn, ghi tên vào bảng. |
-
----
-
-#### Bài C1 — Kế hoạch đầy đủ
-
-| | |
-|---|---|
-| **Mô tả** | Em viết **kế hoạch hoàn chỉnh** — tài liệu chính em mang theo khi code tuần 15. |
-| **Yêu cầu bắt buộc** | (1) Bảng sprite đầy đủ (2) Bảng sprite–khối như bài B1 (3) Danh sách biến + giá trị ban đầu (4) Luật thắng/thua dạng `if` (5) **Thứ tự code** — 5 bước em sẽ code theo thứ tự (ví dụ: bước 1 backdrop, bước 2 di chuyển…) (6) Ghi broadcast nếu dùng (`start`, `game over`, `thắng`…) |
-| **Gợi ý bước** | 1. Gộp tất cả từ buổi 25–28 vào 1–2 tờ.<br>2. Thứ tự code gợi ý: Nền + sprite → Di chuyển → Tương tác chính → Điểm → Thắng/thua → Âm thanh + polish.<br>3. Đọc to cho bạn — bạn có hiểu game em làm không?<br>4. Photocopy hoặc chụp ảnh lưu backup!<br>5. Mở Scratch, tạo project `[TenGame]` — chỉ thêm sprite trống đúng tên, chưa code. |
-| **Checklist** | - [ ] Có bảng sprite<br>- [ ] Có bảng sprite–khối<br>- [ ] Có biến + giá trị ban đầu<br>- [ ] Có luật thắng/thua<br>- [ ] Có thứ tự code 5 bước<br>- [ ] Có broadcast (nếu game cần)<br>- [ ] Project Scratch đã tạo, đủ tên sprite |
-| **Thử thêm** | Ước lượng: mỗi bước code mất bao lâu? (15 phút / 30 phút…) |
-
----
-
-#### Bài C2 — Kế hoạch đầy đủ + phác 2 sprite
-
-| | |
-|---|---|
-| **Mô tả** | Em viết **kế hoạch đầy đủ** (như bài C1) và **phác thảo trên giấy 2 sprite** quan trọng nhất — nhân vật chính + 1 vật tương tác. |
-| **Yêu cầu bắt buộc** | Tất cả yêu cầu bài C1; thêm **2 phác thảo sprite** trên cùng tờ hoặc trang kế; mỗi phác ghi **tên sprite** (trùng bảng); phác không cần đẹp — stick figure được. |
-| **Gợi ý bước** | 1. Hoàn thành kế hoạch C1 trước (hoặc gộp 1–2 tờ).<br>2. Chia 2 ô lớn trên giấy — ô 1: nhân vật chính (to, rõ); ô 2: vật bắt / tránh / nút UI.<br>3. Ghi kích thước gợi ý: lớn / vừa / nhỏ so với Stage.<br>4. Mang phác đến buổi 29 — dùng khi vẽ costume trong Scratch.<br>5. Mở Scratch, tạo project `[TenGame]` — thêm sprite trống đúng tên. |
-| **Checklist** | - [ ] Có đủ nội dung kế hoạch C1<br>- [ ] Có 2 phác thảo + tên sprite<br>- [ ] Tên khớp bảng sprite<br>- [ ] Project Scratch đã tạo, đủ tên sprite |
-| **Thử thêm** | Tô 1–2 màu chính lên phác — nhớ khi vẽ costume. |
-
----
-
-#### 🖼️ Showcase (5–10 phút)
-
-Em đổi kế hoạch (giấy hoặc sổ) với bạn bên cạnh trong 1–2 phút — đọc thử bảng sprite và checklist của nhau, góp ý 1 điều còn thiếu hoặc chưa rõ. Giáo viên mời 1–2 em chia sẻ nhanh kế hoạch trước lớp.
+- Em nhờ bạn cùng bàn lái thử nhân vật trong 1 phút: Phím bấm có nhạy không? Nhân vật có bị kẹt ở góc nào không?
+- Giáo viên kiểm tra và hỗ trợ sửa lỗi trực tiếp trên máy từng em.
+- **Lưu project:** Bấm **Tập tin ➡️ Lưu về máy tính** (hoặc kiểm tra chữ "Đã lưu" trên Scratch online).
 
 #### ✅ Tổng kết (5 phút)
 
-Nhắc lại: hôm nay em đã hoàn thiện checklist việc cần làm và phác thảo sprite — kế hoạch đã sẵn sàng! Tuần sau (**Buổi 29**) em **mở Scratch và code thật** — mang theo kế hoạch để code cho nhanh.
+- Hôm nay cả lớp đã chính thức hoàn thành **bộ khung di chuyển** của game!
+- **Tuần 15 (Buổi 29):** Mình sẽ lập trình cho **Vật phẩm rơi liên tục bằng Bản sao (Clone)** và phát hiện va chạm bắt đồ / né chướng ngại vật!
 
 ---
 
 ## Tuần 15 — Làm game (mục tiêu ~50%)
 
-### Buổi 29 — Học (H): Code gameplay chính
+### Buổi 29 — Học (H): Cơ chế tương tác & Bản sao (Clone) 🍎
 
 #### Hôm nay em học gì?
 
-Hôm nay em **mở Scratch và code thật**! Em sẽ:
-1. Làm **di chuyển nhân vật chính** từng bước (theo kế hoạch).
-2. Thêm **1 cơ chế game** chính: **bắt** (catch) hoặc **tránh** (avoid).
+Sau khi đã có nhân vật chính di chuyển mượt mà ở Buổi 28, hôm nay em lập trình **linh hồn gameplay** của trò chơi:
+1. Tạo **vật phẩm rơi hoặc xuất hiện liên tục** bằng kỹ thuật **Bản sao (Clone)** hoặc lệnh lướt (Glide).
+2. Lập trình **cảm biến va chạm** `đang chạm [NhanVatChinh]?` để hứng đồ nhận điểm hoặc né đòn chướng ngại vật.
 
-Mục tiêu cuối buổi: game **chơi được một phần** — nhân vật di chuyển và có tương tác cơ bản!
+> ⏱️ **Thời lượng chuẩn:** 15–20 phút hướng dẫn & demo khối lệnh mẫu ➡️ **60–65 phút mở máy code thực chiến** có giáo viên kèm cặp và sửa lỗi tại chỗ!
 
-#### 🎬 Khởi động (5–10 phút)
+---
 
-**"Kiểm tra kế hoạch nhanh"**
+#### 🎬 Khởi động (5 phút)
 
-- Em lấy kế hoạch (bảng sprite + khối lệnh) tuần trước ra, đổi cho bạn bên cạnh xem trong 1 phút.
-- Bạn hỏi nhanh: "Nhân vật chính của bạn tên gì? Di chuyển bằng phím gì? Cơ chế chính là bắt hay tránh?" — trả lời được ngay không cần nhìn giấy là **sẵn sàng code**!
-- Dẫn vào bài: "Hôm nay mình mở Scratch, biến kế hoạch thành game thật!"
+**"Kiểm tra nhân vật lái thử"**
+- Cả lớp mở project đã lưu từ Buổi 28.
+- Chạy thử 30 giây: Bấm cờ xanh, lái nhân vật sang trái, sang phải. Nhân vật đã sẵn sàng đón nhận thử thách mới!
 
-#### Kiến thức ôn lại (em đã học — dùng lại hôm nay) (10 phút)
+---
 
-**Di chuyển bằng phím:**
+#### 📘 Hướng dẫn kỹ thuật & Demo mẫu (15 phút)
+
+**1. Cơ chế Vật phẩm Rơi bằng Bản sao (Clone):**
+- Sprite gốc ẩn đi: `khi bấm vào 🏳️` ➡️ `ẩn` ➡️ `liên tục (tạo bản sao của [tôi] + đợi (1) đến (2) giây)`.
+- Bản sao xuất hiện ngẫu nhiên ở đỉnh màn hình và rơi xuống:
+```scratch
+khi tôi bắt đầu là một bản sao
+đi tới điểm x: (lấy ngẫu nhiên từ (-200) đến (200)) y: (170)
+hiện
+lặp lại cho đến khi <(tọa độ y) < (-160)>
+  thay đổi y một lượng (-6)
+end
+xóa bản sao này
 ```
-when [phím] key pressed
-  change x by 10    (hoặc change y by 10)
-```
 
-**Cơ chế BẮT (catch):**
-- `if touching [VatCanBat]` → `change Điểm by 1` → (tuỳ chọn) `delete this clone` hoặc `hide`.
-
-**Cơ chế TRÁNH (avoid):**
-- `if touching [VatNguyHiem]` → `change Mạng by -1` → `wait 0.5 seconds` (tránh trừ liên tục).
-
-**Dùng `forever` để kiểm tra liên tục:**
-```
-forever
-  if touching Sao then
-    change Điểm by 1
-  end
+**2. Cảm biến Va chạm `đang chạm [Sprite]?`:**
+- Khi bản sao chạm nhân vật chính:
+```scratch
+nếu <đang chạm [NhanVatChinh v]?> thì
+  bắt đầu âm thanh [Pop v]
+  xóa bản sao này
 end
 ```
 
-#### Ví dụ mẫu — Di chuyển 4 hướng (sprite NhanVat)
-
-| Phím | Khối |
-|------|------|
-| ↑ | `when up arrow key pressed` → `change y by 10` |
-| ↓ | `when down arrow key pressed` → `change y by -10` |
-| → | `when right arrow key pressed` → `change x by 10` |
-| ← | `when left arrow key pressed` → `change x by -10` |
-
-*Mẹo:* Thêm `if on edge, bounce` nếu em muốn nhân vật không ra khỏi màn hình — hoặc dùng `set rotation style left-right`.
+**🩺 Bác sĩ Scratch (Debugging Clinic) — 2 Lỗi Clone kinh điển:**
+- 🚑 *Lỗi 1 — Rác bản sao đơ màn hình:* Bản sao rơi chạm đáy không bị xóa ➡️ Quá 300 clone khiến game bị đơ cứng! **Đơn thuốc:** Luôn có khối `xóa bản sao này` ở cuối hành trình rơi.
+- 🚑 *Lỗi 2 — Sprite gốc không chịu ẩn:* Khiến trên đỉnh màn hình luôn có 1 vật đứng yên kỳ cục. **Đơn thuốc:** Khối cờ xanh phải có lệnh `ẩn`, khối bản sao mới có lệnh `hiện`.
 
 ---
 
-#### TH1 — Di chuyển nhân vật chính từng bước (25 phút)
+#### 💻 Bắt tay vào làm game (60–65 phút)
 
-**Mô tả:** Em code **nhân vật chính** di chuyển được — làm **từng bước nhỏ**, test sau mỗi bước.
+#### TH1 — Lập trình Vật phẩm rơi liên tục bằng Clone (25 phút)
+
+**Mô tả:** Em thêm sprite vật cần bắt (hoặc chướng ngại cần tránh) và lập trình để nó tự động sinh ra và rơi từ trên trời xuống.
 
 **Yêu cầu:**
-- Tạo project Scratch tên `[TenGame]-draft` (hoặc dùng project đã tạo tuần 14).
-- Thêm sprite nhân vật chính (vẽ hoặc chọn sẵn).
-- Code **ít nhất 2 hướng** di chuyển (tuần này; tuần sau thêm nếu thiếu).
-- `when green flag clicked` → đặt nhân vật về vị trí bắt đầu (`go to x: y:`).
+- Thêm sprite vật phẩm (ví dụ: `SaoVang`, `QuaTao`, `ThienThach`).
+- Đổi tên sprite không dấu.
+- Dùng vòng lặp tạo bản sao cách nhau từ 1 đến 2 giây ngẫu nhiên.
+- Bản sao xuất hiện tại tọa độ y = 170, x ngẫu nhiên từ -200 đến 200, và rơi dần xuống đáy rồi tự xóa.
 
-**Gợi ý từng bước:**
-1. Mở kế hoạch — xem sprite nhân vật chính tên gì.
-2. Thêm backdrop (Stage → Choose a Backdrop).
-3. Thêm / chọn costume cho nhân vật chính.
-4. **Bước 1:** `when green flag` → `go to x: 0 y: -100` (chỉnh số cho vừa Stage).
-5. **Bước 2:** `when right arrow` → `change x by 10` → **Test** — bấm cờ xanh, nhấn phím →.
-6. **Bước 3:** Thêm phím trái (hoặc lên/xuống) — **Test** lại.
-7. Nếu di chuyển quá nhanh/chậm → đổi số `10` thành `5` hoặc `15`.
-8. **Lưu project** — Ctrl+S hoặc File → Save to your computer.
-
-**Checklist tự kiểm:**
-- [ ] Có backdrop
-- [ ] Nhân vật chính có costume
-- [ ] Cờ xanh → nhân vật về vị trí bắt đầu
-- [ ] Ít nhất 2 phím di chuyển hoạt động
-- [ ] Đã lưu project
+**Checklist tự kiểm TH1:**
+- [ ] Vật phẩm rơi liên tục, vị trí xuất hiện không bị trùng một chỗ
+- [ ] Rơi chạm đáy màn hình thì tự biến mất sạch sẽ
+- [ ] Sprite gốc ẩn đi, không bị kẹt trên đỉnh
 
 ---
 
-#### TH2 — Một cơ chế game (bắt HOẶC tránh) (25 phút)
+#### TH2 — Cảm biến Va chạm & Phản hồi (25 phút)
 
-**Mô tả:** Em thêm **1 tương tác chính** theo thể loại game: **bắt** vật để ghi điểm, hoặc **tránh** vật nguy hiểm.
+**Mô tả:** Lập trình để khi nhân vật chính hứng được vật phẩm (hoặc chạm chướng ngại), vật phẩm đó biến mất và có hiệu ứng phản hồi.
 
-**Yêu cầu — chọn 1 trong 2:**
+**Yêu cầu:**
+- Trong vòng lặp rơi của bản sao, thêm khối kiểm tra: `nếu <đang chạm [NhanVatChinh]?> thì`.
+- Khi chạm: phát âm thanh vui tai (hoặc cảnh báo), đổi costume hoặc hiệu ứng nhỏ, sau đó `xóa bản sao này`.
 
-**Cơ chế BẮT:**
-- Thêm sprite vật cần bắt (ví dụ: sao, táo).
-- Khi nhân vật chính `touching` vật đó → có phản hồi (ví dụ: vật biến mất tạm, hoặc `say` "+1!").
-- (Chưa cần biến điểm — làm ở LT1 đầu buổi Bài tập tuần này.)
-
-**Cơ chế TRÁNH:**
-- Thêm sprite vật nguy hiểm.
-- Khi `touching` → nhân vật `say` "Ối!" hoặc lùi lại (`change x by -20`).
-- (Chưa cần biến mạng — làm ở buổi Bài tập tuần này hoặc tuần 16.)
-
-**Gợi ý từng bước (cơ chế BẮT — 1 sprite đứng yên trước):**
-1. Thêm sprite `Sao` — đặt ở góc màn hình.
-2. Trên sprite **nhân vật chính**, thêm:
-   - `forever`
-   - `if touching Sao?` → `hide` Sao (hoặc `go to` vị trí ngẫu nhiên)
-   - `say` `+1!` `for` `0.5` `secs`
-3. Thêm script trên sprite **Sao**: `when green flag` → `show` (để chơi lại được).
-4. **Test:** Di chuyển chạm sao → sao biến mất + có phản hồi.
-5. (Nâng cao) Dùng `go to x: pick random -200 to 200 y: pick random -150 to 150` để sao nhảy chỗ khác.
-
-**Gợi ý từng bước (cơ chế TRÁNH):**
-1. Thêm sprite `VatCanTranh`.
-2. `forever` trên nhân vật chính:
-   - `if touching VatCanTranh?` → `say` `Cẩn thận!` `for` `1` `secs`
-3. **Test** — chạm vật → có cảnh báo.
-
-**Checklist tự kiểm:**
-- [ ] Có sprite tương tác (bắt hoặc tránh)
-- [ ] `touching` hoạt động đúng
-- [ ] Có phản hồi khi chạm (ẩn, nói, hoặc lùi)
-- [ ] Game chạy không lỗi khi bấm cờ xanh lại
-- [ ] Đã lưu project
+**Checklist tự kiểm TH2:**
+- [ ] Lái nhân vật chạm vào vật phẩm: vật phẩm biến mất ngay lập tức
+- [ ] Không bị lỗi "ăn 1 lần biến mất cả chùm"
+- [ ] Đã lưu project mới nhất
 
 ---
 
-#### Mẹo nhỏ
+#### 🖼️ Rà soát lỗi & Lưu bài (10 phút)
+- Chơi thử game 2 phút: xem vật rơi có quá nhanh/quá chậm không? Điều chỉnh số trong khối `thay đổi y một lượng (...)`.
+- Giáo viên trực tiếp debug cho các bạn bị kẹt clone hoặc va chạm không ăn.
+- Lưu file project cẩn thận.
+#### Mẹo nhỏ & Gỡ lỗi
 
-- **Test sau mỗi khối** — đừng code hết rồi mới chạy!
-- `touching` không hoạt động? → Kiểm tra tên sprite trong khối có **đúng chính tả** không.
-- Nhân vật biến mất khi chạm? → Có thể em `hide` nhầm sprite chính — chỉ `hide` vật bắt.
-- Dùng `say` tạm để debug: *"Đã chạm sao!"* — xóa sau khi game chạy ổn.
-- Nếu chậm tiến độ: làm **1 hướng di chuyển + 1 chạm** cũng được — hoàn thiện ở buổi 30.
+- **Bản sao biến mất ngay sau khi xuất hiện?** Kiểm tra xem tọa độ y rơi đã đúng chiều âm chưa (ví dụ: `thay đổi y một lượng (-6)` chứ không phải `(+6)`).
+- **Va chạm không ăn?** Kiểm tra tên sprite trong khối `đang chạm [...]?` có đúng 100% với tên sprite nhân vật chính không.
+- **Dùng âm thanh nhỏ để test:** Thêm `bắt đầu âm thanh [Pop]` khi va chạm giúp em biết code đã chạy thành công mà không cần nhìn chăm chú.
 
-#### Câu hỏi ôn (10 phút)
+#### ✅ Tổng kết (5 phút)
 
-1. Em dùng khối gì để nhân vật di chuyển sang phải?
-2. `if touching` nên đặt trong `forever` hay `when green flag` một lần? Vì sao?
-3. Game em là cơ chế **bắt** hay **tránh**?
-4. `go to x: y:` dùng để làm gì khi bắt đầu game?
-5. Em đã hoàn thành mấy mục trong checklist 8 mục tuần 14?
-
----
-
-#### 🎉 Tổng kết (10 phút)
-
-- Nhắc lại: hôm nay em đã code **di chuyển** và **1 cơ chế chạm** (bắt hoặc tránh) — game đã "sống" một phần!
-- Mời 1–2 em bấm cờ xanh demo nhanh cho cả lớp xem.
-- Hẹn gặp lại ở buổi Bài tập tuần này! Em sẽ thêm **biến điểm** và **điều kiện thắng** để game hoàn thành ~50%.
+- Hôm nay nhân vật đã có **vật phẩm rơi liên tục để tương tác và va chạm**!
+- **Buổi 30:** Em sẽ tạo biến `Điểm`, biến `Mạng` và lập trình **Luật Thắng (đủ điểm) & Luật Thua (hết mạng)**!
 
 #### 👩‍🏫 Ghi chú cho giáo viên
 
-- **Hỗ trợ nhóm khác tốc độ:** Em code nhanh, xong cả 2 hướng + tương tác → khuyến khích thử thêm hướng di chuyển thứ 3–4 hoặc giúp bạn sửa lỗi `touching` sai tên. Em còn chậm → cho phép chỉ hoàn thành **1 hướng di chuyển + 1 chạm** — đủ để tiếp tục ở buổi 30, không cần ép đủ 2 hướng hôm nay.
-- **Lỗi kỹ thuật thường gặp:** Tên sprite trong khối `touching` không khớp chính tả (ví dụ kế hoạch ghi "Sao" nhưng sprite thực tế tên "SaoVang") — đây là lỗi phổ biến nhất buổi này, đi vòng kiểm tra sớm.
-- **Nhắc nhở:** Ưu tiên "chạy được" hơn "đẹp" — nếu hết giờ mà nhân vật mới di chuyển được 1 hướng, đó vẫn là tiến độ tốt, không cần lo lắng.
+- **Phân bổ thời gian:** 15p demo nguyên lý Clone ➡️ 65p học sinh làm trên máy ➡️ 10p rà soát & lưu file.
+- **Hỗ trợ học sinh:** Lỗi hay gặp nhất là quên khối `xóa bản sao này` khiến clone rơi kẹt ở mép dưới. Giáo viên đi nhắc nhở học sinh thêm khối xóa clone ở đáy.
 
 ---
 
@@ -1025,254 +918,99 @@ Nhắc lại: hôm nay em đã thêm điểm, luật thắng, và code thêm đ�
 
 ---
 
-## Tuần 16 — Hoàn thiện & Thuyết trình
+## Tuần 16 — Hoàn thiện Giao diện & Thử nghiệm Sửa lỗi (Playtest)
 
-### Buổi 31 — Học (H): Hoàn thiện & luyện nói
+### Buổi 31 — Học (H): Giao diện UI, Âm thanh & Debug Đợt 1 🩺
 
 #### Hôm nay em học gì?
 
-Đây là buổi học **cuối cùng trước Showcase**! Em sẽ:
-1. Dùng **checklist polish** để hoàn thiện game.
-2. **Luyện thuyết trình** 2 phút trước lớp.
+Hôm nay em "khoác áo mới" cho game của mình để game trông như một trò chơi chuyên nghiệp:
+1. Thêm **Nút Bắt đầu (Play / Start)** và màn hình kết thúc (Thắng / Game Over) bằng kỹ thuật **Phát tin (Broadcast)**.
+2. Thêm **Âm thanh hiệu ứng** (nhạc nền, tiếng nhặt đồ, tiếng thua).
+3. Cùng **Bác sĩ Scratch** truy tìm và gỡ 3 lỗi logic lớn nhất.
 
-Game không cần hoàn hảo 100% — cần **chạy được**, **em hiểu code của mình**, và **em tự tin giới thiệu**!
-
-#### 🎬 Khởi động (5–10 phút)
-
-**"Khoe 1 câu"**
-
-- Từng em nói thật nhanh 1 câu: phần nào trong game mình **tự hào nhất** sau buổi code tuần trước (ví dụ: "Em tự hào vì làm được clone sao rơi!").
-- Dẫn vào bài: "Hôm nay là buổi cuối cùng trước Showcase — mình **hoàn thiện game** và **luyện nói** để giới thiệu phần tự hào đó cho cả lớp!"
-
-#### Kiến thức mới — Polish game là gì? (10 phút)
-
-**Polish** = làm game **đẹp hơn, mượt hơn, ít lỗi hơn** — như đánh bóng viên bi!
-
-**Checklist polish (8 mục):**
-
-| # | Việc cần kiểm tra | Em tick |
-|---|-------------------|---------|
-| 1 | **Bắt đầu rõ ràng** — cờ xanh hoặc nút Play, nhân vật đúng vị trí | [ ] |
-| 2 | **Điều khiển mượt** — phím phản hồi, không kẹt | [ ] |
-| 3 | **Luật chơi đúng** — thắng/thua khớp kế hoạch | [ ] |
-| 4 | **Biến hiển thị** — điểm, mạng, thời gian đọc được | [ ] |
-| 5 | **Âm thanh / hình ảnh** — có ít nhất 1 tiếng hoặc đổi costume | [ ] |
-| 6 | **Game Over / Thắng** — có thông báo, game dừng hợp lý | [ ] |
-| 7 | **Không lỗi nặng** — không lag clone, không điểm vô hạn | [ ] |
-| 8 | **Tên project** — đặt tên game trên Scratch (không để "Project") | [ ] |
-
-**Debug nhanh — 3 câu hỏi:**
-1. *Chuyện gì **nên** xảy ra?* (đọc kế hoạch)
-2. *Chuyện gì **đang** xảy ra?* (bấm cờ xanh, chơi thử)
-3. *Khác nhau ở khối nào?* (đọc script từng sprite)
+> ⏱️ **Thời lượng chuẩn:** 15–20 phút hướng dẫn & demo khối lệnh mẫu ➡️ **60–65 phút mở máy code thực chiến** có giáo viên kèm cặp và sửa lỗi tại chỗ!
 
 ---
 
-#### TH1 — Polish checklist + sửa lỗi (20 phút)
+#### 🎬 Khởi động (5 phút)
 
-**Mô tả:** Em mở project game và đi qua **checklist polish 8 mục** — sửa ít nhất **3 mục** chưa đạt, trong đó có **2 lỗi (bug)** cụ thể em tự tìm ra.
-
-**Yêu cầu:**
-- In hoặc chép checklist polish vào sổ.
-- Tick từng mục — mục chưa tick → sửa hoặc ghi "để dành showcase kể".
-- Sửa **ít nhất 3 thứ** (ví dụ: thêm âm thanh, sửa Game Over, đặt tên project).
-- Trong đó, ghi ra **2 lỗi (bug)** em tìm thấy trước khi sửa, và **1 câu mỗi lỗi** mô tả cách em đã sửa.
-- Nhờ bạn chơi thử **2 phút** — hỏi: *"Em có hiểu cách chơi không?"*
-
-**Gợi ý từng bước:**
-1. Mở checklist polish — tick mục đã OK.
-2. Ưu tiên sửa: **luật thắng/thua** → **điểm** → **âm thanh** → **tên project**.
-3. Nếu thiếu luật thua: thêm `if Mạng = 0` → `say Game Over` → `stop all`.
-4. Tìm bug bằng 3 câu hỏi debug ở trên — ghi ra giấy 2 lỗi trước khi sửa.
-5. Đổi tên project: ô trên cùng Scratch → gõ tên game.
-6. File → Save — lưu bản mới nhất.
-7. Chụp màn hình game (tuỳ chọn) để đưa vào slide thuyết trình.
-
-**Gợi ý bug thường gặp:**
-- Điểm tăng vô hạn khi chạm → thêm `delete clone` hoặc `wait`.
-- Game không dừng khi thua → thêm `stop all`.
-- Nhân vật ra khỏi màn hình → thêm `if on edge, bounce`.
-- Tên `touching` sai → sửa cho khớp tên sprite.
-- Clone lag → thêm `delete this clone`, ẩn sprite gốc.
-
-**Checklist tự kiểm:**
-- [ ] Đã tick cả 8 mục polish (hoặc ghi chú mục chưa kịp)
-- [ ] Đã sửa ít nhất 3 mục
-- [ ] Ghi và sửa được 2 lỗi (bug) cụ thể
-- [ ] Bạn thử chơi được
-- [ ] Project có tên game chính thức
-- [ ] Đã lưu project
+- Thầy/cô bật 2 game: 1 game im lặng không nút bấm vs 1 game có nhạc nền, nút Play và tiếng ting ting khi ăn điểm.
+- Hỏi cả lớp: *"Game nào chơi cuốn hút hơn?"* ➡️ Dẫn vào bài: Hôm nay em nâng cấp trải nghiệm cho game!
 
 ---
 
-#### TH2 — Luyện thuyết trình 2 phút (25 phút)
+#### 📘 Hướng dẫn kỹ thuật & Demo mẫu (15 phút)
 
-**Mô tả:** Em luyện **nói trước lớp** 2 phút về game — dùng giấy nháp hoặc slide đơn giản. Luyện **ít nhất 2 lượt** ngay tại lớp để tự tin hơn trước Showcase.
+**1. Kỹ thuật Nút Play bằng Broadcast:**
+- Sprite `NutPlay`: `khi bấm vào sprite này` ➡️ `phát tin [BatDau v]` ➡️ `ẩn`.
+- Các sprite khác: `khi nhận [BatDau v]` mới bắt đầu di chuyển và rơi đồ.
 
-**Yêu cầu:**
-- Nói **đủ 4 phần:** (1) Tên game + thể loại (2) Cách chơi (3) 1 thứ em tự hào trong code (4) Demo 30 giây.
-- Thời gian: **1 phút 30 giây – 2 phút 30 giây** mỗi lượt.
-- Nói **to, nhìn bạn**, không đọc nguyên giấy.
-- **Lượt 1:** nói thử một mình (hoặc với giáo viên), nhìn giấy nháp nếu cần. **Lượt 2:** nói lại với bạn cùng bàn, cố gắng ít nhìn giấy hơn.
-
-**Gợi ý từng bước:**
-1. Viết 4 câu nháp — mỗi phần 1–2 câu.
-2. Đứng lên, mở project Scratch sẵn.
-3. Nói phần 1–3 **không** chạy game (45 giây).
-4. Bấm cờ xanh — chơi demo 30 giây (phần 4).
-5. Kết: *"Cảm ơn các bạn đã nghe!"*
-6. Nghe góp ý thầy/cô hoặc bạn — ghi 1 việc cần sửa, rồi nói **lượt 2** ngay để áp dụng góp ý đó.
-
-**Mẫu lời 4 câu (em tự viết theo game):**
-- *"Game của em tên …, thể loại …"*
-- *"Cách chơi: em dùng phím … để …, cần … để thắng."*
-- *"Em tự hào vì đã dùng … (clone / biến / broadcast)."*
-- *"Bây giờ em demo!"*
-
-**Checklist tự kiểm:**
-- [ ] Em nói đủ 4 phần
-- [ ] Trong khoảng 2 phút (± 30 giây)
-- [ ] Có demo game thật
-- [ ] Em đã luyện **ít nhất 2 lượt** tại lớp
-- [ ] Em ghi được 1 góp ý để cải thiện
+**2. Kỹ thuật Âm thanh:**
+- Stage: `khi nhận [BatDau v]` ➡️ `liên tục (phát âm thanh [NhacNen] đến hết)`.
+- Khi chạm đồ tốt: `bắt đầu âm thanh [Collect]`.
+- Khi thua: `dừng tất cả âm thanh` ➡️ `bắt đầu âm thanh [Lose]` ➡️ `dừng lại [tất cả]`.
 
 ---
 
-#### Mẹo nhỏ
+#### 💻 Bắt tay vào làm game (60–65 phút)
 
-- Showcase không phải thi — em **chia sẻ** game mình làm!
-- Nếu game còn lỗi nhỏ: nói thật *"Em đang sửa phần …"* — không sao cả.
-- Càng luyện nhiều lượt tại lớp, em càng bớt hồi hộp — đừng ngại xin luyện thêm 1 lượt với giáo viên nếu còn giờ.
-- Chuẩn bị **plan B:** nếu máy lag, có ảnh chụp màn hình hoặc video ngắn.
+#### TH1 — Nút Bắt đầu & Màn hình Kết thúc (30 phút)
+- Thêm sprite nút Play và lập trình phát tin `BatDau`.
+- Lập trình màn hình chúc mừng khi Thắng và chữ `Game Over` khi Thua.
 
-#### Câu hỏi ôn (10 phút)
-
-1. Polish nghĩa là gì? Kể 2 việc polish em có thể làm hôm nay.
-2. Trong 2 phút thuyết trình, em **không nên** làm gì? (gợi ý: đọc nguyên giấy, im lặng quá lâu…)
-3. Em tự hào nhất phần nào trong game?
-4. Luật thắng game em là gì? (Nói 1 câu)
-5. Project Scratch em đã đặt tên chưa?
+#### TH2 — Chèn Âm thanh & Gỡ lỗi đợt 1 (30 phút)
+- Chọn 2–3 âm thanh phù hợp từ thư viện Scratch.
+- Rà soát 3 lỗi: điểm có tăng quá nhanh không? Thua game có dừng hẳn không? Các sprite có ẩn hiện đúng lúc không?
 
 ---
 
-#### 🎉 Tổng kết (10 phút)
-
-- Nhắc lại: hôm nay em đã polish game, sửa lỗi, và luyện thuyết trình **2 lượt** ngay tại lớp — game và bài nói đã sẵn sàng!
-- Mời 1–2 em thuyết trình thử trước lớp (2 phút) để cả lớp làm quen không khí Showcase.
-- Hẹn gặp lại ở buổi **Showcase** tuần này! Nhớ mang project đã lưu — mọi thứ đã chuẩn bị xong ngay tại lớp.
-
-#### 👩‍🏫 Ghi chú cho giáo viên
-
-- **Hỗ trợ nhóm khác tốc độ:** Em polish nhanh, hết cả 3 mục → cho luyện thêm lượt 3 thuyết trình hoặc giúp bạn tìm bug. Em còn nhiều lỗi chưa kịp sửa → ưu tiên sửa lỗi khiến game **không chạy được** trước, lỗi nhỏ về hình ảnh có thể để dành nói thật ở Showcase ("Em đang sửa phần…").
-- **Quản lý thời gian luyện nói:** Bấm giờ rõ ràng cho từng lượt (dùng đồng hồ lớp hoặc điện thoại) — nhắc học sinh lượt 2 không cần hoàn hảo, chỉ cần **tự tin hơn lượt 1**.
-- **Dấu hiệu cần hỗ trợ thêm:** Học sinh quá hồi hộp hoặc nói quá nhanh — cho luyện riêng với giáo viên 1 câu đầu tiên trước, rồi để em tự nói tiếp.
+#### 🖼️ Rà soát & Lưu bài (10 phút)
+- Chơi thử 1 ván trọn vẹn từ lúc bấm Play đến lúc Thắng hoặc Thua.
+- Lưu project chuẩn bị cho buổi Playtest thử nghiệm toàn lớp buổi sau.
 
 ---
 
-### Buổi 32 — Showcase: Thuyết trình game
+### Buổi 32 — Bài tập (BT): Playtest Thử nghiệm chéo & Sửa lỗi toàn diện 🧪
 
-> Đây là buổi **đặc biệt** — không có TH/BTVN mới. Em **thuyết trình game** trước lớp **2–3 phút** và xem bạn trình bày!
+#### Hôm nay em làm gì?
 
-#### Hôm nay em làm gì? (5 phút mở đầu)
+Hôm nay lớp học biến thành một **Phòng Thử Nghiệm Game (Game Testing Lab)** thực thụ:
+- Em đóng vai **Game Tester** (Người kiểm thử game) để chơi thử game của 2–3 bạn khác.
+- Ghi nhận lỗi vào **Phiếu Bắt Lỗi (Bug Report)** giúp bạn.
+- Nhận lại phiếu góp ý từ bạn và cùng thầy/cô **sửa dứt điểm các lỗi còn tồn đọng**!
 
-1. Sắp xếp lớp / máy — mỗi bạn có **2–3 phút**.
-2. Lần lượt lên (hoặc chia nhóm) — **nói + demo** game.
-3. Bạn nghe — có thể vỗ tay, hỏi 1 câu (nếu thầy/cô cho phép).
-4. Cuối buổi: tự đánh giá và ăn mừng — em đã hoàn thành khóa Scratch!
-
-**⏱ Phân bổ thời gian cả buổi:** Buổi Showcase là buổi duy nhất được phép **chạy dài hơn 90 phút** vì mọi phút đều là thuyết trình thật của học sinh — với lớp 20–25 em, thời gian trình bày (2–3 phút/em) đã chiếm khoảng **60–90 phút**, cộng thêm 5 phút mở đầu và 5–10 phút tổng kết cuối buổi, tổng buổi khoảng **90–120 phút** tuỳ sĩ số lớp.
+> ⏱️ **Thời lượng chuẩn:** 15 phút hướng dẫn cách test & ghi phiếu lỗi ➡️ **65 phút Playtest chéo & Sửa lỗi trên máy** ➡️ 10 phút chốt danh sách sẵn sàng cho Showcase đầu Tháng 5!
 
 ---
 
-#### Mẫu thuyết trình 6 bước (2–3 phút)
-
-Em có thể viết 6 câu vào giấy — **mỗi bước khoảng 20–30 giây**:
-
-| Bước | Em nói gì? | Ví dụ ngắn |
-|------|------------|------------|
-| **1. Chào** | Chào lớp, giới thiệu tên mình | *"Xin chào, em là Minh."* |
-| **2. Tên & thể loại** | Tên game + loại game | *"Game em làm tên Bắt Sao Bay, game bắt đồ vật."* |
-| **3. Câu chuyện / ý tưởng** | Vì sao em làm game này? 1–2 câu | *"Em thích không gian nên làm phi hành gia bắt sao."* |
-| **4. Cách chơi** | Phím gì? Thắng thua thế nào? | *"Dùng 4 phím mũi tên. Bắt 15 sao thì thắng, chạm thiên thạch 3 lần thì thua."* |
-| **5. Kỹ thuật tự hào** | 1 thứ em học được trong code | *"Em dùng clone để sao rơi liên tục và biến Điểm."* |
-| **6. Demo & cảm ơn** | Chạy game 30–60 giây, kết lời | *"Em demo nhé! … Cảm ơn các bạn!"* |
-
-**Thời gian gợi ý:**
-
-```
-Chào + Tên game     ████░░░░░░  30 giây
-Ý tưởng + Cách chơi ██████░░░░  45 giây
-Kỹ thuật            ███░░░░░░░  25 giây
-Demo game           ██████░░░░  45 giây
-Cảm ơn              ██░░░░░░░░  15 giây
-─────────────────────────────────────
-Tổng                ~2 phút 40 giây
-```
+#### 📋 Phiếu Bắt Lỗi (3 Tiêu chí Kiểm thử):
+1. **Khởi động:** Bấm Cờ xanh và nút Play có chạy mượt không?
+2. **Gameplay:** Di chuyển có bị kẹt không? Điểm và Mạng có tính chính xác không?
+3. **Kết thúc:** Khi Thắng hoặc Thua, game có thông báo rõ ràng và dừng lại không?
 
 ---
 
-#### Checklist trước khi lên trình bày (1 phút/em)
+#### 💻 Hoạt động Playtest & Sửa lỗi thực chiến (65 phút)
 
-Em tick **ngay trước** khi được gọi tên:
-
-**Máy & project:**
-- [ ] Project Scratch **đã mở sẵn** (đúng tên game)
-- [ ] Đã **lưu** bản mới nhất (mạng / file .sb3)
-- [ ] **Cờ xanh** chạy được — em đã test 1 lần sáng nay hoặc trước giờ Showcase
-- [ ] **Âm lượng** vừa phải (không quá to trong lớp)
-
-**Nội dung nói:**
-- [ ] Em nhớ **tên game** và **thể loại**
-- [ ] Em nói được **cách chơi** trong 2 câu
-- [ ] Em chọn sẵn **1 kỹ thuật** để kể (biến, clone, broadcast…)
-- [ ] Em biết **demo** phần nào (thắng, bắt sao, v.v.) — không cần chơi hết game
-
-**Thái độ:**
-- [ ] Em đứng **quay ra lớp** (nhìn bạn, không chỉ nhìn màn hình)
-- [ ] Em nói **to, rõ** — không cần nhanh
-- [ ] Nếu lỗi khi demo: bình tĩnh, bấm cờ xanh lại hoặc nói *"Lúc nãy em test vẫn chạy tốt ạ"*
+- **Giai đoạn 1 (25 phút) — Chơi thử chéo:**
+  - Cả lớp đứng dậy, chuyển sang máy của bạn bên cạnh để chơi thử.
+  - Mỗi bạn chơi thử ít nhất 2 game, ghi lại 1 điểm khen và 1 lỗi cần sửa vào giấy note dán cạnh máy bạn.
+- **Giai đoạn 2 (40 phút) — Sửa lỗi tại chỗ (Clinic Session):**
+  - Em quay về máy mình, đọc phiếu góp ý của bạn.
+  - Giáo viên và trợ giảng đến từng máy, cùng em sửa dứt điểm các lỗi được phát hiện.
+  - Tinh chỉnh tốc độ rơi của vật phẩm và độ nhạy của phím bấm để game đạt độ cân bằng (Game Balance) chơi vui nhất.
 
 ---
 
-#### Em demo những gì? (Gợi ý 30–60 giây)
+#### ✅ Tổng kết (10 phút)
 
-Chọn **2–3 hành động** nổi bật — **không** cần chơi từ đầu đến thắng (có thể mất quá 3 phút)!
+- Chúc mừng cả lớp! 100% các dự án game của lớp mình đã hoàn thành bộ khung gameplay và chạy trơn tru không còn lỗi nghiêm trọng.
+- **Đón chờ Tuần 17 (Buổi 33–34 đầu Tháng 5):**
+  - **Buổi 33:** Hoàn thiện đỉnh cao (Polish) & Ứng dụng **Danh sách (List)** để làm Bảng kỷ lục điểm cao (High Score).
+  - **Buổi 34:** **Đại hội Thuyết trình Showcase Dự án Game 1 Màn** hoành tráng trước lớp và phụ huynh!
 
-| Thể loại game | Nên demo |
-|---------------|----------|
-| Bắt / Thu thập | Di chuyển → bắt 1–2 vật → điểm tăng |
-| Tránh | Di chuyển → né vật → (tuỳ chọn) chạm 1 lần thấy mất mạng |
-| Quiz | Trả lời 1 câu đúng + 1 câu sai |
-| Đuổi bắt | Chạy trốn 10 giây |
-| Có nút Start | Bấm Play → rồi mới chơi (cho thấy broadcast) |
 
-**Câu dẫn demo mẫu:**
-- *"Bây giờ em bấm cờ xanh — em dùng phím mũi tên di chuyển."*
-- *"Khi chạm sao, điểm tăng và có tiếng — các bạn nghe nhé."*
-- *"Đây là khi thua — em chạm thiên thạch lần thứ ba."*
-
----
-
-#### Sau khi thuyết trình (5–10 phút, cuối buổi)
-
-Em tự trả lời (viết nháp hoặc nghĩ trong đầu):
-
-1. Phần nào em nói **tốt nhất**?
-2. Lần sau em muốn **cải thiện** gì? (nói nhanh quá? demo bị lỗi?)
-3. Game của bạn nào em thích — **1 điều** em học được từ bạn?
-
----
-
-#### 👩‍🏫 Ghi chú cho giáo viên — Giữ nhịp buổi Showcase
-
-Chuẩn bị sẵn đồng hồ bấm giờ hiện rõ cho cả lớp thấy; nếu lớp đông (>20 em), cân nhắc giới hạn demo còn **20–30 giây** thay vì 30–60 giây để cả lớp kịp trình bày trong buổi; nhắc nhẹ khi 1 em vượt quá 3 phút để bạn tiếp theo không bị dồn giờ.
-
-#### Không có bài TH / BTVN hôm nay
-
-Buổi Showcase là buổi **trình bày** — em mang:
-- Project Scratch (online hoặc file)
-- (Tuỳ chọn) Storyboard / kế hoạch đã làm
-- Tự tin và nụ cười!
 
 ---
 

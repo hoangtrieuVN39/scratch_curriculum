@@ -6,7 +6,7 @@
 
 | Tuần | Buổi | Em học gì |
 |------|------|-----------|
-| 17 | 33–34 | Danh sách (List) — lưu nhiều giá trị cùng lúc |
+| 17 | 33–34 | Hoàn thiện game, Bảng điểm cao (List) & Đại hội Showcase |
 | 18 | 35–36 | Trọng lực & vận tốc — rơi, nảy, nhảy |
 | 19 | 37–38 | Platformer — chạy nhảy trên bệ, màn chơi |
 | 20 | 39–40 | Hiệu ứng đồ họa & Pen — game đẹp mắt |

@@ -1,0 +1,1462 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 14 — Buổi 28: Bắt tay vào làm — Setup &amp; Code Di chuyển</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-cyan: #00bcd4;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+
+      --slide-w: min(1120px, 95vw);
+      --slide-h: min(720px, 86vh);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at 10% 20%, #1e3a8a 0%, #0f172a 90%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--scratch-dark);
+      user-select: none;
+    }
+
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 5px; width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow), var(--scratch-green), var(--scratch-cyan));
+      transition: width 0.35s ease;
+      z-index: 200;
+      box-shadow: 0 0 10px rgba(255, 140, 26, 0.6);
+    }
+
+    .deck {
+      width: var(--slide-w);
+      height: var(--slide-h);
+      position: relative;
+      margin-top: 56px;
+    }
+
+    .slide {
+      position: absolute; inset: 0;
+      background: #ffffff;
+      border-radius: 22px;
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden;
+      transform: translateX(40px) scale(0.98);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1), transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1; visibility: visible; transform: translateX(0) scale(1);
+      pointer-events: auto; z-index: 10;
+      transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1), transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s;
+    }
+
+    .slide.prev { opacity: 0; visibility: hidden; transform: translateX(-40px) scale(0.98); pointer-events: none; z-index: 0; }
+    .slide.next { opacity: 0; visibility: hidden; transform: translateX(40px) scale(0.98); pointer-events: none; z-index: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .progress-bar { transition: none; }
+    }
+
+    .global-topbar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      width: var(--slide-w);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 22px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.25);
+      z-index: 150;
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 800; font-size: 0.92rem; color: var(--scratch-dark); white-space: nowrap;
+    }
+    .brand-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #ff8c1a, #00bcd4);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 3px 8px rgba(0, 188, 212, 0.35);
+    }
+    .brand-sub { font-weight: 700; color: #64748b; font-size: 0.8rem; }
+
+    .slide-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 440px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #cbd5e1; border: none; cursor: pointer; padding: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .dot:hover { transform: scale(1.3); background: #94a3b8; }
+    .dot.active { background: var(--scratch-orange); transform: scale(1.3); box-shadow: 0 0 6px rgba(255, 140, 26, 0.8); }
+
+    .topbar-actions { display: flex; gap: 8px; }
+    .icon-btn {
+      width: 36px; height: 36px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s;
+      color: var(--scratch-dark);
+    }
+    .icon-btn:hover { background: #f1f5f9; transform: translateY(-1px); }
+
+    .slide-main { flex: 1; display: flex; flex-direction: column; padding: 22px 42px 18px; min-height: 0; }
+    .title-slide .slide-main { justify-content: center; align-items: center; text-align: center; padding: 36px; }
+
+    .slide-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.74rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #fff; background: var(--scratch-blue);
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 8px;
+      align-self: flex-start;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green  { background: var(--scratch-green); }
+    .slide-tag.red    { background: var(--scratch-red); }
+    .slide-tag.cyan   { background: #0284c7; }
+
+    h1 { font-size: clamp(2rem, 4.2vw, 2.7rem); line-height: 1.2; font-weight: 900; margin-bottom: 8px; }
+    h2 { font-size: clamp(1.3rem, 2.5vw, 1.75rem); font-weight: 900; margin-bottom: 10px; line-height: 1.25; color: #0f172a; }
+    .subtitle { font-size: 1.1rem; color: #475569; font-weight: 700; }
+
+    .slide-body { flex: 1; overflow-y: auto; padding-right: 6px; min-height: 0; }
+    .slide-body::-webkit-scrollbar { width: 6px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    .title-slide { background: radial-gradient(circle at 50% 10%, #fff7ed 0%, #ffffff 65%, #eff6ff 100%); }
+    .title-emoji { font-size: clamp(3.2rem, 7.5vw, 4.6rem); margin-bottom: 8px; line-height: 1; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12)); }
+    .title-slide h1 {
+      background: linear-gradient(135deg, #ea580c 0%, #d97706 40%, #0284c7 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .title-meta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+    .badge {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 8px 18px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: #1e293b;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .badge.highlight { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+    .start-hint { margin-top: 24px; color: #64748b; font-size: 0.9rem; font-weight: 700; animation: pulse 2.5s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    ul, ol { padding-left: 1.3em; line-height: 1.65; font-size: 0.94rem; font-weight: 600; color: #334155; }
+    li { margin-bottom: 5px; }
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.92em; font-weight: 800;
+      background: #f1f5f9; color: #c2410c;
+      padding: 2px 7px; border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+    strong { font-weight: 800; color: #0f172a; }
+
+    .highlight-box {
+      background: #eff6ff; border-left: 5px solid var(--scratch-blue);
+      border-radius: 0 14px 14px 0; padding: 12px 16px; margin: 8px 0;
+      font-size: 0.95rem; line-height: 1.55; font-weight: 600; color: #1e3a8a;
+    }
+    .highlight-box.orange { background: #fff7ed; border-color: var(--scratch-orange); color: #9a3412; }
+    .highlight-box.green  { background: #f0fdf4; border-color: var(--scratch-green); color: #166534; }
+    .highlight-box.purple { background: #faf5ff; border-color: var(--scratch-purple); color: #581c87; }
+    .highlight-box.red    { background: #fff1f2; border-color: var(--scratch-red); color: #9f1239; }
+
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+    .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+    .cols-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 8px; }
+    .cols-60-40 { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; margin-top: 8px; }
+
+    @media (max-width: 768px) {
+      .cols, .cols-3, .cols-4, .cols-60-40 { grid-template-columns: 1fr; }
+      .slide-main { padding: 16px 20px 12px; }
+      .global-topbar { padding: 8px 14px; top: 8px; }
+      .slide-dots { display: none; }
+    }
+
+    .card {
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 14px; padding: 14px 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .card h3 { font-size: 0.98rem; font-weight: 800; color: var(--scratch-blue); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .card.purple h3 { color: var(--scratch-purple); }
+    .card.orange h3 { color: var(--scratch-orange); }
+    .card.green  h3 { color: #16a34a; }
+    .card.red    h3 { color: var(--scratch-red); }
+
+    .step-pill {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--scratch-orange); color: #fff;
+      font-size: 0.78rem; font-weight: 900; margin-right: 6px;
+    }
+
+    .tip {
+      display: flex; gap: 10px; align-items: flex-start;
+      background: #fefce8; border: 2px dashed #facc15;
+      border-radius: 12px; padding: 10px 14px; margin-top: 8px;
+      font-size: 0.88rem; line-height: 1.5; font-weight: 600; color: #713f12;
+    }
+    .tip-icon { font-size: 1.3rem; flex-shrink: 0; }
+
+    /* Scratch Blocks Simulation */
+    .blocks-container {
+      background: #f1f5f9; border: 2px solid #cbd5e1;
+      border-radius: 14px; padding: 12px 16px;
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      font-size: 0.88rem; font-weight: 800; color: #fff;
+      display: flex; flex-direction: column; gap: 4px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .block {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 8px;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.2); width: fit-content;
+      line-height: 1.3;
+    }
+    .block.event   { background: #ffbf00; color: #5c3b00; }
+    .block.motion  { background: #4c97ff; }
+    .block.looks   { background: #9966ff; }
+    .block.control { background: #ffab19; color: #402300; }
+    .block.sensing { background: #5cb1d6; }
+    .block.variable{ background: #ff8c1a; }
+    .block.c-block {
+      display: flex; flex-direction: column; align-items: flex-start;
+      padding: 6px 10px; border-radius: 8px; width: 100%;
+    }
+    .c-body {
+      display: flex; flex-direction: column; gap: 4px;
+      padding-left: 14px; border-left: 4px solid rgba(0,0,0,0.15);
+      margin: 4px 0; width: 100%;
+    }
+    .block-arg {
+      background: #ffffff; color: #1e293b; border-radius: 12px;
+      padding: 1px 8px; font-size: 0.85em; font-weight: 800;
+    }
+
+    /* Timing Bar */
+    .time-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(135deg, #eff6ff, #faf5ff);
+      border: 2px solid #cbd5e1; border-radius: 14px;
+      padding: 10px 18px; margin-bottom: 10px;
+      font-weight: 800; font-size: 0.92rem;
+    }
+    .time-tag {
+      background: #1e293b; color: #fff;
+      padding: 4px 10px; border-radius: 8px; font-size: 0.82rem;
+    }
+
+    /* Debugging Clinic Cards */
+    .clinic-card {
+      background: #ffffff; border: 2px solid #e2e8f0;
+      border-radius: 14px; padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 6px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .clinic-card:hover { transform: translateY(-2px); border-color: var(--scratch-red); box-shadow: 0 6px 18px rgba(255,102,128,0.15); }
+    .clinic-badge {
+      font-size: 0.72rem; font-weight: 900; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 6px; width: fit-content;
+    }
+    .clinic-badge.sick { background: #fee2e2; color: #b91c1c; }
+    .clinic-badge.cure { background: #dcfce7; color: #15803d; }
+
+    /* Win/Lose Arena (Minigame vận động) */
+    .arena-wrap {
+      background: linear-gradient(135deg, #faf5ff, #eff6ff);
+      border: 2px solid #e2e8f0; border-radius: 16px;
+      padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .arena-rule-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.82rem; font-weight: 800; color: #475569;
+      background: #ffffff; border-radius: 10px; padding: 7px 14px;
+      border: 1px solid #e2e8f0;
+    }
+    .arena-streak-badge {
+      background: linear-gradient(135deg,#ff8c1a,#ffbf00);
+      color:#fff; font-size:0.8rem; font-weight:900;
+      padding: 3px 10px; border-radius: 8px;
+    }
+    .arena-scenario {
+      background: #ffffff; border-radius: 14px;
+      border: 2px solid #cbd5e1; padding: 14px 18px;
+      text-align: center; min-height: 100px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .arena-scenario.pop { animation: popIn 0.3s ease; }
+    @keyframes popIn { 0%{transform:scale(0.93);opacity:0.5} 100%{transform:scale(1);opacity:1} }
+    .arena-scenario-emoji { font-size: 2.2rem; }
+    .arena-scenario-text { font-size: 1.05rem; font-weight: 900; color: #0f172a; }
+    .arena-scenario-sub  { font-size: 0.83rem; font-weight: 700; color: #64748b; }
+    .arena-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-arena {
+      padding: 11px 10px; border-radius: 12px; border: 2.5px solid;
+      font-family: inherit; font-size: 0.9rem; font-weight: 900;
+      cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-arena:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+    .btn-arena.win  { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+    .btn-arena.lose { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+    .btn-arena.correct-glow { box-shadow: 0 0 0 4px rgba(34,197,94,0.45); }
+    .btn-arena.wrong-glow   { animation: shake 0.4s ease; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .arena-feedback-msg {
+      text-align: center; font-size: 0.9rem; font-weight: 800;
+      min-height: 24px; color: #475569;
+    }
+
+    /* Challenge tier cards */
+    .tier-card {
+      background: #ffffff; border: 2px solid #e2e8f0;
+      border-radius: 16px; padding: 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .tier-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 5px;
+    }
+    .tier-card.tier-a::before { background: linear-gradient(90deg,#10b981,#34d399); }
+    .tier-card.tier-b::before { background: linear-gradient(90deg,#0284c7,#38bdf8); }
+    .tier-card.tier-c::before { background: linear-gradient(90deg,#8b5cf6,#c084fc); }
+    .tier-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.1); }
+    .tier-icon { font-size: 2rem; line-height: 1; }
+    .tier-title { font-size: 1.05rem; font-weight: 900; color: #0f172a; }
+    .tier-desc  { font-size: 0.85rem; font-weight: 700; color: #475569; line-height: 1.55; }
+    .tier-code-hint {
+      background: #f1f5f9; border-radius: 10px; padding: 8px 12px;
+      font-size: 0.82rem; font-weight: 800; color: #1e293b; line-height: 1.6;
+    }
+
+    /* Interactive Warmup */
+    .warmup-box {
+      background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px;
+      padding: 16px 20px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .warmup-q { font-size: 1.15rem; font-weight: 900; color: #0f172a; text-align: center; }
+    .warmup-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .warmup-btn {
+      background: #fff; border: 2px solid #cbd5e1; border-radius: 12px;
+      padding: 12px 10px; font-family: inherit; font-size: 0.88rem; font-weight: 800;
+      cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
+      transition: all 0.16s; color: #1e293b;
+    }
+    .warmup-btn:hover:not(:disabled) { border-color: var(--scratch-blue); background: #f0f7ff; transform: translateY(-2px); }
+    .warmup-btn.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+    .warmup-btn.wrong   { background: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+    .warmup-feedback { text-align: center; font-size: 0.92rem; font-weight: 800; min-height: 22px; }
+
+    /* Quiz Arena */
+    .quiz-arena {
+      display: flex; flex-direction: column; gap: 10px;
+      background: #f8fafc; border-radius: 16px; padding: 14px 18px; border: 1px solid #e2e8f0;
+    }
+    .quiz-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #475569; font-size: 0.9rem; }
+    .quiz-question-box { font-size: 1.12rem; font-weight: 800; color: #0f172a; line-height: 1.4; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .quiz-opt-btn {
+      background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px;
+      padding: 10px 12px; font-family: inherit; font-size: 0.88rem; font-weight: 700;
+      color: #1e293b; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px;
+      transition: all 0.16s;
+    }
+    .quiz-opt-btn:hover:not(:disabled) { border-color: var(--scratch-blue); background: #f0f7ff; transform: translateY(-2px); }
+    .quiz-opt-btn.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; font-weight: 800; }
+    .quiz-opt-btn.wrong   { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
+    .quiz-opt-badge {
+      width: 24px; height: 24px; border-radius: 50%; background: #f1f5f9;
+      display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900;
+      flex-shrink: 0; color: #475569;
+    }
+    .quiz-opt-btn.correct .quiz-opt-badge { background: #22c55e; color: #fff; }
+    .quiz-opt-btn.wrong .quiz-opt-badge   { background: #ef4444; color: #fff; }
+    .quiz-explain {
+      display: none; background: #ffffff; border-radius: 10px; padding: 8px 12px;
+      border-left: 4px solid #3b82f6; font-size: 0.88rem; font-weight: 700; color: #1e3a8a;
+    }
+    .quiz-explain.show { display: block; }
+    .quiz-nav-row { display: flex; justify-content: flex-end; align-items: center; }
+    .btn-quiz-next {
+      background: var(--scratch-purple); color: #fff; border: none; font-family: inherit;
+      font-weight: 800; font-size: 0.88rem; padding: 8px 18px; border-radius: 10px;
+      cursor: pointer; display: none; transition: all 0.16s;
+    }
+    .btn-quiz-next.show { display: inline-flex; }
+    .btn-quiz-next:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* Nav */
+    .nav { position: fixed; bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 100; }
+    .nav button {
+      background: rgba(255, 255, 255, 0.18); border: 2px solid rgba(255, 255, 255, 0.4);
+      color: #fff; width: 46px; height: 46px; border-radius: 50%; font-size: 1.2rem; cursor: pointer;
+      transition: background 0.2s, transform 0.15s; backdrop-filter: blur(8px);
+    }
+    .nav button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.32); transform: scale(1.08); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+    .slide-counter { color: rgba(255, 255, 255, 0.92); font-size: 0.9rem; font-weight: 800; min-width: 56px; text-align: center; }
+    .hint { position: fixed; bottom: 76px; color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; font-weight: 600; transition: opacity 0.4s; }
+
+    /* Fullscreen */
+    html:fullscreen, html:-webkit-full-screen { width: 100%; height: 100%; }
+    html:fullscreen body, html:-webkit-full-screen body { width: 100%; height: 100%; min-height: 100%; background: #0f172a; padding: 0; }
+    html:fullscreen .deck, html:-webkit-full-screen .deck { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0; }
+    html:fullscreen .slide, html:-webkit-full-screen .slide { border-radius: 0; box-shadow: none; }
+    html:fullscreen .global-topbar, html:-webkit-full-screen .global-topbar { display: none; }
+    html:fullscreen .hint, html:-webkit-full-screen .hint { display: none; }
+    html:fullscreen .nav, html:-webkit-full-screen .nav { bottom: 16px; opacity: 0.35; transition: opacity 0.25s; }
+    html:fullscreen .nav:hover, html:-webkit-full-screen .nav:hover { opacity: 1; }
+    html:fullscreen .progress-bar, html:-webkit-full-screen .progress-bar { height: 3px; }
+
+    .fs-exit {
+      display: none; position: fixed; top: 12px; right: 12px; z-index: 300;
+      background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #fff; width: 40px; height: 40px; border-radius: 10px;
+      cursor: pointer; font-size: 1rem; backdrop-filter: blur(6px); transition: background 0.15s;
+    }
+    .fs-exit:hover { background: rgba(0, 0, 0, 0.75); }
+    html:fullscreen .fs-exit, html:-webkit-full-screen .fs-exit { display: flex; align-items: center; justify-content: center; }
+
+    /* Checklist Box */
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+    .checklist li { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; color: #334155; }
+    .check-icon {
+      width: 20px; height: 20px; border-radius: 6px; background: #e2e8f0;
+      display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #0f172a; flex-shrink: 0;
+    }
+    .checklist li.checked .check-icon { background: var(--scratch-green); color: #ffffff; }
+
+    .th-badge {
+      display: inline-block; background: var(--scratch-green); color: #fff;
+      font-weight: 800; font-size: 0.75rem; padding: 2px 8px; border-radius: 6px;
+      margin-right: 4px; vertical-align: middle;
+    }
+    .th-badge.level-a { background: #10b981; }
+    .th-badge.level-b { background: #0284c7; }
+    .th-badge.level-c { background: #8b5cf6; }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="15" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🚀</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1: Tiêu đề -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji">🚀💻🎮</div>
+      <h1>Bắt Tay Vào Làm Game!</h1>
+      <p class="subtitle">Khởi tạo Project Scratch &amp; Lập trình Nhân vật chính Di chuyển mượt mà</p>
+      <div class="title-meta">
+        <span class="badge highlight">📅 Tuần 14</span>
+        <span class="badge">🛠️ Buổi 28 — Thực hành Code</span>
+        <span class="badge">🎯 Độ tuổi: 7–10</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Phím cách để mở máy và bắt đầu lập trình!</p>
+    </div>
+  </section>
+
+  <!-- Slide 2: Mục tiêu & Khung giờ vàng -->
+  <section class="slide" data-index="1" aria-label="Mục tiêu & Khung giờ vàng">
+    <div class="slide-main">
+      <span class="slide-tag orange">⏱️ Khung thời gian thực chiến</span>
+      <h2>Chiến Lược Buổi Học: 15 Phút Hướng Dẫn ➡️ 65 Phút Code Thật! ⚡</h2>
+      <div class="slide-body">
+        <div class="time-banner">
+          <div>🎯 <strong>Mục tiêu hôm nay:</strong> Nhân vật chính có sân khấu riêng, xuất phát đúng chỗ và di chuyển cực mượt!</div>
+          <span class="time-tag">90 Phút</span>
+        </div>
+        <div class="cols-3" style="margin-top:12px;">
+          <div class="card orange">
+            <h3><span class="step-pill">1</span> 15–20 Phút Đầu</h3>
+            <p style="font-size:0.86rem; color:#7c2d12; line-height:1.55; font-weight:700;">
+              Thầy/Cô hướng dẫn 4 bước khởi tạo chuẩn kỹ sư, phân tích khối lệnh di chuyển và khám phá các ca bệnh thường gặp.
+            </p>
+          </div>
+          <div class="card green">
+            <h3><span class="step-pill" style="background:#16a34a;">2</span> 60–65 Phút Thực Chiến</h3>
+            <p style="font-size:0.86rem; color:#14532d; line-height:1.55; font-weight:700;">
+              Tất cả các em <strong>mở Scratch và gõ code trực tiếp</strong>. Thầy/cô và trợ giảng đi từng bàn hỗ trợ và debug lỗi tại chỗ!
+            </p>
+          </div>
+          <div class="card blue">
+            <h3><span class="step-pill" style="background:#0284c7;">3</span> 5–10 Phút Cuối</h3>
+            <p style="font-size:0.86rem; color:#1e3a8a; line-height:1.55; font-weight:700;">
+              Tự kiểm tra theo bảng checklist, lái thử nhân vật của bạn bên cạnh và lưu file dự án cẩn thận.
+            </p>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:14px;">
+          <span class="tip-icon">💡</span>
+          <div>
+            <strong>Lời khuyên vàng:</strong> Đừng sợ sai! Lập trình viên giỏi là người gặp lỗi và tự tay sửa được lỗi đó. Thầy cô luôn đồng hành bên cạnh em!
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Khởi động tương tác - Mảnh ghép xuất phát -->
+  <section class="slide" data-index="2" aria-label="Khởi động tương tác">
+    <div class="slide-main">
+      <span class="slide-tag purple">🎬 Khởi động nhanh (5 phút)</span>
+      <h2>Thám Tử Lập Trình: Ghép Đúng Khối Lệnh — Ai Nhanh Ai Chính Xác? 🕵️‍♀️🧩</h2>
+      <div class="slide-body">
+        <div class="highlight-box purple" style="margin-top:0;">
+          3 câu đố nhỏ về thế giới di chuyển Scratch — mỗi câu có 3 lựa chọn, chỉ 1 đáp án đúng. Cả lớp cùng giơ tay thật nhanh!
+        </div>
+        <div class="warmup-box" style="margin-top:10px;">
+          <div class="warmup-q" id="warmupQ">
+            Câu hỏi đang tải...
+          </div>
+          <div class="warmup-grid" id="warmupGrid">
+            <!-- Buttons rendered via JS -->
+          </div>
+          <div class="warmup-feedback" id="warmupFeedback">
+            Hãy click chọn đáp án đúng nhất!
+          </div>
+        </div>
+        <div class="tip" style="margin-top:10px;">
+          <span class="tip-icon">✨</span>
+          <div><strong>Bí kíp vàng:</strong> Trục X = nằm ngang (Phải → dương, Trái → âm). Trục Y = thẳng đứng (Lên → dương, Xuống → âm). Căn tâm costume = hết lệch hết nhảy!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: 4 Bước Khởi tạo Game Chuẩn Kỹ Sư -->
+  <section class="slide" data-index="3" aria-label="4 Bước khởi tạo">
+    <div class="slide-main">
+      <span class="slide-tag orange">🏗️ Quy trình kỹ thuật (10 phút)</span>
+      <h2>4 Bước Khởi Tạo Game Chuẩn Kỹ Sư Lập Trình 📐</h2>
+      <div class="slide-body">
+        <div class="cols-4">
+          <div class="card orange">
+            <div style="font-size:2rem; margin-bottom:4px;">🏷️</div>
+            <h3>1. Đặt Tên Project</h3>
+            <p style="font-size:0.84rem; color:#334155; line-height:1.5; font-weight:600;">
+              Nhập ô trên cùng Scratch: <code>[TenGame]_[TenEm]</code>. Ví dụ: <code>BatSao_MinhAn</code>. Không để chữ <em>"Untitled"</em>!
+            </p>
+          </div>
+          <div class="card blue">
+            <div style="font-size:2rem; margin-bottom:4px;">🖼️</div>
+            <h3>2. Dựng Sân Khấu</h3>
+            <p style="font-size:0.84rem; color:#334155; line-height:1.5; font-weight:600;">
+              Vào mục Backdrop, chọn hoặc tự vẽ cảnh nền phù hợp với Storyboard (vũ trụ, biển sâu, rừng rậm...).
+            </p>
+          </div>
+          <div class="card green">
+            <div style="font-size:2rem; margin-bottom:4px;">🧑‍🚀</div>
+            <h3>3. Thêm Nhân Vật</h3>
+            <p style="font-size:0.84rem; color:#334155; line-height:1.5; font-weight:600;">
+              Chọn hoặc vẽ sprite nhân vật chính. <strong>Căn tâm hình</strong> vào chính giữa dấu cộng. Đặt tên tiếng Việt không dấu.
+            </p>
+          </div>
+          <div class="card purple">
+            <div style="font-size:2rem; margin-bottom:4px;">🎯</div>
+            <h3>4. Điểm Xuất Phát</h3>
+            <p style="font-size:0.84rem; color:#334155; line-height:1.5; font-weight:600;">
+              Gắn tọa độ ban đầu: <code>đi tới điểm x: 0 y: -120</code> để nhân vật luôn đứng đúng chỗ mỗi khi bấm Cờ xanh.
+            </p>
+          </div>
+        </div>
+        <div class="highlight-box green" style="margin-top:12px;">
+          👉 <strong>Quy tắc bất thành văn:</strong> Làm xong 4 bước nền móng này mới bắt tay vào lắp ráp code di chuyển!
+        </div>
+        <div class="tip" style="margin-top:10px;">
+          <span class="tip-icon">🎯</span>
+          <div><strong>Cách căn tâm hình trong Costume Editor:</strong> Mở tab <em>Trang phục</em> → Chọn <em>Đặt tâm trang phục</em> (biểu tượng dấu &quot;+&quot; chéo) → Kéo hình sao cho dấu cộng ở giữa bụng/thân nhân vật. Lưu lại → Nhân vật sẽ không còn nhảy lệch khi đổi hướng!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: Khối lệnh di chuyển chuẩn mượt mà -->
+  <section class="slide" data-index="4" aria-label="Khối lệnh di chuyển chuẩn">
+    <div class="slide-main">
+      <span class="slide-tag blue">🧱 Khối lệnh then chốt</span>
+      <h2>Bộ Lệnh Di Chuyển Chuẩn Mượt Mà (Không Giật Cục) 🕹️</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <div class="blocks-container">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block motion">đi tới điểm x: <span class="block-arg">0</span> y: <span class="block-arg">-120</span></div>
+              <div class="block motion">đặt kiểu xoay <span class="block-arg">trái-phải v</span></div>
+              <div class="block control c-block">
+                liên tục
+                <div class="c-body">
+                  <div class="block control c-block">
+                    nếu &lt;phím <span class="block-arg">mũi tên phải v</span> được bấm?&gt; thì
+                    <div class="c-body">
+                      <div class="block motion">đặt hướng bằng <span class="block-arg">90</span></div>
+                      <div class="block motion">thay đổi x một lượng <span class="block-arg">10</span></div>
+                    </div>
+                  </div>
+                  <div class="block control c-block">
+                    nếu &lt;phím <span class="block-arg">mũi tên trái v</span> được bấm?&gt; thì
+                    <div class="c-body">
+                      <div class="block motion">đặt hướng bằng <span class="block-arg">-90</span></div>
+                      <div class="block motion">thay đổi x một lượng <span class="block-arg">-10</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">💡 Vì sao dùng cấu trúc này?</p>
+            <ul>
+              <li><strong>Siêu mượt:</strong> Dùng vòng lặp <code>liên tục</code> + <code>nếu &lt;phím được bấm?&gt;</code> giúp nhân vật chạy liền mạch, không bị khựng lại 0.5s như khối sự kiện đơn lẻ!</li>
+              <li><strong>Trục X:</strong> Sang phải là số dương <code>+10</code>, sang trái là số âm <code>-10</code>.</li>
+              <li><strong>Trục Y:</strong> Lên trên là số dương <code>+10</code>, xuống dưới là số âm <code>-10</code>.</li>
+              <li><strong>Tại sao <code>đặt hướng</code> trước rồi mới <code>thay đổi x</code>?</strong> Nếu không đặt hướng, Scratch sẽ nhớ hướng cũ và nhân vật quay mặt sai chiều — ví dụ chạy sang trái nhưng mặt vẫn nhìn sang phải như đang đi lùi!</li>
+            </ul>
+            <div class="tip" style="margin-top:8px;">
+              <span class="tip-icon">⚡</span>
+              <div>Muốn nhân vật chạy nhanh hơn? Tăng số 10 lên 15! Muốn chạy chậm hơn? Giảm xuống 6! Gợi ý: thử <code>thay đổi x một lượng 8</code> cho cảm giác mượt mà và điều khiển dễ nhất.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Bác sĩ Scratch + Minigame vận động Đúng hay Sai -->
+  <section class="slide" data-index="5" aria-label="Bác sĩ Scratch & Minigame">
+    <div class="slide-main">
+      <span class="slide-tag red">🩺 Bác sĩ Scratch &amp; 🏃 Vận động (10 phút)</span>
+      <h2>Chữa Bệnh Rồi Thử Tài: "Đúng Hay Sai?" ⚡🚑</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <div class="clinic-card" style="margin-bottom:8px;">
+              <span class="clinic-badge sick">Bệnh 1: Cắm đầu lộn ngược 🙃</span>
+              <p style="font-size:0.82rem; color:#475569; line-height:1.4;">Rẽ sang trái → nhân vật bị trồng cây chuối!</p>
+              <span class="clinic-badge cure">Phương thuốc</span>
+              <div style="font-size:0.82rem; font-weight:800; color:#15803d;">Thêm <code>đặt kiểu xoay [trái-phải]</code> ngay dưới cờ xanh!</div>
+            </div>
+            <div class="clinic-card" style="margin-bottom:8px;">
+              <span class="clinic-badge sick">Bệnh 2: Bay mất khỏi mép 💨</span>
+              <p style="font-size:0.82rem; color:#475569; line-height:1.4;">Giữ phím → nhân vật bay tuốt ra ngoài sân khấu!</p>
+              <span class="clinic-badge cure">Phương thuốc</span>
+              <div style="font-size:0.82rem; font-weight:800; color:#15803d;">Thêm <code>nếu tiếp xúc với cạnh, bật lại</code> trong vòng lặp!</div>
+            </div>
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 3: Nhảy tưng tưng lệch tâm 🌀</span>
+              <p style="font-size:0.82rem; color:#475569; line-height:1.4;">Đổi hướng → nhân vật nhảy sang chỗ khác kỳ lạ!</p>
+              <span class="clinic-badge cure">Phương thuốc</span>
+              <div style="font-size:0.82rem; font-weight:800; color:#15803d;">Tab Trang phục → Kéo hình căn đúng dấu cộng tâm!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: Luyện tập 1 (LT1) -->
+  <section class="slide" data-index="6" aria-label="Luyện tập 1">
+    <div class="slide-main">
+      <span class="slide-tag green">✍️ Bắt tay vào làm · Phần 1 (15 phút)</span>
+      <h2><span class="th-badge">LT1</span> Dựng Sân Khấu &amp; Tạo Hình Nhân Vật Chính 🎨</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Nhiệm vụ thực hiện trên máy tính</p>
+            <ol>
+              <li>Mở Scratch (online hoặc app Scratch 3).</li>
+              <li>Bấm vào ô tên project ở góc trên ➡️ Đổi thành: <code>[TenGame]_[TenEm]</code>.</li>
+              <li>Chọn biểu tượng <strong>Phông nền (Backdrop)</strong>: chọn cảnh nền đẹp mắt đúng bối cảnh Storyboard đã vẽ.</li>
+              <li>Xóa chú mèo mặc định (nếu game không dùng mèo).</li>
+              <li>Thêm <strong>Sprite Nhân vật chính</strong>: chọn từ thư viện hoặc tự vẽ.</li>
+              <li>Đổi tên Sprite thành tiếng Việt không dấu: <code>NhanVatChinh</code> hoặc <code>PhiHanhGia</code>.</li>
+              <li>Kiểm tra Kích thước (Size): chỉnh về khoảng <strong>60 đến 80</strong> cho vừa mắt.</li>
+            </ol>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Tiêu chuẩn nghiệm thu LT1</p>
+            <ul class="checklist">
+              <li class="checked"><span class="check-icon">✓</span> Project đã đổi tên chính thức</li>
+              <li class="checked"><span class="check-icon">✓</span> Đã có phông nền Backdrop đẹp</li>
+              <li class="checked"><span class="check-icon">✓</span> Nhân vật chính đã xuất hiện</li>
+              <li class="checked"><span class="check-icon">✓</span> Tâm hình căn chính giữa</li>
+              <li class="checked"><span class="check-icon">✓</span> Kích thước vừa vặn trên Stage</li>
+            </ul>
+            <div class="tip" style="margin-top:12px;">
+              <span class="tip-icon">⏱️</span>
+              <div>Hết 15 phút: Dừng vẽ để chuyển sang code di chuyển nhé!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: Luyện tập 2 (LT2) -->
+  <section class="slide" data-index="7" aria-label="Luyện tập 2">
+    <div class="slide-main">
+      <span class="slide-tag green">✍️ Bắt tay vào làm · Phần 2 (15 phút)</span>
+      <h2><span class="th-badge">LT2</span> Lập Trình Di Chuyển &amp; Vị Trí Xuất Phát 🚀</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <p class="section-label" style="margin-top:0;">Lắp ráp các khối lệnh cho Nhân vật chính</p>
+            <ol>
+              <li>Kéo khối <code>khi bấm vào 🏳️</code> từ nhóm Sự kiện.</li>
+              <li>Đặt vị trí bắt đầu: <code>đi tới điểm x: 0 y: -120</code> (hoặc vị trí em muốn).</li>
+              <li>Gắn khối <code>đặt kiểu xoay [trái-phải v]</code> để chống lộn ngược.</li>
+              <li>Lắp vòng lặp <code>liên tục</code> bên dưới.</li>
+              <li>Lắp 2 nhánh điều kiện <code>nếu &lt;phím ... được bấm?&gt; thì</code>:
+                <ul>
+                  <li>Mũi tên phải ➡️ <code>đặt hướng (90)</code> + <code>thay đổi x (10)</code>.</li>
+                  <li>Mũi tên trái ➡️ <code>đặt hướng (-90)</code> + <code>thay đổi x (-10)</code>.</li>
+                </ul>
+              </li>
+              <li>Bấm Cờ xanh và dùng phím thử nghiệm xem nhân vật chạy mượt chưa!</li>
+            </ol>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Tiêu chuẩn nghiệm thu LT2</p>
+            <ul class="checklist">
+              <li class="checked"><span class="check-icon">✓</span> Bấm cờ xanh: nhân vật về đúng vị trí</li>
+              <li class="checked"><span class="check-icon">✓</span> Bấm phím mũi tên: nhân vật di chuyển</li>
+              <li class="checked"><span class="check-icon">✓</span> Quay mặt trái/phải không lộn ngược</li>
+              <li class="checked"><span class="check-icon">✓</span> Tốc độ di chuyển vừa phải, êm ái</li>
+            </ul>
+            <div class="highlight-box green" style="margin-top:10px;">
+              🎉 <strong>Chúc mừng:</strong> Nhân vật của em đã chính thức biết chuyển động!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: Giới thiệu 3 Mức Thử Thách Phân Tầng -->
+  <section class="slide" data-index="8" aria-label="Chọn mức thử thách">
+    <div class="slide-main">
+      <span class="slide-tag orange">🎯 Thử thách phân tầng (30–35 phút)</span>
+      <h2>Em Tự Chọn 1 Trong 3 Mức Nâng Cấp Hệ Thống Di Chuyển ⭐</h2>
+      <div class="slide-body">
+        <div class="highlight-box orange" style="margin-top:0;">
+          Tùy theo thể loại game em chọn ở Buổi 25 (Hứng đồ, Vượt chướng ngại, Đuổi bắt...), hãy chọn 1 mức thử thách phù hợp để nâng cấp hệ thống điều khiển:
+        </div>
+        <div class="cols-3" style="margin-top:12px;">
+          <div class="tier-card tier-a">
+            <div class="tier-icon">🅰️</div>
+            <div class="tier-title">Mức A — Cơ Bản</div>
+            <div class="tier-desc">
+              Dành cho game hứng đồ hoặc nhảy né:<br>
+              <strong>A1:</strong> Di chuyển 2 hướng + Khóa biên<br>
+              <strong>A2:</strong> Chạy ngang + Nhảy né phím Space
+            </div>
+            <div class="tier-code-hint">📌 Dùng: <code>nếu &lt;phím trái&gt;</code> → <code>thay đổi x (-10)</code> + kiểm tra biên x &lt; -210</div>
+          </div>
+          <div class="tier-card tier-b">
+            <div class="tier-icon">🅱️</div>
+            <div class="tier-title">Mức B — Đa Hướng &amp; Hoạt Hình</div>
+            <div class="tier-desc">
+              Dành cho game phiêu lưu / vũ trụ:<br>
+              <strong>B1:</strong> Di chuyển 4 hướng + Chống kẹt mép<br>
+              <strong>B2:</strong> Di chuyển có bước chân hoạt hình
+            </div>
+            <div class="tier-code-hint">📌 Dùng: Thêm nhánh <code>mũi tên lên/xuống</code> → <code>thay đổi y (±10)</code> + <code>trang phục kế tiếp</code></div>
+          </div>
+          <div class="tier-card tier-c">
+            <div class="tier-icon">🅲</div>
+            <div class="tier-title">Mức C — Lướt Chuột &amp; Hiệu Ứng</div>
+            <div class="tier-desc">
+              Dành cho tay lái lụa siêu đẳng:<br>
+              <strong>C1:</strong> Lướt mượt theo con trỏ chuột<br>
+              <strong>C2:</strong> Hiệu ứng khói bụi / vệt sáng đuôi
+            </div>
+            <div class="tier-code-hint">📌 Dùng: <code>lướt trong (0.1) giây tới [con trỏ chuột]</code> hoặc clone trail ghost effect</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: Chi tiết Mức A -->
+  <section class="slide" data-index="9" aria-label="Mức A">
+    <div class="slide-main">
+      <span class="slide-tag green">Thử thách · Mức A (Cơ bản)</span>
+      <h2><span class="th-badge level-a">Mức A</span> Di Chuyển Ngang &amp; Chặn Mép Hoặc Nhảy Né 🛡️</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <div class="card green" style="background:#fff; margin-bottom:10px;">
+              <h3>🅰️1. Game Hứng / Bắt vật (Chặn mép sân khấu)</h3>
+              <p style="font-size:0.86rem; line-height:1.55; color:#334155;">
+                Thêm điều kiện kiểm tra để nhân vật không đi lọt ra ngoài mép:
+                <br>• Nếu <code>tọa độ x &gt; 210</code> ➡️ đặt <code>x = 210</code>.
+                <br>• Nếu <code>tọa độ x &lt; -210</code> ➡️ đặt <code>x = -210</code>.
+              </p>
+            </div>
+            <div class="card green" style="background:#fff;">
+              <h3>🅰️2. Game Vượt rào (Nhảy né bằng phím Space)</h3>
+              <p style="font-size:0.86rem; line-height:1.55; color:#334155;">
+                Nhân vật chạy trên mặt đất, khi bấm <code>phím Space</code> thì nhảy lên:
+                <br>• <code>thay đổi y một lượng 80</code> ➡️ <code>đợi 0.25 giây</code> ➡️ <code>thay đổi y một lượng -80</code>.
+              </p>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Gợi ý mẫu code Nhảy Space</p>
+            <div class="blocks-container" style="font-size:0.82rem;">
+              <div class="block control c-block">
+                nếu &lt;phím <span class="block-arg">khoảng trắng v</span> được bấm?&gt; thì
+                <div class="c-body">
+                  <div class="block motion">thay đổi y một lượng <span class="block-arg">80</span></div>
+                  <div class="block control">đợi <span class="block-arg">0.25</span> giây</div>
+                  <div class="block motion">thay đổi y một lượng <span class="block-arg">-80</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="tip" style="margin-top:8px;">
+              <span class="tip-icon">💡</span>
+              <div>Muốn nhảy cao hơn? Tăng số 80 lên 100!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: Chi tiết Mức B -->
+  <section class="slide" data-index="10" aria-label="Mức B">
+    <div class="slide-main">
+      <span class="slide-tag" style="background:#0284c7;">Thử thách · Mức B (Đa hướng &amp; Hoạt hình)</span>
+      <h2><span class="th-badge level-b">Mức B</span> Di Chuyển 4 Hướng &amp; Hoạt Hình Chân Bước 🏃</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <div class="card" style="background:#fff; margin-bottom:10px;">
+              <h3>🅱️1. Di chuyển 4 hướng (Lên / Xuống / Trái / Phải)</h3>
+              <p style="font-size:0.86rem; line-height:1.55; color:#334155;">
+                • Mũi tên lên ⬆️: <code>thay đổi y một lượng 10</code>.
+                <br>• Mũi tên xuống ⬇️: <code>thay đổi y một lượng -10</code>.
+                <br>• Luôn gắn kèm khối <code>nếu tiếp xúc với cạnh, bật lại</code> trong vòng lặp để chống kẹt ở góc!
+              </p>
+            </div>
+            <div class="card" style="background:#fff;">
+              <h3>🅱️2. Hoạt hình bước chân nhịp nhàng</h3>
+              <p style="font-size:0.86rem; line-height:1.55; color:#334155;">
+                Nhân vật có 2 trang phục (chân co / chân duỗi). Trong mỗi nhánh bấm phím, thêm:
+                <br>• Khối <code>trang phục kế tiếp</code>.
+                <br>• Khối <code>đợi 0.05 giây</code> để bước đi tự nhiên như phim hoạt hình!
+              </p>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Mẹo Costume sinh động</p>
+            <div class="card purple" style="background:#fff;">
+              <p style="font-size:0.86rem; line-height:1.6; color:#4c1d95;">
+                Nếu nhân vật là phi thuyền hoặc cá: Có thể dùng 1 costume xịt khói lửa ở đuôi để đổi qua lại khi bấm phím ga tiến lên! 🚀🔥
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: Chi tiết Mức C -->
+  <section class="slide" data-index="11" aria-label="Mức C">
+    <div class="slide-main">
+      <span class="slide-tag purple">Thử thách · Mức C (Nâng cao)</span>
+      <h2><span class="th-badge level-c">Mức C</span> Lướt Chuột Mượt Mà Hoặc Hiệu Ứng Bụi Khói ✨</h2>
+      <div class="slide-body">
+        <div class="cols cols-60-40">
+          <div>
+            <div class="card purple" style="background:#fff; margin-bottom:10px;">
+              <h3>🅲1. Lái nhân vật lướt theo con trỏ chuột</h3>
+              <p style="font-size:0.86rem; line-height:1.55; color:#334155;">
+                Thay vì dùng phím bấm, nhân vật lướt theo bàn tay chuột của em:
+                <br>• Khối: <code>lướt trong (0.1) giây tới [con trỏ chuột v]</code> (êm ái, không giật).
+                <br>• Hoặc: <code>hướng về phía [con trỏ chuột]</code> + <code>di chuyển (6) bước</code>.
+              </p>
+            </div>
+            <div class="card purple" style="background:#fff;">
+              <h3>🅲2. Hiệu ứng khói bụi / Vệt sáng đuôi (Clone Trail)</h3>
+              <p style="font-size:0.86rem; line-height:1.55; color:#334155;">
+                Mỗi khi nhân vật di chuyển:
+                <br>• Gọi <code>tạo bản sao của [tôi]</code>.
+                <br>• Ở khối bản sao: <code>lặp lại (5) lần</code> ➡️ <code>thay đổi hiệu ứng [bóng ma] một lượng (20)</code> ➡️ <code>xóa bản sao này</code>!
+              </p>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Minh họa hiệu ứng</p>
+            <div class="highlight-box purple" style="font-size:0.86rem;">
+              🌟 Game của em sẽ trông như siêu phẩm phòng vé với vệt sáng lấp lánh để lại phía sau mỗi bước chạy!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Đấu trường Quiz kiểm tra nhanh -->
+  <section class="slide" data-index="12" aria-label="Đấu trường Quiz">
+    <div class="slide-main">
+      <span class="slide-tag purple">🏆 Đấu trường Quiz (5 phút củng cố)</span>
+      <h2>Thử Tài Kỹ Sư Lập Trình Vận Hành Nhân Vật 🧠</h2>
+      <div class="slide-body">
+        <div class="quiz-arena">
+          <div class="quiz-header">
+            <span id="quizProgressText">Câu hỏi 1 / 5</span>
+            <span id="quizScoreText" style="color:var(--scratch-orange); font-weight:900;">⭐ Điểm: 0</span>
+          </div>
+          <div class="quiz-question-box" id="quizQuestion">
+            1. Trục nào trong Scratch điều khiển nhân vật di chuyển Sang Trái và Sang Phải?
+          </div>
+          <div class="quiz-options" id="quizOptions">
+            <!-- Render options via JS -->
+          </div>
+          <div class="quiz-explain" id="quizExplain">
+            <!-- Explain shown on select -->
+          </div>
+          <div class="quiz-nav-row">
+            <button class="btn-quiz-next" id="btnQuizNext">Câu tiếp theo ➡️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 14: Tổng kết & Chuẩn bị Buổi 29 -->
+  <section class="slide title-slide" data-index="13" aria-label="Tổng kết">
+    <div class="slide-main">
+      <div class="title-emoji">🎉🏁</div>
+      <h2 style="font-size:1.85rem; margin-bottom:10px;">Hoàn Thành Xuất Sắc Buổi 28! 🚀</h2>
+      <div class="highlight-box green" style="max-width:740px; text-align:left; margin-bottom:10px;">
+        🌟 <strong>Thành tựu lập trình hôm nay của Em:</strong>
+        <ul style="margin-top:4px;">
+          <li>✅ Đã tạo project game chính thức mang tên mình trên Scratch.</li>
+          <li>✅ Sân khấu và nhân vật chính đã sẵn sàng với trang phục chuẩn tâm.</li>
+          <li>✅ Nhân vật luôn xuất phát đúng vị trí và di chuyển mượt mà!</li>
+        </ul>
+      </div>
+      <div class="card" style="max-width:740px; text-align:left; background:#fff; border:2px solid var(--scratch-orange); margin-bottom:10px;">
+        <h3 style="color:var(--scratch-orange);">🔮 Bật mí Tuần 15 (Buổi 29):</h3>
+        <p style="font-size:0.9rem; font-weight:700; color:#1e293b; line-height:1.55;">
+          Em sẽ thổi hồn vào game bằng kỹ thuật <strong>Bản sao (Clone)</strong>: Vật phẩm và chướng ngại vật sẽ tự động rơi từ trên trời xuống để nhân vật của em hứng lấy hoặc né tránh! 🍎☄️
+        </p>
+      </div>
+      <p style="margin-top:6px; font-size:1rem; color:var(--scratch-blue); font-weight:900;">
+        Nhớ bấm "Tập tin ➡️ Lưu về máy tính" để bảo vệ thành quả nhé! 💾
+      </p>
+    </div>
+  </section>
+
+  <!-- Slide 15: Ghi chú cho giáo viên -->
+  <section class="slide" data-index="14" aria-label="Ghi chú giáo viên">
+    <div class="slide-main">
+      <span class="slide-tag red">👩‍🏫 Dành cho Giáo viên</span>
+      <h2>Chiến Lược Sư Phạm &amp; Quản Trị Lớp Buổi 28 🍎</h2>
+      <div class="slide-body">
+        <div class="cols">
+          <div class="card">
+            <h3>⚡ Hỗ trợ học sinh theo nhịp độ</h3>
+            <ul style="font-size:0.85rem; line-height:1.6; margin-top:4px;">
+              <li><strong>Học sinh thao tác chậm:</strong> Ưu tiên hoàn thành 2 phím Trái/Phải trước (Mức A), dùng sprite có sẵn trong thư viện để tiết kiệm thời gian vẽ hình.</li>
+              <li><strong>Học sinh xong sớm:</strong> Khuyến khích thử thách Mức C (lướt chuột, làm vệt sáng đuôi) hoặc hỗ trợ bạn cạnh bàn kiểm tra lỗi lộn ngược đầu.</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>🩺 Trọng điểm gỡ lỗi (Debugging)</h3>
+            <ul style="font-size:0.85rem; line-height:1.6; margin-top:4px;">
+              <li>Lỗi phổ biến nhất: Quên khối <code>đặt kiểu xoay [trái-phải]</code> khiến nhân vật bị lộn ngược khi quay sang trái.</li>
+              <li>Nhắc nhở học sinh lưu file định kỳ: cứ 15 phút nhắc cả lớp bấm <code>Ctrl + S</code> hoặc kiểm tra trạng thái lưu online.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card purple" style="margin-top:10px;">
+          <h3 style="margin-bottom:4px;">⏱️ Phân bổ thời gian gợi ý (90 phút):</h3>
+          <p style="font-size:0.85rem; line-height:1.55; color:#4c1d95; font-weight:700;">
+            • 00–05p: Khởi động &amp; Mảnh ghép xuất phát (Slide 1–3)<br>
+            • 05–20p: 4 Bước Khởi tạo &amp; Bộ khối Di chuyển &amp; Bác sĩ Scratch (Slide 4–6)<br>
+            • 20–35p: Thực hành LT1: Dựng sân khấu &amp; Nhân vật chính (Slide 7)<br>
+            • 35–50p: Thực hành LT2: Code xuất phát &amp; Di chuyển cơ bản (Slide 8)<br>
+            • 50–80p: Làm bài thử thách phân tầng Mức A / B / C (Slide 9–12)<br>
+            • 80–85p: Đấu trường Quiz củng cố nhanh (Slide 13)<br>
+            • 85–90p: Tự kiểm tra, Lưu file &amp; Tổng kết dặn dò (Slide 14–15)
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 15</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Phím cách · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+
+<script>
+  /* --- Deck Navigation Core --- */
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let hasNavigated = false;
+
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
+
+  function buildDots() {
+    const template = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+    document.getElementById('dots').innerHTML = template;
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.toggle('active', Number(dot.dataset.goto) === current);
+    });
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) {
+      hasNavigated = true;
+      document.body.classList.add('presenting');
+    }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1
+      ? '· Scratch'
+      : '· Tuần 14 Buổi 28';
+    updateDots();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, .warmup-btn, .quiz-opt-btn, code, .global-topbar, .nav, .warmup-box, .quiz-arena')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') {
+      if (e.target.tagName !== 'BUTTON') { e.preventDefault(); next(); }
+    }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  /* Fullscreen */
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+  function toggleFullscreen() {
+    if (isFullscreen()) exitFullscreen();
+    else enterFullscreen();
+  }
+  function enterFullscreen() {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  }
+  function exitFullscreen() {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+  function onFullscreenChange() {
+    document.body.classList.toggle('is-fullscreen', isFullscreen());
+  }
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+  document.getElementById('btnFullscreen').addEventListener('click', e => { e.stopPropagation(); toggleFullscreen(); });
+  document.getElementById('btnExitFs').addEventListener('click', e => { e.stopPropagation(); exitFullscreen(); });
+
+  /* Touch Swiping */
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1));
+  }, { passive: true });
+
+  /* --- INTERACTIVE COMPONENT 1: Warmup Puzzle Match --- */
+  const warmupQuestions = [
+    {
+      q: '🎮 Khối nào đặt nhân vật về đúng vị trí khi bấm cờ xanh?',
+      opts: ['đi tới điểm x: 0 y: -120', 'lặp lại 10 lần', 'nếu tiếp xúc với cạnh, bật lại'],
+      ans: 0,
+      explain: 'Đúng! "đi tới điểm x: 0 y: -120" đặt nhân vật chính giữa đáy màn hình mỗi khi bắt đầu game!'
+    },
+    {
+      q: '🔄 Trang phục (costume) cần được căn chỉnh vào đâu để nhân vật không bị lệch khi xoay?',
+      opts: ['Góc trên bên trái của khung', 'Chính giữa — dấu cộng (+) tâm', 'Vị trí bất kỳ cũng được'],
+      ans: 1,
+      explain: 'Chuẩn! Dấu cộng tâm chính là điểm neo (x, y) của nhân vật. Lệch tâm = nhảy lung tung!'
+    },
+    {
+      q: '⚡ Cách nào giúp nhân vật di chuyển MƯỢT MÀ nhất, không bị giật cục?',
+      opts: ['Dùng [khi bấm phím mũi tên →]', 'Dùng [liên tục] + [nếu <phím được bấm?>]', 'Dùng [đợi 0.5 giây] giữa mỗi bước'],
+      ans: 1,
+      explain: 'Xuất sắc! Vòng lặp "liên tục" quét phím mỗi khung hình → mượt mà, không độ trễ 0.5s!'
+    }
+  ];
+
+  let currentWarmupIdx = 0;
+  const warmupQ = document.getElementById('warmupQ');
+  const warmupGrid = document.getElementById('warmupGrid');
+  const warmupFeedback = document.getElementById('warmupFeedback');
+
+  function renderWarmup() {
+    const data = warmupQuestions[currentWarmupIdx];
+    warmupQ.textContent = `Câu ${currentWarmupIdx + 1}: "${data.q}"`;
+    warmupFeedback.textContent = 'Hãy click chọn đáp án đúng nhất!';
+    warmupFeedback.style.color = '#334155';
+    warmupGrid.innerHTML = data.opts.map((opt, i) => `
+      <button class="warmup-btn" data-idx="${i}">
+        <span>${['A', 'B', 'C'][i]}</span>
+        <span>${opt}</span>
+      </button>
+    `).join('');
+
+    warmupGrid.querySelectorAll('.warmup-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const chosen = Number(btn.dataset.idx);
+        const correct = chosen === data.ans;
+        warmupGrid.querySelectorAll('.warmup-btn').forEach((b, i) => {
+          b.disabled = true;
+          if (i === data.ans) b.classList.add('correct');
+          else if (i === chosen) b.classList.add('wrong');
+        });
+
+        if (correct) {
+          warmupFeedback.innerHTML = `<span style="color:#16a34a; font-weight:800;">🎉 CHÍNH XÁC! ${data.explain}</span>`;
+        } else {
+          warmupFeedback.innerHTML = `<span style="color:#dc2626; font-weight:800;">💡 Chưa đúng rồi! ${data.explain}</span>`;
+        }
+
+        setTimeout(() => {
+          currentWarmupIdx = (currentWarmupIdx + 1) % warmupQuestions.length;
+          renderWarmup();
+        }, 1600);
+      });
+    });
+  }
+  renderWarmup();
+
+  /* --- INTERACTIVE COMPONENT: Win/Lose Arena (Minigame vận động) --- */
+  const arenaScenarios = [
+    { emoji: '🙃', text: 'Nhân vật rẽ sang trái bị lộn ngược đầu xuống đất!', sub: 'Đây là lỗi hay bình thường?', answer: false, explain: '❌ SAI! Đây là BUG. Cần thêm khối "đặt kiểu xoay [trái-phải]" để sửa!' },
+    { emoji: '✅', text: 'Bấm cờ xanh → nhân vật xuất hiện đúng ở chính giữa đáy.', sub: 'Code đúng hay sai?', answer: true, explain: '✅ ĐÚNG! Đây là kết quả của "đi tới điểm x: 0 y: -120" — chuẩn chỉnh!' },
+    { emoji: '🚀', text: 'Nhân vật dùng "liên tục + nếu phím được bấm" để di chuyển mượt.', sub: 'Kỹ thuật này có đúng không?', answer: true, explain: '✅ ĐÚNG! Đây là cách di chuyển chuẩn nhất, không bị giật cục 0.5 giây!' },
+    { emoji: '💨', text: 'Học sinh giữ phím → nhân vật bay hẳn ra ngoài màn hình không về được!', sub: 'Đây là trạng thái game tốt hay lỗi?', answer: false, explain: '❌ SAI! Đây là lỗi. Cần thêm "nếu tiếp xúc với cạnh, bật lại" trong vòng lặp!' },
+    { emoji: '🌀', text: 'Mỗi lần đổi hướng, nhân vật nhảy lệch sang vị trí khác bất thường.', sub: 'Vì sao vậy?', answer: false, explain: '❌ SAI! Đây là lỗi lệch tâm costume. Cần căn hình vào dấu cộng trong tab Trang phục!' },
+    { emoji: '🎯', text: 'Nhân vật luôn ở x: 0, y: -120 khi khởi động game mới.', sub: 'Đây có phải thiết kế tốt không?', answer: true, explain: '✅ ĐÚNG! Vị trí xuất phát cố định giúp game dễ kiểm soát và công bằng!' }
+  ];
+
+  let arenaIdx = 0;
+  let arenaStreak = 0;
+  let arenaAnswered = false;
+
+  const arenaScenarioEl = document.getElementById('arenaScenario');
+  const arenaEmojiEl = document.getElementById('arenaEmoji');
+  const arenaTextEl = document.getElementById('arenaText');
+  const arenaSubEl = document.getElementById('arenaSub');
+  const arenaFeedbackEl = document.getElementById('arenaFeedback');
+  const arenaStreakEl = document.getElementById('arenaStreak');
+  const btnArenaTrue = document.getElementById('btnArenaTrue');
+  const btnArenaFalse = document.getElementById('btnArenaFalse');
+
+  function loadArenaScenario() {
+    if (!arenaScenarioEl) return;
+    arenaAnswered = false;
+    btnArenaTrue.disabled = false;
+    btnArenaFalse.disabled = false;
+    btnArenaTrue.classList.remove('correct-glow', 'wrong-glow');
+    btnArenaFalse.classList.remove('correct-glow', 'wrong-glow');
+    const s = arenaScenarios[arenaIdx % arenaScenarios.length];
+    arenaEmojiEl.textContent = s.emoji;
+    arenaTextEl.textContent = s.text;
+    arenaSubEl.textContent = s.sub;
+    arenaFeedbackEl.textContent = 'Cả lớp cùng thực hiện động tác trước khi bấm kiểm tra!';
+    arenaFeedbackEl.style.color = '#475569';
+    arenaScenarioEl.classList.add('pop');
+    setTimeout(() => arenaScenarioEl.classList.remove('pop'), 300);
+  }
+
+  function handleArena(chosen) {
+    if (arenaAnswered) return;
+    arenaAnswered = true;
+    const s = arenaScenarios[arenaIdx % arenaScenarios.length];
+    const correct = chosen === s.answer;
+    btnArenaTrue.disabled = true;
+    btnArenaFalse.disabled = true;
+    if (correct) {
+      arenaStreak++;
+      arenaStreakEl.textContent = `🔥 ${arenaStreak} chuỗi`;
+      const btn = chosen ? btnArenaTrue : btnArenaFalse;
+      btn.classList.add('correct-glow');
+      arenaFeedbackEl.innerHTML = `<span style="color:#15803d;">🎉 CHÍNH XÁC! ${s.explain}</span>`;
+    } else {
+      arenaStreak = 0;
+      arenaStreakEl.textContent = `🔥 0 chuỗi`;
+      const btn = chosen ? btnArenaTrue : btnArenaFalse;
+      btn.classList.add('wrong-glow');
+      arenaFeedbackEl.innerHTML = `<span style="color:#dc2626;">💡 Chưa đúng! ${s.explain}</span>`;
+    }
+    setTimeout(() => {
+      arenaIdx++;
+      loadArenaScenario();
+    }, 2000);
+  }
+
+  if (btnArenaTrue) btnArenaTrue.addEventListener('click', e => { e.stopPropagation(); handleArena(true); });
+  if (btnArenaFalse) btnArenaFalse.addEventListener('click', e => { e.stopPropagation(); handleArena(false); });
+  loadArenaScenario();
+
+  /* --- INTERACTIVE COMPONENT 2: Quiz Arena --- */
+  const quizQuestions = [
+    {
+      q: '1. Trục nào trong Scratch điều khiển nhân vật di chuyển Sang Trái và Sang Phải?',
+      opts: [
+        'Trục Y (thẳng đứng)',
+        'Trục X (nằm ngang)',
+        'Trục Z (chiều sâu)',
+        'Cả hai trục X và Y'
+      ],
+      ans: 1,
+      explain: 'Chính xác! Trục X là trục nằm ngang (Trái là âm, Phải là dương).'
+    },
+    {
+      q: '2. Vì sao nên dùng vòng lặp [liên tục] + [nếu <phím được bấm?>] thay vì [khi bấm phím ...]?',
+      opts: [
+        'Để nhân vật chạy nhanh gấp 100 lần',
+        'Để di chuyển mượt mà liên tục, không bị khựng giật cục 0.5 giây',
+        'Vì Scratch không cho dùng khối khi bấm phím',
+        'Để tiết kiệm dung lượng file dự án'
+      ],
+      ans: 1,
+      explain: 'Đúng rồi! Vòng lặp liên tục quét phím liên tục mỗi khung hình, giúp nhân vật lướt mượt mà không độ trễ.'
+    },
+    {
+      q: '3. Muốn nhân vật KHÔNG bị bay mất ra ngoài mép sân khấu khi giữ phím quá lâu, ta dùng khối nào?',
+      opts: [
+        'nếu tiếp xúc với cạnh, bật lại',
+        'ẩn',
+        'dừng lại [tất cả]',
+        'đổi phông nền tiếp theo'
+      ],
+      ans: 0,
+      explain: 'Tuyệt vời! Khối "nếu tiếp xúc với cạnh, bật lại" (hoặc giới hạn tọa độ x, y) giữ nhân vật luôn trong tầm mắt.'
+    },
+    {
+      q: '4. Khi vẽ hoặc chỉnh sửa trang phục (costume), vì sao phải kéo hình vào chính giữa dấu cộng tâm?',
+      opts: [
+        'Để hình vẽ tự động đổi sang màu đẹp hơn',
+        'Để khi xoay hướng hoặc đặt tọa độ, nhân vật không bị lệch tâm nhảy tưng tưng',
+        'Vì nếu không căn tâm Scratch sẽ báo lỗi không lưu được',
+        'Để nhân vật tự động biết chạy'
+      ],
+      ans: 1,
+      explain: 'Chuẩn xác! Tâm costume chính là điểm neo tọa độ (x, y) của nhân vật trên sân khấu.'
+    },
+    {
+      q: '5. Để cho nhân vật nhảy lên rồi rơi xuống trong game vượt chướng ngại, chuỗi khối nào là đúng?',
+      opts: [
+        'thay đổi x (50) rồi thay đổi y (50)',
+        'thay đổi y (80) ➡️ đợi 0.25 giây ➡️ thay đổi y (-80)',
+        'ẩn ➡️ đợi 1 giây ➡️ hiện',
+        'xoay phải 360 độ'
+      ],
+      ans: 1,
+      explain: 'Xuất sắc! Tăng y (+80) giúp nhân vật bay lên, đợi một chút trên không rồi giảm y (-80) để đáp đất an toàn!'
+    }
+  ];
+
+  let currentQuizIdx = 0;
+  let quizScore = 0;
+  let quizAnswered = false;
+
+  const quizProgressText = document.getElementById('quizProgressText');
+  const quizScoreText = document.getElementById('quizScoreText');
+  const quizQuestion = document.getElementById('quizQuestion');
+  const quizOptions = document.getElementById('quizOptions');
+  const quizExplain = document.getElementById('quizExplain');
+  const btnQuizNext = document.getElementById('btnQuizNext');
+
+  function renderQuizQuestion() {
+    quizAnswered = false;
+    const qData = quizQuestions[currentQuizIdx];
+    quizProgressText.textContent = `Câu hỏi ${currentQuizIdx + 1} / ${quizQuestions.length}`;
+    quizQuestion.textContent = qData.q;
+    quizExplain.className = 'quiz-explain';
+    quizExplain.textContent = '';
+    btnQuizNext.className = 'btn-quiz-next';
+
+    const letters = ['A', 'B', 'C', 'D'];
+    quizOptions.innerHTML = qData.opts.map((opt, i) => `
+      <button class="quiz-opt-btn" data-opt="${i}">
+        <span class="quiz-opt-badge">${letters[i]}</span>
+        <span>${opt}</span>
+      </button>
+    `).join('');
+
+    quizOptions.querySelectorAll('.quiz-opt-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (quizAnswered) return;
+        handleQuizSelect(Number(btn.dataset.opt));
+      });
+    });
+  }
+
+  function handleQuizSelect(selectedIdx) {
+    quizAnswered = true;
+    const qData = quizQuestions[currentQuizIdx];
+    const isCorrect = selectedIdx === qData.ans;
+
+    const buttons = quizOptions.querySelectorAll('.quiz-opt-btn');
+    buttons.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === qData.ans) btn.classList.add('correct');
+      else if (i === selectedIdx) btn.classList.add('wrong');
+    });
+
+    if (isCorrect) {
+      quizScore += 20;
+      quizScoreText.textContent = `⭐ Điểm: ${quizScore}`;
+      quizExplain.innerHTML = `🎉 <strong>Chính xác!</strong> ${qData.explain}`;
+    } else {
+      quizExplain.innerHTML = `💡 <strong>Chưa chính xác!</strong> ${qData.explain}`;
+    }
+    quizExplain.classList.add('show');
+
+    if (currentQuizIdx < quizQuestions.length - 1) {
+      btnQuizNext.textContent = 'Câu tiếp theo ➡️';
+    } else {
+      btnQuizNext.textContent = 'Xem kết quả chung cuộc 🏆';
+    }
+    btnQuizNext.classList.add('show');
+  }
+
+  btnQuizNext.addEventListener('click', e => {
+    e.stopPropagation();
+    if (currentQuizIdx < quizQuestions.length - 1) {
+      currentQuizIdx++;
+      renderQuizQuestion();
+    } else {
+      quizQuestion.innerHTML = `🎉 Hoàn thành Đấu trường Quiz Buổi 28! Điểm của em: <strong>${quizScore} / 100</strong>!`;
+      quizOptions.innerHTML = `
+        <div style="grid-column: span 2; background:#f0fdf4; border:2px solid #22c55e; border-radius:14px; padding:18px; text-align:center;">
+          <div style="font-size:2.8rem; margin-bottom:6px;">🏆🕹️</div>
+          <h3 style="color:#15803d; font-size:1.2rem; margin-bottom:6px;">DANH HIỆU: BẬC THẦY ĐIỀU KHIỂN NHÂN VẬT!</h3>
+          <p style="font-size:0.95rem; font-weight:700; color:#166534;">
+            Em đã nắm vững quy luật tọa độ X-Y, kỹ thuật khóa hướng xoay và xử lý biên màn hình. Nhân vật của em đã sẵn sàng để đón nhận các thử thách gameplay ở tuần sau!
+          </p>
+        </div>
+      `;
+      quizExplain.className = 'quiz-explain';
+      btnQuizNext.className = 'btn-quiz-next';
+    }
+  });
+
+  renderQuizQuestion();
+
+  /* --- Slide Initialization --- */
+  buildDots();
+  slides.forEach((s, i) => {
+    s.setAttribute('aria-hidden', i !== 0);
+    if (i === 0) s.classList.add('active');
+    else s.classList.add('next');
+  });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
+</html>

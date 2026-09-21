@@ -40,8 +40,8 @@
 | **Nội dung cơ bản (1)** | 1–4 | Làm quen Scratch, di chuyển, hoạt hình, điều khiển bằng phím |
 | **Nội dung cơ bản (2)** | 5–8 | Âm thanh, cảm biến, vòng lặp, điều kiện, biến |
 | **Logic nâng cao** | 9–12 | Biến phức tạp, broadcast, clone, My Blocks |
-| **Dự án game (1 màn)** | 13–16 | Lên kế hoạch → làm game → thuyết trình |
-| **Kỹ thuật nâng cao** | 17–20 | Danh sách, trọng lực & platformer, hiệu ứng & Pen |
+| **Dự án game (1 màn)** | 13–17 | Lên kế hoạch → code thực chiến → sửa lỗi kỹ lưỡng → Showcase (Buổi 34) |
+| **Kỹ thuật nâng cao** | 17–20 | Danh sách & Bảng điểm cao, trọng lực & platformer, hiệu ứng & Pen |
 | **Dự án lớn & Xuất bản** | 21–24 | Game nhiều màn → tối ưu/debug → xuất bản → thuyết trình cuối khóa |
 
 ---
@@ -129,14 +129,14 @@ Mỗi buổi Học còn có mục "Ghi chú cho giáo viên" (kịch bản demo,
 | 12 | 24 | BT | Game mini hoàn chỉnh | A1/A2: Refactor / gameOver block — B1/B2: Sửa lỗi / Sửa lỗi #4 — C1/C2: Game đầy đủ / Remix |
 | 13 | 25 | H | Ý tưởng game | TH: Brainstorm, chọn thể loại — LT: Viết luật chơi, phác ý tưởng |
 | 13 | 26 | BT | Storyboard | A1/A2: 4 khung đuổi / 4 khung tránh — B1/B2: 5 khung bắn / 5 khung bắt — C1/C2: 6 khung quiz / 6 khung platformer |
-| 14 | 27 | H | Kế hoạch kỹ thuật | TH: Liệt kê sprite, khối — LT: Checklist 8 mục, phác sprite |
-| 14 | 28 | BT | Hoàn thiện kế hoạch | A1/A2: Checklist 8 / Checklist 6 — B1/B2: Sprite-khối / Sprite-âm thanh — C1/C2: Đầy đủ / 2 sprite phác |
-| 15 | 29 | H | Code gameplay chính | TH: Điều khiển + 1 cơ chế — LT: Thêm điểm hoặc điều kiện thắng |
-| 15 | 30 | BT | Làm game (50%) | A1/A2: Điều khiển+va chạm / tương tác — B1/B2: Điểm / hiển thị — C1/C2: Start/Over / âm thanh |
-| 16 | 31 | H | Hoàn thiện & luyện nói | TH: Polish checklist, sửa bug — LT: Luyện thuyết trình |
-| 16 | 32 | Showcase | Thuyết trình | Em trình bày game 2–3 phút trước lớp |
-| 17 | 33 | H | Danh sách (List) | TH: Sổ điểm danh, máy bốc thăm — LT: Thực đơn quán ăn, bảng điểm cao |
-| 17 | 34 | BT | Luyện Danh sách | A1/A2: Điểm danh CLB / Kho đồ thám hiểm — B1/B2: Quiz bốc câu / Máy gợi ý trò chơi — C1/C2: Bảng xếp hạng / Ghi nhớ chuỗi màu |
+| 14 | 27 | H | Kế hoạch kỹ thuật | TH: Liệt kê sprite, khối lệnh cốt lõi & biến số |
+| 14 | 28 | BT | Bắt tay vào làm: Setup & Di chuyển | LT: Dựng Backdrop & Sprite — A1/A2: Di chuyển 2 hướng — B1/B2: 4 hướng + bước đi — C1/C2: Chuột / Lướt mượt mà |
+| 15 | 29 | H | Tương tác & Bản sao (Clone) | TH: Vật phẩm rơi liên tục (Clone), cảm biến va chạm `touching` |
+| 15 | 30 | BT | Điểm, Mạng & Luật Thắng/Thua | LT: Tạo biến số — A1/A2: Tăng điểm khi chạm — B1/B2: Giảm mạng + Game Over — C1/C2: Thắng & Thua hoàn chỉnh |
+| 16 | 31 | H | Giao diện, Âm thanh & Debug | TH: Nút Start/Play, màn hình kết thúc, âm thanh, gỡ 3 lỗi logic lớn |
+| 16 | 32 | BT | Playtest & Sửa lỗi toàn diện | LT: Phiếu bắt lỗi — A1/A2: Sửa lỗi hiển thị — B1/B2: Sửa lỗi va chạm/điểm — C1/C2: Tối ưu mượt mà |
+| 17 | 33 | H | Polish & Bảng Điểm cao (List) | TH: Tút tát game, ứng dụng Danh sách (List) làm Bảng kỷ lục điểm cao |
+| 17 | 34 | Showcase | Đại hội Thuyết trình Showcase | Em tự tin trình bày và demo game hoàn chỉnh 2–3 phút trước lớp |
 | 18 | 35 | H | Trọng lực & vận tốc | TH: Quả táo rơi, nhân vật biết nhảy — LT: (tiếp tục ở buổi 36) |
 | 18 | 36 | BT | Luyện Trọng lực | A1/A2: Banh tennis nảy / Chim vỗ cánh — B1/B2: Nhảy vượt chướng ngại / Bậc thang lên núi — C1/C2: Game 3 mạng / Leo tháp |
 | 19 | 37 | H | Platformer | TH: Đứng vững trên bệ, màn chơi mini — LT: (tiếp tục ở buổi 38) |
