@@ -61,12 +61,15 @@ Nhằm tạo sự hứng khởi và tương tác tối đa cho lớp học, mỗ
 
 1. **🎬 Khởi động tương tác:** Câu hỏi gợi mở, khảo sát ý kiến hoặc mini-game thảo luận.
 2. **🌌 Trưng bày chủ đề / Trực quan hóa kiến thức:** Thẻ phân loại trực quan (ví dụ: Kho tàng 6 vũ trụ chủ đề).
-3. **🎰 Công cụ sáng tạo ngẫu nhiên (Slot Machine / Idea Generator):**
+3. **🎰 Công cụ sáng tạo ngẫu nhiên (Slot Machine / Idea Generator) — TÙY CHỌN, không bắt buộc mọi buổi:**
    - Bộ 3 guồng quay ngẫu nhiên (Bối cảnh x Nhân vật x Nhiệm vụ).
    - Animation quay số cuốn hút, có nút bấm gợi ý độc lạ cho học sinh bí ý tưởng.
-4. **🏃 Minigame vận động / Phản xạ ("Thắng hay Thua?" hoặc "Đúng hay Sai?"):**
-   - Trò chơi giải lao vận động kết hợp ôn kiến thức: Học sinh đứng lên / ngồi xuống / giơ tay theo tình huống trên bảng.
-   - Nút bấm kiểm tra trên slide có animation phản hồi visual (rung lắc khi sai, nảy nở khi đúng, đếm chuỗi streak).
+   - Chỉ thêm khi buổi học thực sự cần gợi mở ý tưởng mới (ví dụ: buổi khởi động dự án, buổi brainstorm). Với các buổi ở pha "làm game" khi ý tưởng đã chốt từ trước (ví dụ chuỗi buổi từ Tuần 13 trở đi), có thể bỏ qua và thay bằng slide demo kỹ thuật / trực quan hóa khối lệnh phù hợp hơn.
+4. **⚡ Minigame tương tác nhanh ("Thắng hay Thua?" hoặc "Đúng hay Sai?"):**
+   - Trò chơi phản xạ tương tác thuần kỹ thuật số: Học sinh click trực tiếp nút **ĐÚNG** hoặc **SAI** trên slide để trả lời từng tình huống.
+   - **KHÔNG** dùng vận động thể chất (đứng lên / ngồi xuống / giơ tay) — thay bằng click nút và phản hồi animation visual tức thì.
+   - Phản hồi: rung lắc `shake` khi sai, nảy nở `bounce` / glow khi đúng, đếm chuỗi streak liên tiếp để tạo hứng khởi.
+   - **Sau mỗi câu trả lời:** hiện nút **"Câu tiếp theo ➡️"** — KHÔNG tự động chuyển câu. Giáo viên bấm nút này sau khi đã giải thích và cho học sinh hỏi xong.
 5. **🏆 Đấu trường Quiz trắc nghiệm tương tác:**
    - 5 câu hỏi A/B/C/D click chọn trực tiếp.
    - Phản hồi màu sắc xanh lá / đỏ, hiện lời giải thích cặn kẽ ngay bên dưới, chấm điểm tự động và trao cúp vinh danh.
@@ -101,3 +104,4 @@ Nhằm tạo sự hứng khởi và tương tác tối đa cho lớp học, mỗ
 - [ ] Phím tắt hoạt động mượt: `←`, `→`, Phím cách, `Home`, `End`, `F` (Fullscreen), `Esc`.
 - [ ] Không có lỗi cú pháp JavaScript trong console (`vm.Script` check pass).
 - [ ] Responsive tốt trên laptop (1366x768, 1920x1080) và màn hình cảm ứng.
+- [ ] Mọi header `.c-block` có điều kiện (`nếu <...> thì`, `lặp lại cho đến khi <...>`, ...) trộn text với `<span class="block-arg">` đều được bọc trong `<span class="block-head">...</span>` duy nhất — nếu không, flexbox cột sẽ tách text/span thành các dòng riêng và vỡ layout khối lệnh. Xem chi tiết & ví dụ đúng/sai trong `create-scratch-slide/SKILL.md` mục 3.1. Đã render thử (headless hoặc trình duyệt) và soi ảnh chụp từng slide có khối lệnh điều kiện để xác nhận không bị vỡ dòng trước khi báo hoàn thành.

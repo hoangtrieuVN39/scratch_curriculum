@@ -64,6 +64,33 @@ Tạo file HTML **một file tự chứa 100%** (CSS + JS inline), phong cách S
 </div>
 ```
 
+#### ⚠️ Cạm bẫy bắt buộc tránh: header `.c-block` có điều kiện (`nếu <...> thì`, `lặp lại cho đến khi <...>`)
+
+`.block.c-block` dùng `display:flex; flex-direction:column` để xếp dòng tiêu đề lên trên `.c-body`. Nếu dòng tiêu đề là **text thuần** (ví dụ `liên tục`) thì không sao — nhưng nếu tiêu đề **trộn text với `<span class="block-arg">`** (mọi khối điều kiện: `nếu <đang chạm [Sprite]?> thì`, `lặp lại cho đến khi <y < -160>`...), flexbox sẽ tách mỗi đoạn text/span thành **flex item riêng** và mỗi cái rớt xuống một dòng — vỡ layout, chữ dồn cục. Đây là lỗi đã xảy ra thật ở nhiều slide trước (buổi 28, buổi 29 bản đầu).
+
+**Luật bắt buộc:** Bất cứ khi nào header của `.c-block` chứa `<span class="block-arg">` xen giữa text, PHẢI bọc **toàn bộ dòng tiêu đề** (text + span + text) trong **một phần tử `<span class="block-head">` duy nhất** để nó chỉ là 1 flex item:
+
+```html
+<!-- ❌ SAI — vỡ thành 3 dòng vì flex-column tách text/span/text thành 3 flex item -->
+<div class="block control c-block">
+  nếu &lt;đang chạm <span class="block-arg">PhiHanhGia v</span>?&gt; thì
+  <div class="c-body">...</div>
+</div>
+
+<!-- ✅ ĐÚNG — bọc trong .block-head để cả dòng là 1 flex item duy nhất -->
+<div class="block control c-block">
+  <span class="block-head">nếu &lt;đang chạm <span class="block-arg">PhiHanhGia v</span>?&gt; thì</span>
+  <div class="c-body">...</div>
+</div>
+```
+
+CSS cần có sẵn trong `<style>` (copy nguyên nếu file chưa có):
+```css
+.block-head { display: block; }
+```
+
+Áp dụng quy tắc này cho MỌI header `.c-block` có điều kiện: `nếu <...> thì`, `nếu <...> thì ... nếu không thì`, `lặp lại cho đến khi <...>`, `đợi cho đến khi <...>`, v.v. Header thuần text như `liên tục`, `lặp lại (10) lần` không cần bọc (không có span xen giữa) nhưng bọc `.block-head` vẫn an toàn và không hại gì — có thể bọc mặc định cho mọi header `.c-block` để khỏi phải nhớ phân biệt.
+
 ### 3.2. Vòng quay Ý tưởng (Slot Machine)
 ```html
 <div class="slot-machine-container">
