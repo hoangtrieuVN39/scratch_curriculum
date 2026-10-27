@@ -1,0 +1,469 @@
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0, hasNavigated = false;
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
+
+  function buildDots() {
+    document.getElementById('dots').innerHTML = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+  }
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(d => d.classList.toggle('active', Number(d.dataset.goto) === current));
+  }
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) { hasNavigated = true; document.body.classList.add('presenting'); }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1 ? '· Scratch' : '· Tuần 8 Buổi 15';
+    updateDots();
+  }
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, code, .global-topbar, .nav, .quiz-arena, .arena-wrap, .anim-lab, .game-lab, .story-gen, .clinic-card, .k-card, .award-grid, .checklist.interactive')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') { if (e.target.tagName !== 'BUTTON') { e.preventDefault(); next(); } }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+  function isFullscreen() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function toggleFullscreen() { if (isFullscreen()) exitFullscreen(); else enterFullscreen(); }
+  function enterFullscreen() { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el); }
+  function exitFullscreen() { (document.exitFullscreen || document.webkitExitFullscreen)?.call(document); }
+  function onFullscreenChange() { document.body.classList.toggle('is-fullscreen', isFullscreen()); }
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+  document.getElementById('btnFullscreen').addEventListener('click', e => { e.stopPropagation(); toggleFullscreen(); });
+  document.getElementById('btnExitFs').addEventListener('click', e => { e.stopPropagation(); exitFullscreen(); });
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+  document.addEventListener('touchend', e => { const diff = e.changedTouches[0].screenX - touchStartX; if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1)); }, { passive: true });
+
+  function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+  function bumpEl(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+  function setSwitch(btn, isOn) { btn.classList.toggle('on', isOn); }
+
+  /* KHỞI ĐỘNG — CỔNG GÁC NẾU–THÌ */
+  const GATE_ITEMS = {
+    ca:  { emoji: '🐟', name: 'Cá',       water: true,  kind: 'sống dưới nước' },
+    cho: { emoji: '🐶', name: 'Chó',      water: false, kind: 'sống trên cạn' },
+    cua: { emoji: '🦀', name: 'Cua',      water: true,  kind: 'sống dưới nước' },
+    ga:  { emoji: '🐔', name: 'Gà',       water: false, kind: 'sống trên cạn' },
+    ghe: { emoji: '🪑', name: 'Cái ghế',  water: false, kind: 'không phải con vật' }
+  };
+  const GATE_DEFAULT_FEEDBACK = 'Luật: nếu con vật sống dưới nước thì ngồi xuống. Bấm thử Chó rồi bấm thử Cá nhé!';
+  const gateRule = document.getElementById('gateRule');
+  const gateItem = document.getElementById('gateItem');
+  const gateStudent = document.getElementById('gateStudent');
+  const gateAct = document.getElementById('gateAct');
+  const gateMemory = document.getElementById('gateMemory');
+  const gateFeedback = document.getElementById('gateFeedback');
+  const swGateElse = document.getElementById('swGateElse');
+  let gateScore = 0, gateHasElse = false;
+  function renderGateRule() {
+    gateRule.classList.toggle('has-else', gateHasElse);
+    gateRule.innerHTML = gateHasElse
+      ? '<strong>nếu</strong> &lt;sống dưới nước&gt; <strong>thì</strong> 🧎 ngồi xuống<br><strong>nếu không</strong> 🧍 đứng lên'
+      : '<strong>nếu</strong> &lt;sống dưới nước&gt; <strong>thì</strong> 🧎 ngồi xuống';
+    setSwitch(swGateElse, gateHasElse);
+  }
+  function setGateAct(kind, text, student) {
+    gateAct.className = 'gate-act ' + kind;
+    gateAct.textContent = text;
+    gateStudent.textContent = student;
+  }
+  function gateTry(item) {
+    gateItem.textContent = item.emoji;
+    gateItem.classList.remove('pop'); void gateItem.offsetWidth; gateItem.classList.add('pop');
+    if (item.water) {
+      gateScore++;
+      gateMemory.textContent = `📦 Điểm lớp: ${gateScore}`;
+      bumpEl(gateMemory);
+      setGateAct('yes', '🧎 ngồi xuống', '🧎');
+      gateFeedback.innerHTML = `<span style="color:#15803d;">✅ ${item.name} ${item.kind} → điều kiện ĐÚNG → nhánh “nếu” chạy: ngồi xuống, Điểm lớp +1.${gateScore === 1 ? ' 📦 Ai nhớ giúp con số này? Đó chính là BIẾN!' : ''}</span>`;
+      return;
+    }
+    if (gateHasElse) {
+      setGateAct('else', '🧍 đứng lên', '🧍');
+      gateFeedback.innerHTML = `<span style="color:#0369a1;">🔀 ${item.name} ${item.kind} → điều kiện SAI → nhánh “nếu không” chạy: đứng lên. ${item.name === 'Cái ghế' ? 'Cái gì không khớp điều kiện cũng rơi vào đây!' : ''}</span>`;
+    } else {
+      setGateAct('no', '🤷 không làm gì', '🤷');
+      gateFeedback.innerHTML = `<span style="color:#b45309;">🤐 ${item.name} ${item.kind} → điều kiện SAI, mà chưa có “nếu không” nên chẳng có gì xảy ra. Hãy bật công tắc rồi thử lại!</span>`;
+    }
+  }
+  function resetGate() {
+    gateScore = 0;
+    gateMemory.textContent = '📦 Điểm lớp: 0';
+    gateItem.textContent = '❓';
+    setGateAct('', 'đang chờ…', '🧒');
+    gateFeedback.textContent = GATE_DEFAULT_FEEDBACK;
+  }
+  document.querySelectorAll('[data-gate]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); gateTry(GATE_ITEMS[btn.dataset.gate]); });
+  });
+  swGateElse.addEventListener('click', e => {
+    e.stopPropagation();
+    gateHasElse = !gateHasElse;
+    renderGateRule();
+    gateFeedback.textContent = gateHasElse
+      ? 'Đã thêm “nếu không”! Bấm lại Chó, Gà, Cái ghế để xem họ làm gì.'
+      : 'Đã bỏ “nếu không” — chỉ còn nhánh “nếu”. Bấm lại Chó để so sánh.';
+  });
+  document.getElementById('btnGateReset').addEventListener('click', e => { e.stopPropagation(); resetGate(); });
+  renderGateRule();
+
+  /* KIẾN THỨC — THẺ BẤM ĐỂ XEM KHỐI LỆNH */
+  document.querySelectorAll('.btn-reveal').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = btn.closest('.k-card').classList.toggle('open');
+      btn.textContent = isOpen ? '🙈 Ẩn khối lệnh' : '👀 Xem khối lệnh';
+    });
+  });
+
+  /* PHÒNG THÍ NGHIỆM NẾU / NẾU KHÔNG */
+  const IF_MOVE_MS = 520;
+  const IF_BUBBLE_MS = 1400;
+  const IF_FAR_LEFT = '8%';
+  const IF_NEAR_LEFT = '60%';
+  const IF_DEFAULT_FEEDBACK = 'Bấm “Xa sao” khi đang BẬT rồi TẮT công tắc — xem mèo còn nhắc nhở không?';
+  const ifCat = document.getElementById('ifCat');
+  const ifStar = document.getElementById('ifStar');
+  const ifBubble = document.getElementById('ifBubble');
+  const ifScoreEl = document.getElementById('ifScore');
+  const ifFeedback = document.getElementById('ifFeedback');
+  const swIfElse = document.getElementById('swIfElse');
+  let ifRunId = 0, ifScore = 0, ifHasElse = true;
+  async function runIf(isTouching) {
+    ifRunId++;
+    const runId = ifRunId;
+    ifBubble.classList.remove('show', 'good');
+    ifCat.style.left = isTouching ? IF_NEAR_LEFT : IF_FAR_LEFT;
+    ifFeedback.textContent = 'Đang chạy kịch bản…';
+    await sleep(IF_MOVE_MS);
+    if (runId !== ifRunId) return;
+    if (isTouching) {
+      ifScore++;
+      ifScoreEl.textContent = ifScore;
+      bumpEl(ifScoreEl);
+      ifStar.classList.remove('hit'); void ifStar.offsetWidth; ifStar.classList.add('hit');
+      ifFeedback.innerHTML = '<span style="color:#15803d;">🎉 Mèo chạm sao → điều kiện ĐÚNG → chạy nhánh “nếu”: điểm +1. Nhánh “nếu không” được bỏ qua.</span>';
+      return;
+    }
+    if (ifHasElse) {
+      ifBubble.textContent = 'Chưa chạm sao!';
+      ifBubble.classList.add('show');
+      ifFeedback.innerHTML = '<span style="color:#0369a1;">🔀 Mèo chưa chạm sao → điều kiện SAI → chạy nhánh “nếu không”: mèo nhắc nhở.</span>';
+      await sleep(IF_BUBBLE_MS);
+      if (runId !== ifRunId) return;
+      ifBubble.classList.remove('show');
+    } else {
+      ifFeedback.innerHTML = '<span style="color:#b45309;">🤐 Điều kiện SAI mà không có khối “nếu không” → chẳng có chuyện gì xảy ra. Muốn mèo nhắc nhở, phải thêm nhánh này!</span>';
+    }
+  }
+  function resetIf() {
+    ifRunId++;
+    ifScore = 0;
+    ifScoreEl.textContent = '0';
+    ifCat.style.left = IF_FAR_LEFT;
+    ifBubble.classList.remove('show', 'good');
+    ifFeedback.textContent = IF_DEFAULT_FEEDBACK;
+  }
+  document.getElementById('btnIfNear').addEventListener('click', e => { e.stopPropagation(); runIf(true); });
+  document.getElementById('btnIfFar').addEventListener('click', e => { e.stopPropagation(); runIf(false); });
+  document.getElementById('btnIfReset').addEventListener('click', e => { e.stopPropagation(); resetIf(); });
+  swIfElse.addEventListener('click', e => {
+    e.stopPropagation();
+    ifHasElse = !ifHasElse;
+    setSwitch(swIfElse, ifHasElse);
+    ifFeedback.textContent = ifHasElse ? 'Đã gắn lại khối “nếu không”. Bấm “Xa sao” để thử.' : 'Đã gỡ khối “nếu không”. Bấm “Xa sao” để thử.';
+  });
+
+  /* PHÒNG THÍ NGHIỆM BIẾN */
+  const VAR_DEFAULT_FEEDBACK = 'Click vài lần, rồi bấm cờ xanh. Thử tắt từng công tắc và so sánh!';
+  const varShownEl = document.getElementById('varShown');
+  const varMemEl = document.getElementById('varMem');
+  const varMonitor = document.getElementById('varMonitor');
+  const varNote = document.getElementById('varNote');
+  const varFeedback = document.getElementById('varFeedback');
+  const swVarReset = document.getElementById('swVarReset');
+  const swVarMonitor = document.getElementById('swVarMonitor');
+  let varValue = 0, varHasReset = true, varShowMonitor = true;
+  function renderVar() {
+    varShownEl.textContent = varValue;
+    varMemEl.textContent = varValue;
+    bumpEl(varMemEl);
+    varMonitor.classList.toggle('hidden', !varShowMonitor);
+    varNote.textContent = varShowMonitor ? 'Ô tick đang BẬT: số hiện trên Sân khấu' : 'Ô tick đang TẮT: Sân khấu không hiện số';
+  }
+  document.getElementById('btnVarClick').addEventListener('click', e => {
+    e.stopPropagation();
+    varValue++;
+    renderVar();
+    varFeedback.innerHTML = `<span style="color:#15803d;">🖱️ <code>thay đổi [điểm] một lượng 1</code> → hộp nhớ cộng thêm, giờ là <strong>${varValue}</strong>.</span>${varShowMonitor ? '' : ' 🙈 Sân khấu không hiện số nhưng biến vẫn nhớ!'}`;
+  });
+  document.getElementById('btnVarFlag').addEventListener('click', e => {
+    e.stopPropagation();
+    if (varHasReset) {
+      varValue = 0;
+      renderVar();
+      varFeedback.innerHTML = '<span style="color:#15803d;">🏳️ <code>đặt [điểm] thành 0</code> → hộp nhớ về 0, ván mới sạch sẽ!</span>';
+    } else if (varValue === 0) {
+      varFeedback.innerHTML = '<span style="color:#b45309;">Điểm đang là 0 nên chưa thấy lỗi. Hãy click vài lần rồi bấm cờ xanh lại!</span>';
+    } else {
+      varFeedback.innerHTML = `<span style="color:#dc2626;">🧟 Không có khối “đặt điểm thành 0” nên điểm cũ (<strong>${varValue}</strong>) vẫn còn nguyên! Bật công tắc để sửa.</span>`;
+    }
+  });
+  swVarReset.addEventListener('click', e => {
+    e.stopPropagation();
+    varHasReset = !varHasReset;
+    setSwitch(swVarReset, varHasReset);
+    varFeedback.textContent = varHasReset ? 'Đã có khối “đặt điểm thành 0”. Click vài lần rồi bấm cờ xanh!' : 'Đã gỡ khối “đặt điểm thành 0”. Click vài lần rồi bấm cờ xanh xem sao!';
+  });
+  swVarMonitor.addEventListener('click', e => {
+    e.stopPropagation();
+    varShowMonitor = !varShowMonitor;
+    setSwitch(swVarMonitor, varShowMonitor);
+    renderVar();
+    varFeedback.textContent = varShowMonitor ? 'Đã tick hiện biến: số hiện ở góc Sân khấu.' : 'Đã bỏ tick: Sân khấu không hiện số, nhưng nhìn bảng “Scratch đang nhớ” — biến vẫn còn!';
+  });
+  renderVar();
+
+  /* PHÒNG THÍ NGHIỆM ĐẾM CLICK */
+  const CLK_THRESHOLD = 5;
+  const CLK_GAP_MS = 380;
+  const CLK_BATCH = 5;
+  const CLK_DEFAULT_FEEDBACK = 'Bấm “Click 5 lần liền” rồi quan sát câu mèo nói ở lần thứ 5 và lần thứ 6.';
+  const clkCountEl = document.getElementById('clkCount');
+  const clkBubble = document.getElementById('clkBubble');
+  const clkFeedback = document.getElementById('clkFeedback');
+  const clkButtons = [document.getElementById('btnClkOne'), document.getElementById('btnClkFive')];
+  let clkCount = 0, clkRunId = 0;
+  function setClkBusy(isBusy) { clkButtons.forEach(b => { b.disabled = isBusy; }); }
+  function clickCatOnce() {
+    clkCount++;
+    clkCountEl.textContent = clkCount;
+    bumpEl(clkCountEl);
+    const isBig = clkCount > CLK_THRESHOLD;
+    clkBubble.textContent = isBig ? 'Em click giỏi quá!' : `Click thêm ${CLK_THRESHOLD - clkCount} lần nữa!`;
+    clkBubble.classList.toggle('good', isBig);
+    clkBubble.classList.remove('show'); void clkBubble.offsetWidth; clkBubble.classList.add('show');
+    if (isBig) {
+      clkFeedback.innerHTML = `<span style="color:#15803d;">🎉 ${clkCount} &gt; 5? ĐÚNG → chạy nhánh “nếu”: “Em click giỏi quá!”</span>`;
+    } else if (clkCount === CLK_THRESHOLD) {
+      clkFeedback.innerHTML = '<span style="color:#b45309;">😮 5 &gt; 5? SAI — 5 chỉ BẰNG 5, chưa LỚN HƠN! Vẫn nhánh “nếu không”: “Click thêm 0 lần nữa!” Cần click thêm 1 lần nữa.</span>';
+    } else {
+      clkFeedback.innerHTML = `<span style="color:#0369a1;">🔀 ${clkCount} &gt; 5? SAI → nhánh “nếu không”: còn thiếu ${CLK_THRESHOLD - clkCount} lần.</span>`;
+    }
+  }
+  async function runClickBatch(times) {
+    clkRunId++;
+    const runId = clkRunId;
+    setClkBusy(true);
+    for (let i = 0; i < times; i++) {
+      clickCatOnce();
+      await sleep(CLK_GAP_MS);
+      if (runId !== clkRunId) return;
+    }
+    setClkBusy(false);
+  }
+  function resetClk() {
+    clkRunId++;
+    clkCount = 0;
+    clkCountEl.textContent = '0';
+    clkBubble.classList.remove('show', 'good');
+    setClkBusy(false);
+    clkFeedback.innerHTML = '<span style="color:#475569;">🏳️ <code>đặt [số lần click] thành 0</code> → đếm lại từ đầu.</span>';
+  }
+  document.getElementById('btnClkOne').addEventListener('click', e => { e.stopPropagation(); clickCatOnce(); });
+  document.getElementById('btnClkFive').addEventListener('click', e => { e.stopPropagation(); runClickBatch(CLK_BATCH); });
+  document.getElementById('btnClkFlag').addEventListener('click', e => { e.stopPropagation(); resetClk(); });
+
+  /* BÁC SĨ SCRATCH */
+  document.querySelectorAll('.btn-cure').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); btn.closest('.clinic-card').classList.add('cured'); });
+  });
+
+  /* ARENA — ĐÚNG HAY SAI? */
+  const arenaScenarios = [
+    { emoji: '📦', text: 'Biến “điểm” giống một chiếc hộp nhớ: Scratch giữ nguyên con số cho tới khi em thay đổi nó.', sub: 'Mô tả này đúng hay sai?', answer: true, explain: 'Biến ghi nhớ giá trị suốt ván chơi, cho đến khi có khối đặt hoặc thay đổi nó.' },
+    { emoji: '🔁', text: 'Khối “đặt [điểm] thành 0” và “thay đổi [điểm] một lượng 1” làm y hệt nhau.', sub: 'Hai khối này có giống nhau không?', answer: false, explain: '“Đặt” gán hẳn giá trị mới (làm lại từ đầu), còn “thay đổi” chỉ cộng thêm vào số đang có.' },
+    { emoji: '🏳️', text: 'Em đặt “đặt [điểm] thành 0” ngay dưới “khi bấm vào 🏳️” để mỗi ván đều bắt đầu từ 0.', sub: 'Cách làm này đúng hay sai?', answer: true, explain: 'Nếu không đặt về 0, điểm của ván trước sẽ còn nguyên và cộng dồn sang ván mới.' },
+    { emoji: '👆', text: 'Chỉ cần đặt “nếu <đang chạm [Sao]?> thì” một lần dưới “khi bấm vào 🏳️” là game kiểm tra chạm sao mãi mãi.', sub: 'Game có kiểm tra liên tục không?', answer: false, explain: 'Khối “nếu” chỉ kiểm tra đúng một lần. Muốn kiểm tra suốt ván chơi, phải đặt nó trong “liên tục”.' },
+    { emoji: '⭐', text: 'Mèo chạm sao thì điểm +1 và Sao nhảy sang chỗ khác, nên mỗi lần chạm chỉ được đúng 1 điểm.', sub: 'Thiết kế này đúng hay sai?', answer: true, explain: 'Sao nhảy đi nên hết chạm. Nếu Sao đứng yên, điều kiện vẫn đúng mỗi khung hình và điểm tăng ào ào.' },
+    { emoji: '🧮', text: 'Biến “số lần click” đang là 5. Với “nếu <số lần click > 5> thì”, mèo sẽ nói câu ở nhánh “nếu”.', sub: 'Mèo nói câu của nhánh nào?', answer: false, explain: '5 chỉ bằng 5, chưa lớn hơn 5, nên điều kiện sai và mèo nói câu ở nhánh “nếu không”.' },
+    { emoji: '🏆', text: 'Muốn thấy chữ “Em thắng rồi!”, em dùng “nói … trong 2 giây” rồi mới “dừng lại [tất cả]”.', sub: 'Thứ tự này có hợp lý không?', answer: true, explain: '“Dừng lại [tất cả]” xóa luôn bong bóng lời nói, nên phải để mèo nói đủ 2 giây trước.' }
+  ];
+  let arenaIdx = 0, arenaStreak = 0, arenaAnswered = false;
+  const arenaScenarioEl = document.getElementById('arenaScenario');
+  const arenaEmojiEl = document.getElementById('arenaEmoji');
+  const arenaTextEl = document.getElementById('arenaText');
+  const arenaSubEl = document.getElementById('arenaSub');
+  const arenaFeedbackEl = document.getElementById('arenaFeedback');
+  const arenaStreakEl = document.getElementById('arenaStreak');
+  const btnArenaTrue = document.getElementById('btnArenaTrue');
+  const btnArenaFalse = document.getElementById('btnArenaFalse');
+  const btnArenaNext = document.getElementById('btnArenaNext');
+  function loadArenaScenario() {
+    arenaAnswered = false;
+    btnArenaTrue.disabled = false; btnArenaFalse.disabled = false;
+    btnArenaTrue.classList.remove('correct-glow', 'wrong-glow');
+    btnArenaFalse.classList.remove('correct-glow', 'wrong-glow');
+    arenaScenarioEl.classList.remove('right', 'wrongc');
+    const s = arenaScenarios[arenaIdx];
+    arenaEmojiEl.textContent = s.emoji;
+    arenaTextEl.textContent = `Câu ${arenaIdx + 1}/${arenaScenarios.length}: ${s.text}`;
+    arenaSubEl.textContent = s.sub;
+    arenaFeedbackEl.textContent = 'Cả lớp đoán trước, rồi thầy/cô bấm để kiểm tra nhé!';
+    btnArenaNext.style.display = 'none';
+    arenaScenarioEl.classList.add('pop'); setTimeout(() => arenaScenarioEl.classList.remove('pop'), 300);
+  }
+  function handleArena(chosen) {
+    if (arenaAnswered) return;
+    arenaAnswered = true;
+    const s = arenaScenarios[arenaIdx];
+    const correct = chosen === s.answer;
+    const chosenBtn = chosen ? btnArenaTrue : btnArenaFalse;
+    btnArenaTrue.disabled = true; btnArenaFalse.disabled = true;
+    if (correct) {
+      arenaStreak++;
+      chosenBtn.classList.add('correct-glow');
+      arenaScenarioEl.classList.add('right');
+      arenaFeedbackEl.innerHTML = `<span style="color:#15803d;">🎉 CHÍNH XÁC! ${s.explain}</span>`;
+    } else {
+      arenaStreak = 0;
+      chosenBtn.classList.add('wrong-glow');
+      arenaScenarioEl.classList.add('wrongc');
+      arenaFeedbackEl.innerHTML = `<span style="color:#dc2626;">💡 Chưa đúng, đáp án là ${s.answer ? 'ĐÚNG' : 'SAI'}! ${s.explain}</span>`;
+    }
+    arenaStreakEl.textContent = `🔥 Chuỗi đúng: ${arenaStreak}`;
+    bumpEl(arenaStreakEl);
+    btnArenaNext.textContent = arenaIdx < arenaScenarios.length - 1 ? 'Câu tiếp theo ➡️' : 'Chơi lại từ đầu 🔄';
+    btnArenaNext.style.display = 'block';
+  }
+  btnArenaTrue.addEventListener('click', e => { e.stopPropagation(); handleArena(true); });
+  btnArenaFalse.addEventListener('click', e => { e.stopPropagation(); handleArena(false); });
+  btnArenaNext.addEventListener('click', e => {
+    e.stopPropagation();
+    arenaIdx = (arenaIdx + 1) % arenaScenarios.length;
+    if (arenaIdx === 0) { arenaStreak = 0; arenaStreakEl.textContent = '🔥 Chuỗi đúng: 0'; }
+    loadArenaScenario();
+  });
+  loadArenaScenario();
+
+  /* QUIZ */
+  const QUIZ_POINTS = 20;
+  const quizQuestions = [
+    { q: '1. Biến trong Scratch dùng để làm gì?', opts: ['Để đổi màu nền Sân khấu', 'Để vẽ hình bằng bút', 'Để phát nhạc nền', 'Để nhớ một con số như điểm số hay số mạng'], ans: 3, explain: 'Biến giống một chiếc hộp nhớ: lưu con số (điểm, mạng, giây…) suốt ván chơi.' },
+    { q: '2. Em muốn MỖI LẦN chạm sao điểm TĂNG THÊM 1. Em dùng khối nào?', opts: ['đặt [điểm] thành 1', 'thay đổi [điểm] một lượng 1', 'nói (điểm) trong 1 giây', 'đợi 1 giây'], ans: 1, explain: '“Thay đổi … một lượng 1” cộng thêm vào số đang có. “Đặt … thành 1” sẽ ghi đè và điểm mãi chỉ là 1.' },
+    { q: '3. Chạm sao thì +1 điểm, còn chưa chạm thì mèo nói “Chưa chạm sao!”. Cần khối nào?', opts: ['lặp lại 10 lần', 'nếu <…> thì (chỉ một nhánh)', 'nếu <…> thì … nếu không …', 'đợi 1 giây'], ans: 2, explain: 'Cần hai việc khác nhau cho đúng và sai nên dùng “nếu … thì … nếu không …”.' },
+    { q: '4. Vì sao “nếu <đang chạm [Sao]?> thì” thường được đặt trong “liên tục”?', opts: ['Để kiểm tra chạm sao suốt ván chơi, không chỉ một lần', 'Để Sao đổi màu', 'Để điểm tự về 0', 'Để nhân vật biến mất'], ans: 0, explain: 'Khối “nếu” chỉ kiểm tra một lần mỗi khi chạy tới nó. Đặt trong “liên tục” thì được kiểm tra mãi.' },
+    { q: '5. Biến “số lần click” = 5. Với “nếu <số lần click > 5> thì … nếu không …”, mèo nói câu nào?', opts: ['Em click giỏi quá!', 'Không nói gì cả', 'Click thêm 0 lần nữa!', 'Scratch báo lỗi'], ans: 2, explain: '5 > 5 là SAI (5 chỉ bằng 5) nên chạy nhánh “nếu không”: Click thêm (5 − 5) = 0 lần nữa!' }
+  ];
+  let currentQuizIdx = 0, quizScore = 0, quizAnswered = false;
+  const quizProgressText = document.getElementById('quizProgressText');
+  const quizScoreText = document.getElementById('quizScoreText');
+  const quizQuestion = document.getElementById('quizQuestion');
+  const quizOptions = document.getElementById('quizOptions');
+  const quizExplain = document.getElementById('quizExplain');
+  const btnQuizNext = document.getElementById('btnQuizNext');
+  function renderQuizQuestion() {
+    quizAnswered = false;
+    const qData = quizQuestions[currentQuizIdx];
+    quizProgressText.textContent = `Câu hỏi ${currentQuizIdx + 1} / ${quizQuestions.length}`;
+    quizQuestion.textContent = qData.q;
+    quizExplain.className = 'quiz-explain'; quizExplain.textContent = '';
+    btnQuizNext.className = 'btn-quiz-next';
+    const letters = ['A', 'B', 'C', 'D'];
+    quizOptions.innerHTML = qData.opts.map((opt, i) => `<button class="quiz-opt-btn" data-opt="${i}"><span class="quiz-opt-badge">${letters[i]}</span><span></span></button>`).join('');
+    quizOptions.querySelectorAll('.quiz-opt-btn').forEach((btn, i) => {
+      btn.lastElementChild.textContent = qData.opts[i];
+      btn.addEventListener('click', e => { e.stopPropagation(); if (quizAnswered) return; handleQuizSelect(Number(btn.dataset.opt)); });
+    });
+  }
+  function handleQuizSelect(selectedIdx) {
+    quizAnswered = true;
+    const qData = quizQuestions[currentQuizIdx];
+    const isCorrect = selectedIdx === qData.ans;
+    quizOptions.querySelectorAll('.quiz-opt-btn').forEach((btn, i) => { btn.disabled = true; if (i === qData.ans) btn.classList.add('correct'); else if (i === selectedIdx) btn.classList.add('wrong'); });
+    quizExplain.textContent = '';
+    const head = document.createElement('strong');
+    if (isCorrect) { quizScore += QUIZ_POINTS; quizScoreText.textContent = `⭐ Điểm: ${quizScore}`; head.textContent = '🎉 Chính xác! '; }
+    else { head.textContent = `💡 Chưa chính xác! Đáp án đúng là ${['A', 'B', 'C', 'D'][qData.ans]}. `; }
+    quizExplain.append(head, qData.explain);
+    quizExplain.classList.add('show');
+    btnQuizNext.textContent = currentQuizIdx < quizQuestions.length - 1 ? 'Câu tiếp theo ➡️' : 'Xem kết quả chung cuộc 🏆';
+    btnQuizNext.classList.add('show');
+  }
+  function quizTitleFor(score) {
+    if (score >= 80) return 'THÁM TỬ NẾU–THÌ &amp; THỦ KHO BIẾN!';
+    if (score >= 40) return 'THỢ LẮP LUẬT CHĂM CHỈ!';
+    return 'NHÀ THÁM HIỂM DŨNG CẢM!';
+  }
+  btnQuizNext.addEventListener('click', e => {
+    e.stopPropagation();
+    if (currentQuizIdx < quizQuestions.length - 1) { currentQuizIdx++; renderQuizQuestion(); return; }
+    quizProgressText.textContent = 'Hoàn thành!';
+    quizQuestion.innerHTML = `🎉 Hoàn thành Đấu trường Quiz Buổi 15! Điểm của em: <strong>${quizScore} / 100</strong>`;
+    quizOptions.innerHTML = `<div style="grid-column: span 2; background:#fff7ed; border:2px solid #fb923c; border-radius:14px; padding:18px; text-align:center;"><div class="trophy">🏆🔀</div><h3 style="color:#c2410c; font-size:1.2rem; margin-bottom:6px;">DANH HIỆU: ${quizTitleFor(quizScore)}</h3><p style="font-size:0.95rem; font-weight:700; color:#9a3412;">Em đã nắm được “nếu … thì … nếu không” và biến. Em sẵn sàng làm game có luật chơi và tính điểm rồi!</p></div>`;
+    quizExplain.className = 'quiz-explain'; btnQuizNext.className = 'btn-quiz-next';
+  });
+  renderQuizQuestion();
+
+  /* CHECKLIST RÀ SOÁT */
+  const finalItems = document.querySelectorAll('#finalChecklist li');
+  const checkFill = document.getElementById('checkFill');
+  const checkStatus = document.getElementById('checkStatus');
+  function renderChecklist() {
+    const done = document.querySelectorAll('#finalChecklist li.checked').length;
+    checkFill.style.width = (done / finalItems.length) * 100 + '%';
+    checkStatus.textContent = done === finalItems.length ? '🎉 Tuyệt vời! Game của em đã sẵn sàng!' : `${done} / ${finalItems.length} mục hoàn thành`;
+  }
+  finalItems.forEach(li => {
+    li.addEventListener('click', e => { e.stopPropagation(); li.classList.toggle('checked'); renderChecklist(); });
+  });
+  renderChecklist();
+
+  /* HUY HIỆU TỔNG KẾT */
+  document.querySelectorAll('.award').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); btn.classList.toggle('lit'); });
+  });
+
+  /* INIT */
+  buildDots();
+  slides.forEach((s, i) => { s.setAttribute('aria-hidden', i !== 0); if (i === 0) s.classList.add('active'); else s.classList.add('next'); });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
+</html>

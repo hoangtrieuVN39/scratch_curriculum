@@ -1,0 +1,66 @@
+
+    /* ===== Buổi 36 — bổ sung ===== */
+    .slide-tag.blue { background: var(--scratch-blue); }
+
+    /* Thẻ kiến thức bấm để xem khối lệnh */
+    .k-card { transition: border-color 0.2s, box-shadow 0.2s; }
+    .k-card.open { border-color: var(--scratch-orange); box-shadow: 0 0 0 3px rgba(255,140,26,0.18); }
+    .btn-reveal { align-self: flex-start; background: #fff7ed; border: 2px solid #fdba74; color: #c2410c; border-radius: 8px; padding: 3px 9px; font-family: inherit; font-size: 0.74rem; font-weight: 900; cursor: pointer; transition: all 0.15s; }
+    .btn-reveal:hover { background: #ffedd5; transform: translateY(-1px); }
+    .k-reveal { display: none; flex-direction: column; gap: 3px; }
+    .k-card.open .k-reveal { display: flex; animation: popIn 0.3s ease; }
+    .k-reveal .block { font-size: 0.74rem; padding: 3px 8px; color: #fff; }
+    .k-reveal .block.event, .k-reveal .block.control { color: #402300; }
+    .k-note { font-size: 0.76rem; font-weight: 800; color: #334155; background: #f1f5f9; border-radius: 8px; padding: 3px 9px; }
+
+    /* Sân khấu mini dùng chung cho 3 phòng thí nghiệm trọng lực */
+    .pl-stage { position: relative; height: 200px; background: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 100%); border: 2px solid #cbd5e1; border-radius: 12px; overflow: hidden; }
+    .pl-ground { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, #86efac, #4ade80); border-top: 2px dashed #15803d; z-index: 2; }
+    .pl-ground.front { background: rgba(34,197,94,0.55); z-index: 8; }
+    .pl-ground-mark { position: absolute; right: 8px; bottom: 3px; font-size: 0.68rem; font-weight: 900; color: #14532d; z-index: 9; }
+    .pl-sprite { position: absolute; left: 50%; font-size: 2rem; line-height: 1; transform: translateX(-50%); z-index: 5; }
+    .pl-hud { position: absolute; top: 6px; left: 8px; display: flex; gap: 8px; background: rgba(255,255,255,0.93); border: 1px solid #cbd5e1; border-radius: 8px; padding: 3px 8px; font-size: 0.72rem; font-weight: 800; color: #1e293b; z-index: 15; }
+    .pl-hud .val { color: #c2410c; font-weight: 900; }
+    .pl-dot { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #f97316; opacity: 0.8; z-index: 3; }
+    .pl-obstacle { position: absolute; font-size: 1.35rem; line-height: 1; transform: translateX(-50%); z-index: 4; }
+    .pl-bubble { position: absolute; background: #fff; border: 2px solid #94a3b8; border-radius: 12px; padding: 2px 9px; font-size: 0.74rem; font-weight: 900; color: #b91c1c; white-space: nowrap; opacity: 0; transform: translateX(-50%); transition: opacity 0.15s; z-index: 14; }
+    .pl-bubble.show { opacity: 1; }
+    .pl-stage.shake-it { animation: shake 0.4s ease; }
+    .anim-btns.two { grid-template-columns: repeat(2, 1fr); }
+    .anim-btns.three { grid-template-columns: repeat(3, 1fr); }
+    .btn-anim { font-size: 0.74rem; padding: 6px 5px; }
+    .btn-anim:disabled { opacity: 0.45; cursor: default; }
+    .btn-anim.active { border-color: #22c55e; background: #f0fdf4; color: #166534; box-shadow: 0 0 0 2px rgba(34,197,94,0.3); }
+    .btn-anim.bug-on { border-color: #ef4444; background: #fef2f2; color: #991b1b; box-shadow: 0 0 0 2px rgba(239,68,68,0.25); }
+    .anim-feedback { font-size: 0.78rem; min-height: 54px; }
+    .anim-lab-hint { font-size: 0.76rem; font-weight: 700; color: #64748b; text-align: center; line-height: 1.35; }
+
+    /* Checklist bấm để tick */
+    .checklist.interactive li { cursor: pointer; background: #ffffff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 8px 11px; transition: all 0.16s; }
+    .checklist.interactive li:hover { border-color: var(--scratch-blue); transform: translateX(3px); }
+    .checklist.interactive li .check-icon { background: #e2e8f0; color: #0f172a; }
+    .checklist.interactive li.checked { background: #f0fdf4; border-color: #86efac; color: #166534; }
+    .checklist.interactive li.checked .check-icon { background: var(--scratch-green); color: #ffffff; animation: bounce 0.35s ease; }
+    .check-progress { margin-top: 10px; background: #e2e8f0; height: 11px; border-radius: 8px; overflow: hidden; }
+    .check-progress-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--scratch-green), var(--scratch-cyan)); transition: width 0.35s ease; }
+    .check-status { margin-top: 6px; font-size: 0.88rem; font-weight: 900; color: #475569; text-align: center; }
+
+    .muted-row { color: #64748b; font-size: 0.74rem; font-weight: 800; padding-left: 4px; }
+    .c-body .muted-row { color: rgba(30,41,59,0.75); }
+
+    /* Thu gọn thẻ bài mở rộng để vừa 1366x768 */
+    .ex-card { gap: 5px; padding: 9px 12px; }
+    .ex-card h3 { font-size: 0.95rem; }
+    .ex-req, .ex-try { font-size: 0.75rem; line-height: 1.38; }
+    .ex-try { padding: 5px 9px; }
+    .ex-check { font-size: 0.73rem; }
+    .ex-card .block-label { margin: 0; }
+    .ex-card .blocks-container.compact { font-size: 0.71rem; padding: 6px 9px; gap: 2px; }
+    .ex-card .blocks-container.compact .block { padding: 3px 8px; }
+    .ex-card .blocks-container.compact .block.c-block { padding: 3px 8px; }
+    .ex-card .c-body { gap: 2px; margin: 2px 0; }
+    .ex-card .blocks-container + .blocks-container { margin-top: 4px; }
+    .ex-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-items: start; }
+    .ex-pair .blocks-container + .blocks-container { margin-top: 0; }
+    .ex-card .scene-pill { padding: 3px; font-size: 0.7rem; }
+    .ex-card .scene-pill b { font-size: 1rem; }

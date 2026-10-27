@@ -2,168 +2,207 @@
 name: create-scratch-slide
 description: >-
   Tạo trang trình chiếu HTML buổi học Scratch (InnoMind) từ curriculum markdown.
-  Tự động tích hợp Design System hiện đại, Vòng quay ý tưởng (Slot machine),
-  Minigame vận động và Đấu trường Quiz trắc nghiệm. Dùng khi user yêu cầu tạo slide/deck.
+  Slide theo phong cách "Interactive Lab": phòng thí nghiệm mô phỏng bấm-để-thấy,
+  Bác sĩ Scratch bấm-xem-phương-thuốc, minigame Đúng/Sai (click, có nút Câu tiếp theo)
+  và Đấu trường Quiz có danh hiệu. Dùng khi user yêu cầu tạo/sửa slide/deck.
 ---
 
 # Create Scratch Slide (InnoMind Standard) 🚀
 
-Tạo file HTML **một file tự chứa 100%** (CSS + JS inline), phong cách Scratch, 100% tiếng Việt, lứa tuổi 7–10, dựa trên mẫu chuẩn vàng **`tuan-13-buoi-25.html`**.
+Tạo file HTML **một file tự chứa 100%** (CSS + JS inline), phong cách Scratch, 100% tiếng Việt, lứa tuổi 7–10.
+
+> Quy chuẩn gốc nằm ở `AGENTS.md` (mục 4 = Interactive Lab). File này là **cách làm cụ thể**: copy component từ đâu, cấu trúc HTML/JS ra sao, kiểm thử thế nào. Nếu hai nơi mâu thuẫn, `AGENTS.md` thắng.
 
 ---
 
-## 1. Mẫu Chuẩn Vàng & Quy Tắc Nền Tảng
+## 1. Nguồn để copy (không viết lại từ đầu)
 
-- **Luôn bắt đầu bằng việc copy hoặc tham chiếu** `tuan-13-buoi-25.html` ở thư mục gốc repo.
-- **Tên file chuẩn:** `tuan-{tuần}-buoi-{buổi}.html` (ví dụ: `tuan-13-buoi-26.html`).
-- **Tự chứa 100%:** CSS inline trong `<style>`, JS inline trong `<script>`, không dùng thư viện ngoài (chỉ Google Font Nunito).
-- **100% Tiếng Việt Chuẩn Scratch:** Toàn bộ nội dung, câu hỏi và khối lệnh `.block` đều viết bằng tiếng Việt chuẩn Scratch cho lứa tuổi 7–10. Không dùng song ngữ.
-- **Hiệu ứng âm thanh:** **Chỉ dùng visual animation** (rung lắc `shake`, nảy nở `bounce`, xoay `slotSpin`, chuỗi streak `🔥`). KHÔNG dùng file âm thanh hoặc Web Audio API để tránh gây ồn lớp học.
+| Cần gì | Copy từ |
+|--------|---------|
+| Khung slide, topbar, dots, progress, fullscreen, swipe, phím tắt | `tuan-13-buoi-25.html` |
+| Phong cách tương tác mới nhất, **buổi Học** (15 slide, 4 lab mô phỏng) | `tuan-16-buoi-31.html` |
+| Phong cách tương tác mới nhất, **buổi Bài tập** (15 slide, lab hoạt hình, máy gợi ý, huy hiệu) | `tuan-3-buoi-6.html` |
 
----
-
-## 2. Quy chuẩn Thành phần Tương tác (BẮT BUỘC)
-
-### A. Buổi Học (Lý thuyết — ~14–15 slide):
-1. **🎬 Khởi động tương tác (Slide 2):** Câu hỏi mở gợi cảm xúc, kích thích thảo luận cả lớp ("Game em thích nhất là gì?").
-2. **🌌 Kho tàng Vũ trụ Chủ đề (Slide 5):** Thẻ trưng bày 6 thế giới truyền cảm hứng (Vũ trụ, Biển, Tiền sử, Ma thuật, Cyberpunk, Kẹo ngọt).
-3. **🎰 Máy phát ý tưởng Slot Machine (Slide 6):** 3 guồng quay ngẫu nhiên [Bối cảnh] × [Nhân vật] × [Nhiệm vụ] kèm hiệu ứng quay số `slotSpin` và nút *"Thử ý tưởng Độc - Lạ"*.
-4. **🏃 Minigame vận động "Thắng hay Thua?" / "Đúng hay Sai?" (Slide 10):**
-   - Vận động lớp học: 🙋 Giơ tay (Thắng) / 🙇 Ngồi thụp xuống (Thua).
-   - Card đổi màu xanh/đỏ, rung lắc `shake` khi sai, nảy nở khi đúng, đếm chuỗi streak `🔥`.
-5. **🏆 Đấu trường Quiz Game Design (Slide 12):**
-   - 5 câu trắc nghiệm A/B/C/D click chọn trực tiếp.
-   - Hiện lời giải thích chi tiết, chấm điểm tự động và trao cúp vinh danh.
-6. **👩‍🏫 Ghi chú cho giáo viên (Slide 15):** Hướng dẫn sư phạm phân hóa học sinh nhanh/chậm và mẹo điều phối.
-
-### B. Buổi Bài tập (Thực hành — ~12–13 slide):
-1. **🎬 Khởi động ôn tập:** Đoán game / trắc nghiệm chớp nhoáng củng cố bài trước.
-2. **🔁 Trạm kỹ năng cốt lõi:** Bảng tổng hợp các khối lệnh then chốt.
-3. **🩺 Bác sĩ Scratch sửa lỗi mẫu (Debugging Clinic):** Bảng chẩn đoán bệnh án lỗi logic và phương thuốc điều trị.
-4. **🎯 Thử thách phân tầng 3 mức độ A/B/C:**
-   - Mức A: Cơ bản & My Blocks
-   - Mức B: Bác sĩ Debug
-   - Mức C: Game nâng cao / Remix
-5. **🖼️ Showcase & Tổng kết:** Trình chiếu sản phẩm, khen ngợi và cổ vũ.
+- **Tên file:** `tuan-{tuần}-buoi-{buổi}.html` ở thư mục gốc repo.
+- **Tự chứa 100%:** chỉ Google Font Nunito, không thư viện ngoài.
+- **100% Tiếng Việt chuẩn Scratch**, không song ngữ trong `.block`.
+- **Không âm thanh:** chỉ animation (`shake`, `bounce`, `popIn`, `slotSpin`, `pulse`). Lab về âm thanh cũng chỉ mô phỏng bằng hình.
+- **Đổi metadata khi copy:** `<title>`, `aria-valuemax`, `counter` mặc định `1 / N`, `brandSub` (`· Tuần X Buổi Y`), badge Tuần/Buổi, câu "Bật mí buổi sau", ghi chú giáo viên.
 
 ---
 
-## 3. Thư viện Component Sẵn Dùng
+## 2. Khung slide & thành phần (tóm tắt — chi tiết ở `slide-map.md`)
 
-### 3.1. Khối Scratch Tiếng Việt
+**Buổi Học (14–15 slide):** Tiêu đề → Khung giờ → **Khởi động tương tác** → Kiến thức mới (thẻ bấm xem khối lệnh) → **Demo 1–3, mỗi demo có lab bên phải** → **Bác sĩ Scratch** → **Minigame Đúng/Sai** → TH1 → TH2 → **Quiz** → Rà soát & lưu (checklist bấm-để-tick) → Tổng kết (huy hiệu) → Ghi chú GV.
+
+**Buổi Bài tập (12–15 slide):** Tiêu đề → **Khởi động Đúng/Sai** → Trạm kỹ năng (thẻ + **lab**) → LT1 → LT2 (+ máy gợi ý) → **Bác sĩ Scratch** → Giới thiệu Mức A/B/C → các slide Mức → Thử thách thêm → **Quiz** → Showcase (huy hiệu) → Ghi chú GV.
+
+Slot Machine chỉ dùng khi buổi cần gợi ý sáng tạo (khởi động dự án, brainstorm, hoặc slide "Bí ý tưởng?" trong TH/LT như `story-gen`).
+
+---
+
+## 3. Thư viện Component
+
+### 3.1. Khối Scratch tiếng Việt
+
 ```html
-<div class="blocks">
-  <div class="block event">khi bấm vào 🏳️</div>
-  <div class="block variable indent">đặt [điểm] thành (0)</div>
-  <div class="block control c-block indent">
-    liên tục
+<div class="blocks-container compact">
+  <div class="block event">khi nhận <span class="block-arg">BatDau v</span></div>
+  <div class="block control c-block">
+    <span class="block-head">liên tục</span>
     <div class="c-body">
-      <div class="block motion">di chuyển (5) bước</div>
+      <div class="block motion">di chuyển <span class="block-arg">5</span> bước</div>
     </div>
   </div>
 </div>
 ```
 
-#### ⚠️ Cạm bẫy bắt buộc tránh: header `.c-block` có điều kiện (`nếu <...> thì`, `lặp lại cho đến khi <...>`)
+Màu: `event` vàng · `motion` xanh dương · `looks` tím · `control` cam nhạt · `variable` cam · `sound` hồng · `sensing` xanh nhạt · `music` xanh ngọc (tiện ích Âm nhạc). Khối tùy chọn "thử thêm": `.block.optional` (viền đứt).
 
-`.block.c-block` dùng `display:flex; flex-direction:column` để xếp dòng tiêu đề lên trên `.c-body`. Nếu dòng tiêu đề là **text thuần** (ví dụ `liên tục`) thì không sao — nhưng nếu tiêu đề **trộn text với `<span class="block-arg">`** (mọi khối điều kiện: `nếu <đang chạm [Sprite]?> thì`, `lặp lại cho đến khi <y < -160>`...), flexbox sẽ tách mỗi đoạn text/span thành **flex item riêng** và mỗi cái rớt xuống một dòng — vỡ layout, chữ dồn cục. Đây là lỗi đã xảy ra thật ở nhiều slide trước (buổi 28, buổi 29 bản đầu).
+#### ⚠️ Cạm bẫy bắt buộc tránh: header `.c-block` có điều kiện
 
-**Luật bắt buộc:** Bất cứ khi nào header của `.c-block` chứa `<span class="block-arg">` xen giữa text, PHẢI bọc **toàn bộ dòng tiêu đề** (text + span + text) trong **một phần tử `<span class="block-head">` duy nhất** để nó chỉ là 1 flex item:
+`.block.c-block` dùng `display:flex; flex-direction:column`. Header **trộn text với `<span class="block-arg">`** (`nếu <đang chạm [X]?> thì`, `lặp lại cho đến khi <...>`) sẽ bị tách thành nhiều dòng nếu không bọc trong **một** `<span class="block-head">`:
 
 ```html
-<!-- ❌ SAI — vỡ thành 3 dòng vì flex-column tách text/span/text thành 3 flex item -->
+<!-- ❌ SAI — vỡ thành 3 dòng -->
 <div class="block control c-block">
   nếu &lt;đang chạm <span class="block-arg">PhiHanhGia v</span>?&gt; thì
   <div class="c-body">...</div>
 </div>
 
-<!-- ✅ ĐÚNG — bọc trong .block-head để cả dòng là 1 flex item duy nhất -->
+<!-- ✅ ĐÚNG -->
 <div class="block control c-block">
   <span class="block-head">nếu &lt;đang chạm <span class="block-arg">PhiHanhGia v</span>?&gt; thì</span>
   <div class="c-body">...</div>
 </div>
 ```
 
-CSS cần có sẵn trong `<style>` (copy nguyên nếu file chưa có):
-```css
-.block-head { display: block; }
-```
+CSS: `.block-head { display: block; }`. Cứ bọc `.block-head` cho **mọi** header `.c-block` cho khỏi phải nhớ. Phải soi ảnh chụp mọi slide có khối điều kiện trước khi báo hoàn thành.
 
-Áp dụng quy tắc này cho MỌI header `.c-block` có điều kiện: `nếu <...> thì`, `nếu <...> thì ... nếu không thì`, `lặp lại cho đến khi <...>`, `đợi cho đến khi <...>`, v.v. Header thuần text như `liên tục`, `lặp lại (10) lần` không cần bọc (không có span xen giữa) nhưng bọc `.block-head` vẫn an toàn và không hại gì — có thể bọc mặc định cho mọi header `.c-block` để khỏi phải nhớ phân biệt.
+### 3.2. Phòng thí nghiệm mô phỏng (`.anim-lab`) — thành phần cốt lõi
 
-### 3.2. Vòng quay Ý tưởng (Slot Machine)
+Khung:
+
 ```html
-<div class="slot-machine-container">
-  <div class="slot-reels">
-    <div class="reel-box" id="reel1">
-      <span class="reel-label">Vũ trụ / Bối cảnh</span>
-      <div class="reel-val" id="reelVal1">🚀 Vũ trụ Viễn tưởng</div>
-    </div>
-    <div class="reel-box" id="reel2">
-      <span class="reel-label">Nhân vật chính</span>
-      <div class="reel-val" id="reelVal2">🐱 Mèo Ninja</div>
-    </div>
-    <div class="reel-box" id="reel3">
-      <span class="reel-label">Thể loại &amp; Nhiệm vụ</span>
-      <div class="reel-val" id="reelVal3">🍎 Thu thập Tinh thể</div>
-    </div>
+<div class="anim-lab" id="xxLab">
+  <div class="anim-lab-title">📢 Phòng thí nghiệm …</div>
+  <div class="xx-stage"><!-- sân khấu mini: sprite emoji, nhãn trạng thái --></div>
+  <div class="anim-btns">           <!-- .three nếu 3 nút -->
+    <button class="btn-anim" id="btnXxOk">✅ Cách đúng</button>
+    <button class="btn-anim danger" id="btnXxBad">❌ Quên / dùng sai</button>
   </div>
-  <div class="slot-actions">
-    <button class="btn-spin" id="btnSpin">🎰 QUAY Ý TƯỞNG MỚI!</button>
-    <button class="btn-quick-idea" id="btnPresetIdea">💡 Thử ý tưởng Độc - Lạ</button>
-  </div>
-  <div class="slot-result-banner" id="slotBanner">
-    👉 <strong>Ý tưởng Game:</strong> Em điều khiển <strong>Mèo Ninja</strong> trong <strong>Vũ trụ</strong> để <strong>Thu thập Tinh thể</strong>!
-  </div>
+  <div class="anim-feedback" id="xxFeedback">Gợi ý bấm thử…</div>
 </div>
 ```
 
-### 3.3. Minigame Vận động (Win/Lose Arena)
-```html
-<div class="arena-container">
-  <div class="arena-status-bar">
-    <span>🙋 Giơ 2 tay = <strong>THẮNG</strong> &nbsp;|&nbsp; 🙇 Ngồi thụp xuống = <strong>THUA</strong></span>
-    <span class="arena-streak" id="arenaStreak">🔥 Chuỗi đúng: 0</span>
-  </div>
-  <div class="arena-card" id="arenaCard">
-    <div style="font-size:2rem;" id="arenaEmoji">🍎</div>
-    <div class="arena-prompt" id="arenaPrompt">Bắt đủ 15 quả táo!</div>
-    <div class="arena-subprompt" id="arenaSubprompt">Biến Điểm = 15</div>
-  </div>
-  <div class="arena-buttons">
-    <button class="btn-arena win" id="btnChooseWin">🏆 ĐÂY LÀ THẮNG! (Giơ tay 🙋)</button>
-    <button class="btn-arena lose" id="btnChooseLose">💥 ĐÂY LÀ THUA! (Ngồi xuống 🙇)</button>
-  </div>
-  <div class="arena-feedback" id="arenaFeedback">
-    Cả lớp cùng thực hiện động tác trước khi thầy/cô bấm kiểm tra!
-  </div>
-</div>
+JS mẫu — `async` + `runId`, hằng số có tên:
+
+```js
+const XX_STEP_MS = 300;
+let xxRunId = 0;
+function resetXx() { xxRunId++; /* trả sân khấu về ban đầu */ }
+async function runXx(isCorrect) {
+  resetXx();
+  const runId = xxRunId;
+  for (let i = 0; i < STEPS; i++) {
+    await sleep(XX_STEP_MS);
+    if (runId !== xxRunId) return;     // bị Làm lại / bấm nút khác → bỏ
+    /* cập nhật hình */
+  }
+  feedback.innerHTML = isCorrect ? '<span style="color:#15803d;">🎉 …</span>' : '<span style="color:#dc2626;">⚠️ … vì sao lỗi</span>';
+}
 ```
 
-### 3.4. Đấu trường Quiz (Interactive Quiz Arena)
+Các lab đã có (copy nguyên):
+
+| Lab | Nguồn | Dạy điều gì |
+|-----|-------|-------------|
+| Phòng thí nghiệm hoạt hình (`#animLab`) | buổi 6 | `đợi` giữa các lần đổi trang phục vs quên `đợi` |
+| Game Lab công tắc + thanh cuốn hút (`.game-lab`) | buổi 31 | Nút Bắt đầu / nhạc / tiếng ting làm game hấp dẫn hơn |
+| Phòng thí nghiệm Phát tin (`#bcLab`) | buổi 31 | Tên tin khớp vs gõ sai chữ hoa |
+| Phòng thí nghiệm âm thanh (`#sndLab`) | buổi 31 | `bắt đầu âm thanh` vs `phát âm thanh … cho đến hết` |
+| Phòng thí nghiệm Thắng/Thua (`#endLab`) | buổi 31 | Luật thắng/thua bằng phát tin; công tắc 🐞 quên `dừng lại [tập lệnh này]` |
+| Điều khiển từ xa (`.rm-lab`) | buổi 7 | Khởi động bấm-lệnh thay cho trò vận động; người máy làm theo nút bấm |
+| Phi thuyền (`#shipLab`, `.mini-stage.focusable`) | buổi 7 | `khi nhấn phím` + `thay đổi x/y`; bàn phím thật chỉ nhận khi **click Sân khấu (focus)**; nút "Thêm khối ← →" |
+| Ai nghe sự kiện nào? (`#evtLab`) | buổi 7 | Mỗi khối Events chỉ chạy khi đúng sự kiện; chuỗi vừa chạy sáng lên |
+| Điệp viên đoán phím (`#spyLab`) | buổi 7 | Bản máy tính của trò chơi cặp "đoán phím" |
+| Săn lỗi trên game mẫu (`#huntLab`, `.hotspot`) | buổi 32 | Click chỗ đáng nghi → lỗi vào Phiếu Bắt Lỗi (có 1 điểm "không phải lỗi" làm bẫy) |
+| Cân bằng game (`#balLab`, 2 thanh trượt) | buổi 32 | Tốc độ rơi / độ nhạy phím ↔ thời gian thực tính từ 30 khung hình/giây, thanh "độ vui" |
+| Bảng theo dõi sửa lỗi (`#fixBoard`) | buổi 32 | Bấm thẻ đổi Cần sửa → Đang sửa → Đã sửa |
+
+> Phím mũi tên của slide trùng với phím của lab: lab có bàn phím phải gọi `e.stopPropagation()` trong `keydown` của chính Sân khấu (xem `#shipStage` ở buổi 7), nếu không bấm ↑ ↓ sẽ lật slide.
+
+Khi thêm lab mới: mô phỏng phải **đúng Scratch thật** (xem `AGENTS.md` 4.1).
+
+### 3.3. Bác sĩ Scratch — bấm để xem phương thuốc
+
+```html
+<div class="clinic-card">
+  <span class="clinic-badge sick">Bệnh 1: Nhảy cóc 🐸</span>
+  <span class="clinic-symptom">Chỉ thấy trang phục cuối.</span>
+  <button class="btn-cure">💊 Xem phương thuốc</button>
+  <div class="clinic-cure">Thêm <code>đợi (0.3) giây</code> …</div>   <!-- ẩn cho đến khi .cured -->
+</div>
+```
+```js
+document.querySelectorAll('.btn-cure').forEach(btn =>
+  btn.addEventListener('click', e => { e.stopPropagation(); btn.closest('.clinic-card').classList.add('cured'); }));
+```
+Bên trái đặt 1–2 script "bệnh nhân" (`.blocks-container.compact`) + hộp `highlight-box red` liệt kê triệu chứng và câu hỏi "Cả lớp tìm xem có mấy bệnh?".
+
+### 3.4. Minigame Đúng / Sai (click — KHÔNG vận động thể chất)
+
+HTML: `.arena-wrap` > `.arena-rule-bar` (+ `#arenaStreak`) · `.arena-scenario` (`#arenaEmoji/#arenaText/#arenaSub`) · `.arena-btns` (`#btnArenaTrue/#btnArenaFalse`) · `#arenaFeedback` · `#btnArenaNext` (ẩn).
+
+Quy tắc JS (copy từ buổi 31):
+- Sau khi trả lời: khóa 2 nút, thêm `.right`/`.wrongc` lên card (bounce / shake), cập nhật streak, **hiện `#btnArenaNext`**. **Không** `setTimeout` tự sang câu.
+- Sai → hiển thị `Chưa đúng, đáp án là ĐÚNG/SAI! …`; dữ liệu `explain` **không** bắt đầu bằng "ĐÚNG!/SAI!".
+- Câu cuối → nút đổi thành "Chơi lại từ đầu 🔄", reset streak.
+- 6–7 tình huống `{ emoji, text, sub, answer, explain }`, xen kẽ đúng/sai.
+
+### 3.5. Đấu trường Quiz
+
 ```html
 <div class="quiz-arena">
-  <div class="quiz-header">
-    <span id="quizProgressText">Câu hỏi 1 / 5</span>
-    <span id="quizScoreText" style="color:var(--scratch-orange); font-weight:900;">⭐ Điểm: 0</span>
-  </div>
-  <div class="quiz-question-box" id="quizQuestion">
-    1. Thế nào là định nghĩa đúng của một trò chơi (Game)?
-  </div>
-  <div class="quiz-options" id="quizOptions">
-    <!-- Render options qua JS -->
-  </div>
-  <div class="quiz-explain" id="quizExplain">
-    <!-- Giải thích chi tiết sau khi bấm chọn -->
-  </div>
-  <div class="quiz-nav-row">
-    <button class="btn-quiz-next" id="btnQuizNext">Câu tiếp theo ➡️</button>
-  </div>
+  <div class="quiz-header"><span id="quizProgressText">Câu hỏi 1 / 5</span><span id="quizScoreText">⭐ Điểm: 0</span></div>
+  <div class="quiz-question-box" id="quizQuestion"></div>
+  <div class="quiz-options" id="quizOptions"></div>
+  <div class="quiz-explain" id="quizExplain"></div>
+  <div class="quiz-nav-row"><button class="btn-quiz-next" id="btnQuizNext">Câu tiếp theo ➡️</button></div>
 </div>
 ```
+5 câu × 20 điểm; **đáp án đúng rải đều A/B/C/D**; cuối buổi: cúp `.trophy` + danh hiệu theo `quizTitleFor(score)` (≥ 80 / ≥ 40 / còn lại).
+
+### 3.6. Các component nhỏ
+
+| Component | Class / id | Ghi chú |
+|-----------|-----------|---------|
+| Thẻ kiến thức bấm xem khối lệnh | `.k-card` > `.btn-reveal` + `.k-reveal` | toggle `.open`, đổi nhãn nút "👀 Xem / 🙈 Ẩn khối lệnh" |
+| Máy gợi ý 3 guồng | `.story-gen`, `.story-reel`, `.btn-spin` | `slotSpin` + `landed`; copy hàm `spinReel` (`Promise.all` với `STAGGER`) |
+| Checklist rà soát | `.checklist.interactive` + `.check-progress` | tick toggle + thanh tiến độ + câu chúc khi đủ |
+| Huy hiệu | `.award-grid` > `.award` | toggle `.lit` |
+
+**Mọi handler gọi `e.stopPropagation()`** và container phải nằm trong danh sách loại trừ của listener `click` điều hướng (xem `AGENTS.md` 4.1).
 
 ---
 
-## 4. Tài liệu tham chiếu
+## 4. Quy trình tạo slide mới
 
-- Ánh xạ chi tiết markdown → slide: [slide-map.md](slide-map.md)
+1. **Đọc giáo án** `thang-*.md` đúng buổi (thời lượng, TH/LT, nội dung Bật mí buổi sau). **Đối chiếu hành vi khối lệnh với Scratch thật**; giáo án sai thì sửa trong slide và báo người dùng.
+2. **Chọn deck nguồn** ở mục 1 (Học → buổi 31; Bài tập → buổi 6), copy toàn bộ file sang tên mới.
+3. **Thay nội dung:** tiêu đề/metadata, khối lệnh, dữ liệu Đúng/Sai (6–7), Quiz (5), thẻ Bác sĩ (3–4), **lab mới cho khái niệm của buổi** (mục 3.2), ghi chú GV + phân bổ thời gian khớp số slide.
+4. **Đồng bộ số slide:** `aria-valuemax`, `counter` mặc định, `data-index`, chỉ số slide trong phân bổ thời gian của slide GV.
+5. **Kiểm thử** (mục 5) rồi mới báo hoàn thành.
+
+---
+
+## 5. Kiểm thử bắt buộc
+
+Dùng skill `run-scratchcurriculum` hoặc Playwright headless. Tối thiểu:
+
+1. Viewport **1366×768** và **1920×1080**: mỗi `.slide-body` không tràn (`scrollHeight - clientHeight === 0`); ghi nhận `pageerror` / `console.error` (bỏ qua lỗi tải Google Font khi offline) — phải rỗng.
+2. Đi qua toàn bộ slide, **bấm thử từng nút** của mọi lab / minigame / quiz / checklist / huy hiệu, `sleep` đủ lâu (lab async) rồi chụp ảnh.
+3. **Xem ảnh** các slide có lab, Bác sĩ, Tổng kết, và mọi slide có khối lệnh điều kiện (không vỡ dòng `.c-block`).
+4. Kiểm tra đường thắng lẫn thua của lab có nhiều nhánh; bấm "Làm lại" giữa chừng không để lại trạng thái treo.
+
+Mẹo: slide chuyển ~0.32s nên chờ ≥ 450ms sau khi bấm → trước khi chụp; chỉ slide đang `active` mới bấm được.

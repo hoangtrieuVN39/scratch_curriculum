@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 16 — Buổi 32: Playtest chéo &amp; Sửa lỗi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-cyan: #00bcd4;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+      --slide-w: min(1120px, 95vw);
+      --slide-h: min(720px, 86vh);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at 10% 20%, #1e3a8a 0%, #0f172a 90%);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      overflow: hidden; color: var(--scratch-dark); user-select: none;
+    }
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 5px; width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow), var(--scratch-green), var(--scratch-cyan));
+      transition: width 0.35s ease; z-index: 200;
+      box-shadow: 0 0 10px rgba(255, 140, 26, 0.6);
+    }
+    .deck { width: var(--slide-w); height: var(--slide-h); position: relative; margin-top: 56px; }
+    .slide {
+      position: absolute; inset: 0; background: #ffffff; border-radius: 22px;
+      box-shadow: 0 28px 70px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.1);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden; transform: translateX(40px) scale(0.98);
+      pointer-events: none; z-index: 0;
+      transition: opacity 0.32s cubic-bezier(0.4,0,0.2,1), transform 0.32s cubic-bezier(0.4,0,0.2,1), visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+    .slide.active {
+      opacity: 1; visibility: visible; transform: translateX(0) scale(1);
+      pointer-events: auto; z-index: 10;
+      transition: opacity 0.32s cubic-bezier(0.4,0,0.2,1), transform 0.32s cubic-bezier(0.4,0,0.2,1), visibility 0s;
+    }
+    .slide.prev { opacity: 0; visibility: hidden; transform: translateX(-40px) scale(0.98); pointer-events: none; z-index: 0; }
+    .slide.next { opacity: 0; visibility: hidden; transform: translateX(40px) scale(0.98); pointer-events: none; z-index: 0; }
+    @media (prefers-reduced-motion: reduce) { .slide, .progress-bar { transition: none; } }
+    .global-topbar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      width: var(--slide-w); display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 22px; background: rgba(255,255,255,0.95);
+      border: 1px solid rgba(255,255,255,0.8); border-radius: 16px;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.25); z-index: 150; backdrop-filter: blur(12px);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.92rem; color: var(--scratch-dark); white-space: nowrap; }
+    .brand-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #ff8c1a, #00bcd4); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 3px 8px rgba(0,188,212,0.35); }
+    .brand-sub { font-weight: 700; color: #64748b; font-size: 0.8rem; }
+    .slide-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 440px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; border: none; cursor: pointer; padding: 0; transition: transform 0.2s, background 0.2s; }
+    .dot:hover { transform: scale(1.3); background: #94a3b8; }
+    .dot.active { background: var(--scratch-orange); transform: scale(1.3); box-shadow: 0 0 6px rgba(255,140,26,0.8); }
+    .topbar-actions { display: flex; gap: 8px; }
+    .icon-btn { width: 36px; height: 36px; border: 1px solid #e2e8f0; background: #fff; border-radius: 9px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.18s; color: var(--scratch-dark); }
+    .icon-btn:hover { background: #f1f5f9; transform: translateY(-1px); }
+    .slide-main { flex: 1; display: flex; flex-direction: column; padding: 22px 42px 18px; min-height: 0; }
+    .title-slide .slide-main { justify-content: center; align-items: center; text-align: center; padding: 36px; }
+    .slide-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; background: var(--scratch-blue); padding: 5px 14px; border-radius: 20px; margin-bottom: 8px; align-self: flex-start; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green  { background: var(--scratch-green); }
+    .slide-tag.red    { background: var(--scratch-red); }
+    .slide-tag.cyan   { background: #0284c7; }
+    .slide-tag.yellow { background: #b45309; }
+    h1 { font-size: clamp(2rem, 4.2vw, 2.7rem); line-height: 1.2; font-weight: 900; margin-bottom: 8px; }
+    h2 { font-size: clamp(1.3rem, 2.5vw, 1.75rem); font-weight: 900; margin-bottom: 10px; line-height: 1.25; color: #0f172a; }
+    .subtitle { font-size: 1.1rem; color: #475569; font-weight: 700; }
+    .slide-body { flex: 1; overflow-y: auto; padding-right: 6px; min-height: 0; }
+    .slide-body::-webkit-scrollbar { width: 6px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .section-label { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin: 8px 0 5px; }
+    .title-slide { background: radial-gradient(circle at 50% 10%, #fff7ed 0%, #ffffff 65%, #eff6ff 100%); }
+    .title-emoji { font-size: clamp(3.2rem, 7.5vw, 4.6rem); margin-bottom: 8px; line-height: 1; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12)); }
+    .title-emoji span { display: inline-block; animation: bounceY 1.6s ease-in-out infinite; }
+    .title-emoji span:nth-child(2) { animation-delay: 0.2s; }
+    .title-emoji span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounceY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .title-slide h1 { background: linear-gradient(135deg, #ea580c 0%, #d97706 40%, #0284c7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .title-meta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+    .badge { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 14px; padding: 8px 18px; font-weight: 800; font-size: 0.92rem; color: #1e293b; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .badge.highlight { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+    .start-hint { margin-top: 24px; color: #64748b; font-size: 0.9rem; font-weight: 700; animation: pulse 2.5s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    ul, ol { padding-left: 1.3em; line-height: 1.65; font-size: 0.94rem; font-weight: 600; color: #334155; }
+    li { margin-bottom: 5px; }
+    code { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.92em; font-weight: 800; background: #f1f5f9; color: #c2410c; padding: 2px 7px; border-radius: 6px; border: 1px solid #e2e8f0; }
+    strong { font-weight: 800; color: #0f172a; }
+    .highlight-box { background: #eff6ff; border-left: 5px solid var(--scratch-blue); border-radius: 0 14px 14px 0; padding: 12px 16px; margin: 8px 0; font-size: 0.95rem; line-height: 1.55; font-weight: 600; color: #1e3a8a; }
+    .highlight-box.orange { background: #fff7ed; border-color: var(--scratch-orange); color: #9a3412; }
+    .highlight-box.green  { background: #f0fdf4; border-color: var(--scratch-green); color: #166534; }
+    .highlight-box.purple { background: #faf5ff; border-color: var(--scratch-purple); color: #581c87; }
+    .highlight-box.red    { background: #fff1f2; border-color: var(--scratch-red); color: #9f1239; }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+    .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+    .cols-60-40 { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; margin-top: 8px; }
+    .cols-40-60 { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 16px; margin-top: 8px; }
+    @media (max-width: 768px) { .cols, .cols-3, .cols-60-40, .cols-40-60, .clinic-grid, .hunt-lab, .bal-lab, .cols-4 { grid-template-columns: 1fr; } .slide-main { padding: 16px 20px 12px; } .global-topbar { padding: 8px 14px; top: 8px; } .slide-dots { display: none; } }
+    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+    .card h3 { font-size: 0.98rem; font-weight: 800; color: var(--scratch-blue); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .card.purple h3 { color: var(--scratch-purple); }
+    .card.orange h3 { color: var(--scratch-orange); }
+    .card.green  h3 { color: #16a34a; }
+    .card.red    h3 { color: var(--scratch-red); }
+    .card.blue   h3 { color: #0284c7; }
+    .card p.desc { font-size: 0.84rem; color: #334155; line-height: 1.5; font-weight: 600; }
+    .step-pill { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--scratch-orange); color: #fff; font-size: 0.78rem; font-weight: 900; margin-right: 6px; flex-shrink: 0; }
+    .tip { display: flex; gap: 10px; align-items: flex-start; background: #fefce8; border: 2px dashed #facc15; border-radius: 12px; padding: 10px 14px; margin-top: 8px; font-size: 0.88rem; line-height: 1.5; font-weight: 600; color: #713f12; }
+    .tip-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .time-banner { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #eff6ff, #faf5ff); border: 2px solid #cbd5e1; border-radius: 14px; padding: 10px 18px; margin-bottom: 10px; font-weight: 800; font-size: 0.92rem; }
+    .time-tag { background: #1e293b; color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 0.82rem; }
+
+    /* Khối lệnh Scratch */
+    .blocks-container { background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 14px; padding: 12px 16px; font-family: 'Nunito', 'Segoe UI', sans-serif; font-size: 0.86rem; font-weight: 800; color: #fff; display: flex; flex-direction: column; gap: 4px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
+    .blocks-container.compact { padding: 9px 12px; font-size: 0.78rem; gap: 3px; }
+    .blocks-container + .blocks-container { margin-top: 8px; }
+    .block { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; box-shadow: 0 2px 0 rgba(0,0,0,0.2); width: fit-content; line-height: 1.3; flex-wrap: wrap; }
+    .blocks-container.compact .block { padding: 4px 10px; }
+    .block.event   { background: #ffbf00; color: #5c3b00; }
+    .block.motion  { background: #4c97ff; }
+    .block.looks   { background: #9966ff; }
+    .block.control { background: #ffab19; color: #402300; }
+    .block.sensing { background: #5cb1d6; }
+    .block.variable{ background: #ff8c1a; }
+    .block.sound   { background: #d65cd6; }
+    .block.c-block { display: flex; flex-direction: column; align-items: flex-start; padding: 6px 10px; border-radius: 8px; width: 100%; }
+    /* Header .c-block trộn text + .block-arg phải bọc trong ĐÚNG MỘT .block-head, nếu không flex-column tách từng đoạn thành một dòng. */
+    .block-head { display: block; }
+    .c-body { display: flex; flex-direction: column; gap: 4px; padding-left: 14px; border-left: 4px solid rgba(0,0,0,0.15); margin: 4px 0; width: 100%; }
+    .block-arg { background: #ffffff; color: #1e293b; border-radius: 12px; padding: 1px 8px; font-size: 0.85em; font-weight: 800; }
+    .block-label { font-size: 0.72rem; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; color: #64748b; margin: 0 0 4px; }
+    .block-label:not(:first-child) { margin-top: 8px; }
+
+    /* Thẻ kiến thức bấm để xem khối lệnh */
+    .k-card { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; transition: border-color 0.2s, box-shadow 0.2s; }
+    .k-card.open { border-color: var(--scratch-orange); box-shadow: 0 0 0 3px rgba(255,140,26,0.18); }
+    .k-emoji { font-size: 2rem; line-height: 1; }
+    .k-title { font-size: 0.98rem; font-weight: 900; color: #0f172a; }
+    .k-desc { font-size: 0.85rem; font-weight: 600; color: #334155; line-height: 1.5; }
+    .btn-reveal { align-self: flex-start; background: #fff7ed; border: 2px solid #fdba74; color: #c2410c; border-radius: 8px; padding: 4px 10px; font-family: inherit; font-size: 0.76rem; font-weight: 900; cursor: pointer; transition: all 0.15s; }
+    .btn-reveal:hover { background: #ffedd5; transform: translateY(-1px); }
+    .k-reveal { display: none; flex-direction: column; gap: 4px; }
+    .k-card.open .k-reveal { display: flex; animation: popIn 0.3s ease; }
+    .k-reveal .block { font-size: 0.78rem; padding: 4px 10px; color: #fff; }
+    .k-reveal .block.event, .k-reveal .block.control { color: #402300; }
+
+    /* Phòng thí nghiệm dùng chung */
+    .anim-lab { background: linear-gradient(135deg, #faf5ff, #eff6ff); border: 2px solid #e2e8f0; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; }
+    .anim-lab-title { font-size: 0.86rem; font-weight: 900; color: #581c87; text-align: center; }
+    .anim-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .anim-btns.three { grid-template-columns: repeat(3, 1fr); }
+    .btn-anim { background: #fff; border: 2px solid #cbd5e1; border-radius: 10px; padding: 7px 6px; font-family: inherit; font-size: 0.78rem; font-weight: 800; color: #1e293b; cursor: pointer; transition: all 0.16s; }
+    .btn-anim:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--scratch-purple); background: #faf5ff; }
+    .btn-anim.danger:hover:not(:disabled) { border-color: #ef4444; background: #fef2f2; }
+    .btn-anim:disabled { opacity: 0.45; cursor: default; }
+    .btn-anim.on { border-color: #ef4444; background: #fef2f2; color: #b91c1c; }
+    .anim-feedback { font-size: 0.8rem; font-weight: 800; color: #475569; text-align: center; min-height: 40px; line-height: 1.4; }
+
+
+    .cols-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 8px; }
+    .meter { background: #e2e8f0; height: 16px; border-radius: 10px; overflow: hidden; }
+    .meter-fill { height: 100%; width: 10%; background: linear-gradient(90deg, #94a3b8, var(--scratch-orange), var(--scratch-yellow)); transition: width 0.4s ease; }
+    .legend-optional { font-size: 0.74rem; font-weight: 700; color: #64748b; margin-top: 4px; }
+    .k-reveal .k-ex { background: #fff7ed; border: 2px dashed #fdba74; border-radius: 10px; padding: 6px 9px; font-size: 0.8rem; font-weight: 700; color: #9a3412; line-height: 1.45; }
+    .crit-chip { display: inline-block; font-size: 0.68rem; font-weight: 900; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; color: #fff; white-space: nowrap; }
+    .crit-0 { background: #0284c7; }
+    .crit-1 { background: #16a34a; }
+    .crit-2 { background: #be123c; }
+
+    /* Lab săn lỗi trên game mẫu */
+    .hunt-lab { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 14px; }
+    .hunt-stage { position: relative; height: 310px; border-radius: 14px; border: 3px solid #cbd5e1; overflow: hidden; background: radial-gradient(circle at 50% 40%, #1e3a8a, #0f172a); }
+    .hunt-title { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); color: #fde68a; font-weight: 900; font-size: 0.8rem; white-space: nowrap; }
+    .hotspot { position: absolute; background: rgba(255,255,255,0.12); border: 2px dashed rgba(255,255,255,0.55); border-radius: 10px; color: #fff; font-family: inherit; font-size: 0.82rem; font-weight: 900; padding: 4px 9px; cursor: pointer; transition: all 0.16s; white-space: nowrap; }
+    .hotspot:hover:not(:disabled) { background: rgba(253,230,138,0.3); border-color: #fde68a; transform: scale(1.06); }
+    .hotspot.found { background: rgba(239,68,68,0.55); border: 2px solid #fecaca; cursor: default; animation: bounce 0.45s ease; }
+    .hotspot.decoy { background: rgba(34,197,94,0.45); border: 2px solid #bbf7d0; cursor: default; animation: shake 0.4s ease; }
+    .hotspot.big { font-size: 1.15rem; }
+    .hunt-side { display: flex; flex-direction: column; gap: 8px; }
+    .hunt-head { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-weight: 900; color: #0f172a; }
+    .hunt-count { background: linear-gradient(135deg,#ff8c1a,#ffbf00); color: #fff; padding: 3px 10px; border-radius: 8px; font-size: 0.82rem; }
+    .bug-list { display: flex; flex-direction: column; gap: 6px; }
+    .bug-row { display: flex; gap: 8px; align-items: flex-start; background: #fff; border: 2px solid #e2e8f0; border-left: 5px solid #ef4444; border-radius: 10px; padding: 6px 9px; animation: popIn 0.3s ease; }
+    .bug-row .bug-title { font-size: 0.8rem; font-weight: 800; color: #0f172a; line-height: 1.35; }
+    .bug-row .bug-fix { font-size: 0.74rem; font-weight: 700; color: #15803d; line-height: 1.35; }
+    .bug-empty { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 10px; padding: 12px; font-size: 0.82rem; font-weight: 700; color: #64748b; text-align: center; }
+
+    /* Lab cân bằng game */
+    .bal-lab { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .bal-stage { position: relative; height: 170px; border-radius: 12px; border: 2px solid #cbd5e1; overflow: hidden; background: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 100%); }
+    .bal-apple { position: absolute; left: 62%; top: -34px; font-size: 1.9rem; animation: balFall 2s linear infinite; }
+    @keyframes balFall { 0% { top: -34px; } 100% { top: 140px; } }
+    .bal-player { position: absolute; bottom: 4px; left: 8%; font-size: 2.2rem; animation: balMove 1.6s ease-in-out infinite alternate; }
+    @keyframes balMove { 0% { left: 8%; } 100% { left: 84%; } }
+    .bal-row { display: grid; grid-template-columns: 1fr; gap: 3px; }
+    .bal-row label { font-size: 0.8rem; font-weight: 900; color: #334155; display: flex; justify-content: space-between; }
+    .bal-row input[type=range] { width: 100%; accent-color: var(--scratch-orange); cursor: pointer; }
+    .bal-verdict { font-size: 0.78rem; font-weight: 800; padding: 4px 9px; border-radius: 8px; }
+    .bal-verdict.ok { background: #dcfce7; color: #15803d; }
+    .bal-verdict.bad { background: #fee2e2; color: #b91c1c; }
+    .bal-verdict.warn { background: #fef3c7; color: #b45309; }
+
+    /* Bảng theo dõi sửa lỗi */
+    .fix-board { display: flex; flex-direction: column; gap: 6px; }
+    .fix-card { display: flex; align-items: center; gap: 9px; background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 7px 11px; cursor: pointer; font-family: inherit; text-align: left; transition: all 0.16s; width: 100%; }
+    .fix-card:hover { transform: translateX(3px); border-color: var(--scratch-blue); }
+    .fix-card .fix-state { font-size: 0.74rem; font-weight: 900; padding: 2px 8px; border-radius: 6px; white-space: nowrap; background: #fee2e2; color: #b91c1c; }
+    .fix-card .fix-text { flex: 1; font-size: 0.82rem; font-weight: 800; color: #0f172a; }
+    .fix-card.doing { border-color: #f59e0b; background: #fffbeb; }
+    .fix-card.doing .fix-state { background: #fef3c7; color: #b45309; }
+    .fix-card.done { border-color: #22c55e; background: #f0fdf4; }
+    .fix-card.done .fix-state { background: #dcfce7; color: #15803d; }
+    .fix-card.done .fix-text { text-decoration: line-through; color: #64748b; }
+    .sev { font-size: 0.66rem; font-weight: 900; padding: 2px 7px; border-radius: 6px; color: #fff; white-space: nowrap; }
+    .sev-high { background: #ef4444; } .sev-mid { background: #f59e0b; } .sev-low { background: #22c55e; }
+
+    /* Bài mở rộng */
+    .level-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; font-weight: 900; padding: 4px 10px; border-radius: 8px; color: #fff; margin-bottom: 4px; }
+    .level-a { background: #16a34a; }
+    .level-b { background: #2563eb; }
+    .level-c { background: #9333ea; }
+    .ex-card { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 7px; }
+    .ex-card.a { border-top: 5px solid #16a34a; }
+    .ex-card.b { border-top: 5px solid #2563eb; }
+    .ex-card.c { border-top: 5px solid #9333ea; }
+    .ex-card .level-badge { align-self: flex-start; margin-bottom: 0; }
+    .ex-card h3 { font-size: 1.02rem; font-weight: 900; color: #0f172a; }
+    .ex-req { font-size: 0.8rem; font-weight: 700; color: #334155; line-height: 1.45; }
+    .ex-try { background: #fefce8; border: 2px dashed #facc15; border-radius: 10px; padding: 6px 10px; font-size: 0.78rem; font-weight: 700; color: #713f12; line-height: 1.45; }
+    .ex-check { font-size: 0.76rem; font-weight: 800; color: #15803d; }
+    /* Bác sĩ Scratch */
+    .clinic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .clinic-card { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+    .clinic-card:hover { transform: translateY(-2px); border-color: var(--scratch-red); box-shadow: 0 6px 18px rgba(255,102,128,0.15); }
+    .clinic-card.cured { border-color: #22c55e; background: #f0fdf4; }
+    .clinic-badge { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; width: fit-content; }
+    .clinic-badge.sick { background: #fee2e2; color: #b91c1c; }
+    .clinic-symptom { font-size: 0.82rem; color: #475569; line-height: 1.4; font-weight: 700; }
+    .clinic-cure { display: none; font-size: 0.82rem; font-weight: 800; color: #15803d; line-height: 1.45; }
+    .clinic-card.cured .clinic-cure { display: block; animation: popIn 0.3s ease; }
+    .btn-cure { align-self: flex-start; background: #fff1f2; border: 2px solid #fda4af; color: #be123c; border-radius: 8px; padding: 4px 10px; font-family: inherit; font-size: 0.74rem; font-weight: 900; cursor: pointer; transition: all 0.15s; }
+    .btn-cure:hover { background: #ffe4e6; transform: translateY(-1px); }
+    .clinic-card.cured .btn-cure { display: none; }
+
+    /* Đấu trường Đúng / Sai */
+    .arena-wrap { background: linear-gradient(135deg, #faf5ff, #f0fdf4); border: 2px solid #e2e8f0; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .arena-rule-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.82rem; font-weight: 800; color: #475569; background: #ffffff; border-radius: 10px; padding: 7px 14px; border: 1px solid #e2e8f0; }
+    .arena-streak-badge { background: linear-gradient(135deg,#ff8c1a,#ffbf00); color:#fff; font-size:0.82rem; font-weight:900; padding: 3px 10px; border-radius: 8px; }
+    .arena-streak-badge.bump { animation: bounce 0.45s ease; }
+    .arena-scenario { background: #ffffff; border-radius: 14px; border: 2px solid #cbd5e1; padding: 16px 20px; text-align: center; min-height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; transition: border-color 0.25s, box-shadow 0.25s; }
+    .arena-scenario.pop { animation: popIn 0.3s ease; }
+    .arena-scenario.right  { border-color: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,0.25); animation: bounce 0.45s ease; }
+    .arena-scenario.wrongc { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239,68,68,0.2); animation: shake 0.4s ease; }
+    @keyframes popIn { 0%{transform:scale(0.93);opacity:0.5} 100%{transform:scale(1);opacity:1} }
+    @keyframes bounce { 0%,100%{transform:scale(1)} 40%{transform:scale(1.06)} 70%{transform:scale(0.98)} }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .arena-scenario-emoji { font-size: 2.4rem; }
+    .arena-scenario-text { font-size: 1.1rem; font-weight: 900; color: #0f172a; line-height: 1.4; }
+    .arena-scenario-sub  { font-size: 0.84rem; font-weight: 700; color: #64748b; }
+    .arena-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-arena { padding: 12px 10px; border-radius: 12px; border: 2.5px solid; font-family: inherit; font-size: 0.95rem; font-weight: 900; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-arena:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+    .btn-arena:disabled { cursor: default; }
+    .btn-arena.win  { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+    .btn-arena.lose { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+    .btn-arena.correct-glow { box-shadow: 0 0 0 4px rgba(34,197,94,0.45); }
+    .btn-arena.wrong-glow   { animation: shake 0.4s ease; }
+    .arena-feedback-msg { text-align: center; font-size: 0.9rem; font-weight: 800; min-height: 24px; color: #475569; line-height: 1.45; }
+    .btn-arena-next { background: var(--scratch-purple); color: #fff; border: none; font-family: inherit; font-weight: 800; font-size: 0.9rem; padding: 9px 20px; border-radius: 10px; cursor: pointer; width: 100%; transition: all 0.16s; }
+    .btn-arena-next:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* Máy gợi ý giao diện game */
+    .story-gen { background: linear-gradient(135deg, #fff7ed, #fdf2f8); border: 2px solid #fed7aa; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .story-reels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .story-reel { background: #fff; border: 2px solid #fdba74; border-radius: 12px; padding: 6px 6px 8px; text-align: center; min-height: 78px; display: flex; flex-direction: column; justify-content: center; gap: 3px; overflow: hidden; }
+    .story-reel-label { font-size: 0.64rem; font-weight: 900; text-transform: uppercase; color: #9a3412; letter-spacing: 0.04em; }
+    .story-reel-val { font-size: 0.8rem; font-weight: 900; color: #0f172a; line-height: 1.3; }
+    .story-reel.spinning .story-reel-val { animation: slotSpin 0.12s linear infinite; }
+    .story-reel.landed { animation: popIn 0.3s ease; border-color: var(--scratch-orange); box-shadow: 0 0 0 3px rgba(255,140,26,0.25); }
+    @keyframes slotSpin { 0% { transform: translateY(-40%); opacity: 0.2; } 50% { opacity: 1; } 100% { transform: translateY(40%); opacity: 0.2; } }
+    .btn-spin { background: linear-gradient(135deg, #ff8c1a, #ff6680); color: #fff; border: none; border-radius: 12px; padding: 9px 12px; font-family: inherit; font-size: 0.86rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 12px rgba(255,102,128,0.35); transition: transform 0.15s; }
+    .btn-spin:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn-spin:disabled { opacity: 0.6; cursor: default; }
+    .story-banner { background: #fff; border-radius: 10px; border-left: 4px solid var(--scratch-orange); padding: 7px 10px; font-size: 0.78rem; font-weight: 700; color: #7c2d12; line-height: 1.5; }
+
+    /* Quiz */
+    .quiz-arena { display: flex; flex-direction: column; gap: 10px; background: #f8fafc; border-radius: 16px; padding: 14px 18px; border: 1px solid #e2e8f0; }
+    .quiz-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #475569; font-size: 0.9rem; }
+    .quiz-question-box { font-size: 1.08rem; font-weight: 800; color: #0f172a; line-height: 1.4; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .quiz-opt-btn { background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; padding: 10px 12px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: #1e293b; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.16s; }
+    .quiz-opt-btn:hover:not(:disabled) { border-color: var(--scratch-purple); background: #faf5ff; transform: translateY(-2px); }
+    .quiz-opt-btn.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; font-weight: 800; animation: bounce 0.45s ease; }
+    .quiz-opt-btn.wrong   { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; animation: shake 0.4s ease; }
+    .quiz-opt-badge { width: 24px; height: 24px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; flex-shrink: 0; color: #475569; }
+    .quiz-opt-btn.correct .quiz-opt-badge { background: #22c55e; color: #fff; }
+    .quiz-opt-btn.wrong .quiz-opt-badge   { background: #ef4444; color: #fff; }
+    .quiz-explain { display: none; background: #ffffff; border-radius: 10px; padding: 8px 12px; border-left: 4px solid #3b82f6; font-size: 0.88rem; font-weight: 700; color: #1e3a8a; }
+    .quiz-explain.show { display: block; }
+    .quiz-nav-row { display: flex; justify-content: flex-end; align-items: center; }
+    .btn-quiz-next { background: var(--scratch-purple); color: #fff; border: none; font-family: inherit; font-weight: 800; font-size: 0.88rem; padding: 8px 18px; border-radius: 10px; cursor: pointer; display: none; transition: all 0.16s; }
+    .btn-quiz-next.show { display: inline-flex; }
+    .btn-quiz-next:hover { opacity: 0.9; transform: translateY(-1px); }
+    .trophy { font-size: 2.8rem; margin-bottom: 6px; display: inline-block; animation: bounceY 1.4s ease-in-out infinite; }
+
+    /* Checklist */
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding-left: 0; }
+    .checklist li { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; color: #334155; margin: 0; }
+    .check-icon { width: 20px; height: 20px; border-radius: 6px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #0f172a; flex-shrink: 0; }
+    .checklist li.checked .check-icon, .checklist:not(.interactive) .check-icon { background: var(--scratch-green); color: #ffffff; }
+    .checklist.interactive li { cursor: pointer; background: #ffffff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 9px 12px; transition: all 0.16s; }
+    .checklist.interactive li:hover { border-color: var(--scratch-blue); transform: translateX(3px); }
+    .checklist.interactive li.checked { background: #f0fdf4; border-color: #86efac; color: #166534; }
+    .checklist.interactive li.checked .check-icon { animation: bounce 0.35s ease; }
+    .check-progress { margin-top: 10px; background: #e2e8f0; height: 12px; border-radius: 8px; overflow: hidden; }
+    .check-progress-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--scratch-green), var(--scratch-cyan)); transition: width 0.35s ease; }
+    .check-status { margin-top: 6px; font-size: 0.9rem; font-weight: 900; color: #475569; text-align: center; }
+    .th-badge { display: inline-block; background: var(--scratch-red); color: #fff; font-weight: 800; font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; margin-right: 4px; vertical-align: middle; }
+
+    /* Huy hiệu */
+    .award-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; width: 100%; max-width: 740px; }
+    .award { background: #fff; border: 2px solid #e2e8f0; border-radius: 14px; padding: 8px; text-align: center; cursor: pointer; transition: all 0.18s; font-family: inherit; }
+    .award:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
+    .award.lit { border-color: #facc15; background: #fefce8; box-shadow: 0 0 0 4px rgba(250,204,21,0.35); animation: bounce 0.45s ease; }
+    .award-emoji { font-size: 1.6rem; display: block; }
+    .award-name { font-size: 0.8rem; font-weight: 900; color: #0f172a; display: block; margin-top: 2px; }
+    .award-desc { font-size: 0.7rem; font-weight: 700; color: #64748b; display: block; }
+
+    /* Nav */
+    .nav { position: fixed; bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 100; }
+    .nav button { background: rgba(255,255,255,0.18); border: 2px solid rgba(255,255,255,0.4); color: #fff; width: 46px; height: 46px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: background 0.2s, transform 0.15s; backdrop-filter: blur(8px); }
+    .nav button:hover:not(:disabled) { background: rgba(255,255,255,0.32); transform: scale(1.08); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+    .slide-counter { color: rgba(255,255,255,0.92); font-size: 0.9rem; font-weight: 800; min-width: 56px; text-align: center; }
+    .hint { position: fixed; bottom: 76px; color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: 600; transition: opacity 0.4s; }
+    html:fullscreen, html:-webkit-full-screen { width: 100%; height: 100%; }
+    html:fullscreen body, html:-webkit-full-screen body { width: 100%; height: 100%; min-height: 100%; background: #0f172a; padding: 0; }
+    html:fullscreen .deck, html:-webkit-full-screen .deck { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0; }
+    html:fullscreen .slide, html:-webkit-full-screen .slide { border-radius: 0; box-shadow: none; }
+    html:fullscreen .global-topbar, html:-webkit-full-screen .global-topbar { display: none; }
+    html:fullscreen .hint, html:-webkit-full-screen .hint { display: none; }
+    html:fullscreen .nav, html:-webkit-full-screen .nav { bottom: 16px; opacity: 0.35; transition: opacity 0.25s; }
+    html:fullscreen .nav:hover, html:-webkit-full-screen .nav:hover { opacity: 1; }
+    html:fullscreen .progress-bar, html:-webkit-full-screen .progress-bar { height: 3px; }
+    .fs-exit { display: none; position: fixed; top: 12px; right: 12px; z-index: 300; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.35); color: #fff; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; font-size: 1rem; backdrop-filter: blur(6px); transition: background 0.15s; }
+    .fs-exit:hover { background: rgba(0,0,0,0.75); }
+    html:fullscreen .fs-exit, html:-webkit-full-screen .fs-exit { display: flex; align-items: center; justify-content: center; }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="14" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🧪</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1: Tiêu đề -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji"><span>🧪</span><span>🎮</span><span>🐞</span></div>
+      <h1>Phòng Thử Nghiệm Game — Playtest Chéo &amp; Sửa Lỗi!</h1>
+      <p class="subtitle">Em là Game Tester: chơi thử game của bạn, ghi Phiếu Bắt Lỗi rồi cùng sửa cho thật hoàn hảo</p>
+      <div class="title-meta">
+        <span class="badge highlight">📅 Tuần 16</span>
+        <span class="badge">🛠️ Buổi 32 — Bài tập</span>
+        <span class="badge">🎯 Độ tuổi: 7–10</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Phím cách để bắt đầu nào! 🚀</p>
+    </div>
+  </section>
+
+  <!-- Slide 2: Khung giờ -->
+  <section class="slide" data-index="1" aria-label="Mục tiêu và khung giờ">
+    <div class="slide-main">
+      <span class="slide-tag orange">⏱️ Kế hoạch buổi Playtest</span>
+      <h2>Hôm Nay Lớp Mình Biến Thành Phòng Thử Nghiệm Game! 🧪</h2>
+      <div class="slide-body">
+        <div class="time-banner">
+          <div>🎯 <strong>Mục tiêu:</strong> Dự án game chạy trơn tru, <strong>không còn lỗi nghiêm trọng</strong>, sẵn sàng cho Showcase đầu Tháng 5.</div>
+          <span class="time-tag">90 Phút</span>
+        </div>
+        <div class="cols-4" style="margin-top:10px;">
+          <div class="card orange">
+            <h3><span class="step-pill">1</span> 15 phút</h3>
+            <p class="desc"><strong>Hướng dẫn</strong> cách test &amp; ghi Phiếu Bắt Lỗi.</p>
+          </div>
+          <div class="card green">
+            <h3><span class="step-pill" style="background:#16a34a;">2</span> 25 phút</h3>
+            <p class="desc"><strong>Chơi thử chéo:</strong> sang máy bạn, chơi ≥ 2 game, ghi 1 điểm khen + 1 lỗi.</p>
+          </div>
+          <div class="card blue">
+            <h3><span class="step-pill" style="background:#0284c7;">3</span> 40 phút</h3>
+            <p class="desc"><strong>Sửa lỗi tại chỗ</strong> (Clinic Session) cùng thầy/cô và trợ giảng.</p>
+          </div>
+          <div class="card purple">
+            <h3><span class="step-pill" style="background:#7c3aed;">4</span> 10 phút</h3>
+            <p class="desc"><strong>Chốt danh sách</strong> sẵn sàng cho Showcase.</p>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:14px;">
+          <span class="tip-icon">💡</span>
+          <div><strong>Lời khuyên vàng:</strong> Tester giỏi không phải người chê nhiều nhất, mà là người <strong>chỉ ra lỗi rõ ràng, lịch sự</strong> để bạn sửa được ngay!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Khởi động Đúng/Sai ôn buổi 31 -->
+  <section class="slide" data-index="2" aria-label="Khởi động Đúng hay Sai">
+    <div class="slide-main">
+      <span class="slide-tag purple">🎬 Khởi động ôn tập</span>
+      <h2>Đúng Hay Sai? Nhớ Lại Buổi 31 Nào! ⚡</h2>
+      <div class="slide-body">
+        <div class="arena-wrap">
+          <div class="arena-rule-bar">
+            <span>Đọc to câu hỏi → cả lớp đoán → bấm <strong>✅ ĐÚNG</strong> hoặc <strong>❌ SAI</strong></span>
+            <span class="arena-streak-badge" id="arenaStreak">🔥 Chuỗi đúng: 0</span>
+          </div>
+          <div class="arena-scenario" id="arenaScenario">
+            <div class="arena-scenario-emoji" id="arenaEmoji">▶️</div>
+            <div class="arena-scenario-text" id="arenaText">Đang tải câu hỏi...</div>
+            <div class="arena-scenario-sub" id="arenaSub"></div>
+          </div>
+          <div class="arena-btns">
+            <button class="btn-arena win" id="btnArenaTrue">✅ ĐÚNG!</button>
+            <button class="btn-arena lose" id="btnArenaFalse">❌ SAI!</button>
+          </div>
+          <div class="arena-feedback-msg" id="arenaFeedback">Cả lớp đoán trước, rồi thầy/cô bấm để kiểm tra nhé!</div>
+          <button class="btn-arena-next" id="btnArenaNext" style="display:none;">Câu tiếp theo ➡️</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: Game Tester & 3 tiêu chí -->
+  <section class="slide" data-index="3" aria-label="Game Tester và ba tiêu chí">
+    <div class="slide-main">
+      <span class="slide-tag orange">🔁 Trạm kỹ năng cốt lõi</span>
+      <h2>Game Tester Làm Gì? 3 Tiêu Chí Của Phiếu Bắt Lỗi 📋</h2>
+      <div class="slide-body">
+        <p class="section-label" style="margin-top:0;">3 việc của một Tester giỏi</p>
+        <div class="cols-3" style="margin-top:0;">
+          <div class="k-card">
+            <span class="k-title">🎮 1. Chơi như người lạ</span>
+            <span class="k-desc">Chơi thử mà không hỏi bạn. Thấy khó hiểu hay bị kẹt là đã tìm ra điều cần sửa!</span>
+            <button class="btn-reveal">👀 Xem ví dụ</button>
+            <div class="k-reveal"><span class="k-ex">"Mình không biết bấm đâu để bắt đầu."</span></div>
+          </div>
+          <div class="k-card">
+            <span class="k-title">✏️ 2. Ghi lỗi rõ ràng</span>
+            <span class="k-desc">Ghi <strong>chuyện gì xảy ra</strong> và <strong>khi nào</strong>. Ghi cụ thể, không ghi "game dở".</span>
+            <button class="btn-reveal">👀 Xem ví dụ</button>
+            <div class="k-reveal"><span class="k-ex">"Hết 3 mạng rồi mà sao vẫn rơi tiếp."</span></div>
+          </div>
+          <div class="k-card">
+            <span class="k-title">💬 3. Góp ý lịch sự</span>
+            <span class="k-desc">Mỗi lần góp ý: <strong>1 điểm khen + 1 lỗi</strong> cần sửa. Giúp bạn, không chê bạn!</span>
+            <button class="btn-reveal">👀 Xem ví dụ</button>
+            <div class="k-reveal"><span class="k-ex">"Mình thích nhạc nền! Bạn thử ẩn nút Bắt đầu sau khi bấm nhé."</span></div>
+          </div>
+        </div>
+        <p class="section-label">Phiếu Bắt Lỗi — 3 tiêu chí kiểm thử</p>
+        <div class="cols-3" style="margin-top:0;">
+          <div class="card blue">
+            <h3><span class="crit-chip crit-0">Khởi động</span></h3>
+            <p class="desc">Bấm cờ xanh và nút Bắt đầu có chạy mượt không?</p>
+          </div>
+          <div class="card green">
+            <h3><span class="crit-chip crit-1">Gameplay</span></h3>
+            <p class="desc">Di chuyển có bị kẹt không? Điểm và Mạng có tính chính xác không?</p>
+          </div>
+          <div class="card red">
+            <h3><span class="crit-chip crit-2">Kết thúc</span></h3>
+            <p class="desc">Thắng hoặc Thua có thông báo rõ ràng và game dừng lại không?</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: Lab săn lỗi -->
+  <section class="slide" data-index="4" aria-label="Lab săn lỗi trên game mẫu">
+    <div class="slide-main">
+      <span class="slide-tag red">🐞 Tập bắt lỗi — game mẫu</span>
+      <h2>Thực Tập Làm Tester: Săn Lỗi Trên Game Mẫu! 🔎</h2>
+      <div class="slide-body">
+        <div class="hunt-lab" id="huntLab">
+          <div class="hunt-stage" id="huntStage">
+            <div class="hunt-title">🚀 Bắt Sao Bay — bản đang chạy thử</div>
+            <button class="hotspot" data-bug="score" style="top:34px; left:12px;">⭐ Điểm: 12 / 10</button>
+            <button class="hotspot big" data-bug="over" style="top:70px; left:50%; transform:translateX(-50%);">💥 GAME OVER</button>
+            <button class="hotspot" data-bug="play" style="top:132px; left:50%; transform:translateX(-50%);">▶️ BẮT ĐẦU</button>
+            <button class="hotspot big" data-bug="star" style="top:190px; left:22%;">⭐↓</button>
+            <button class="hotspot big" data-bug="rock" style="bottom:12px; right:12px;">☄️☄️☄️</button>
+            <button class="hotspot big" data-bug="stuck" style="bottom:12px; left:12px;">🚀 ⬅️✖</button>
+          </div>
+          <div class="hunt-side">
+            <div class="hunt-head"><span>📋 Phiếu Bắt Lỗi của em</span><span class="hunt-count" id="huntCount">0 / 5 lỗi</span></div>
+            <div class="bug-list" id="bugList"><div class="bug-empty" id="bugEmpty">Click vào những chỗ <strong>đáng nghi</strong> trên màn hình game. Cẩn thận: có 1 chỗ KHÔNG phải lỗi!</div></div>
+            <div class="anim-feedback" id="huntFeedback" style="min-height:30px;"></div>
+            <button class="btn-anim" id="btnHuntReset">🔄 Chơi lại</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Bác sĩ Scratch -->
+  <section class="slide" data-index="5" aria-label="Bác sĩ Scratch sửa lỗi">
+    <div class="slide-main">
+      <span class="slide-tag red">🩺 Bác sĩ Scratch — Clinic Session</span>
+      <h2>Phòng Khám Sửa Lỗi: Chữa Các "Bệnh" Hay Gặp! 🚑</h2>
+      <div class="slide-body">
+        <div class="cols-40-60" style="margin-top:0;">
+          <div>
+            <p class="block-label">🤒 Bệnh nhân — bản sao Thiên thạch</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi tôi bắt đầu là một bản sao</div>
+              <div class="block control c-block">
+                <span class="block-head">lặp lại cho đến khi &lt;tọa độ y &lt; <span class="block-arg">-160</span>&gt;</span>
+                <div class="c-body">
+                  <div class="block motion">thay đổi y một lượng <span class="block-arg">-6</span></div>
+                  <div class="block control c-block">
+                    <span class="block-head">nếu &lt;đang chạm <span class="block-arg">NhanVat v</span>?&gt; thì</span>
+                    <div class="c-body">
+                      <div class="block variable">thay đổi <span class="block-arg">Mạng</span> một lượng <span class="block-arg">-1</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="highlight-box red" style="font-size:0.84rem;">
+              🔎 <strong>Triệu chứng:</strong> Chạm 1 thiên thạch mà mất cả 3 mạng, và thiên thạch rơi chạm đáy vẫn nằm lì ở đó!<br>
+              👉 Cả lớp tìm xem thiếu khối nào?
+            </div>
+          </div>
+          <div class="clinic-grid">
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 1: Mất mạng liên tục 💔</span>
+              <span class="clinic-symptom">Chạm 1 lần mà Mạng tụt về 0 ngay lập tức.</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Thêm <code>xóa bản sao này</code> ngay sau <code>thay đổi [Mạng]</code> — mỗi vật chỉ tính 1 lần.</div>
+            </div>
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 2: Rác bản sao 🧟</span>
+              <span class="clinic-symptom">Vật rơi chạm đáy vẫn nằm đó, càng lúc càng nhiều.</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Luôn có <code>xóa bản sao này</code> sau vòng lặp rơi, kể cả khi vật không chạm ai.</div>
+            </div>
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 3: Thua mà không dừng 🔁</span>
+              <span class="clinic-symptom">Hiện Game Over rồi mà game vẫn chạy, tiếng kêu lặp lại.</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Sau <code>phát tin [Thua]</code> thêm <code>dừng lại [tập lệnh này]</code>; cuối màn kết thúc có <code>dừng lại [tất cả]</code>.</div>
+            </div>
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 4: Nút "ma" 👻</span>
+              <span class="clinic-symptom">Nút Bắt đầu vẫn hiện, hoặc chữ Game Over hiện ngay từ đầu.</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Cờ xanh: GameOver <code>ẩn</code>, NutBatDau <code>hiện</code>. Bấm nút xong thì NutBatDau <code>ẩn</code>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: Lab cân bằng game -->
+  <section class="slide" data-index="6" aria-label="Cân bằng game">
+    <div class="slide-main">
+      <span class="slide-tag green">⚖️ Cân bằng game (Game Balance)</span>
+      <h2>Chỉnh Tốc Độ Rơi &amp; Độ Nhạy Phím Cho Game Vui Nhất! 🎚️</h2>
+      <div class="slide-body">
+        <div class="cols-40-60" style="margin-top:0;">
+          <div>
+            <p class="block-label">2 con số quyết định cảm giác chơi</p>
+            <div class="blocks-container compact">
+              <div class="block motion">thay đổi y một lượng <span class="block-arg">-6</span></div>
+            </div>
+            <div class="blocks-container compact">
+              <div class="block event">khi nhấn phím <span class="block-arg">mũi tên phải v</span></div>
+              <div class="block motion">thay đổi x một lượng <span class="block-arg">10</span></div>
+            </div>
+            <div class="highlight-box green" style="font-size:0.84rem;">
+              ⚖️ <strong>Game Balance</strong> = không quá khó, không quá dễ. Số <strong>càng lớn</strong> thì vật rơi / nhân vật chạy <strong>càng nhanh</strong>.
+            </div>
+            <div class="tip">
+              <span class="tip-icon">🧪</span>
+              <div>Bí quyết: nhờ <strong>2 bạn chơi thử</strong> xem có vui không rồi mới chốt số nhé!</div>
+            </div>
+          </div>
+          <div class="anim-lab" id="balLab">
+            <div class="anim-lab-title">🎚️ Phòng thí nghiệm Cân bằng game</div>
+            <div class="bal-stage">
+              <div class="bal-apple" id="balApple">⭐</div>
+              <div class="bal-player" id="balPlayer">🧑‍🚀</div>
+            </div>
+            <div class="bal-row">
+              <label><span>⬇️ Tốc độ rơi (thay đổi y một lượng <span id="fallNum">-14</span>)</span><span id="fallSecText"></span></label>
+              <input type="range" id="fallSlider" min="2" max="16" value="14">
+              <span class="bal-verdict" id="fallVerdict"></span>
+            </div>
+            <div class="bal-row">
+              <label><span>↔️ Độ nhạy phím (thay đổi x một lượng <span id="stepNum">10</span>)</span><span id="stepSecText"></span></label>
+              <input type="range" id="stepSlider" min="2" max="24" value="10">
+              <span class="bal-verdict" id="stepVerdict"></span>
+            </div>
+            <div class="meter-label" style="font-size:0.84rem; font-weight:900; display:flex; justify-content:space-between;"><span>🔥 Độ vui của game</span><span id="funValue">…</span></div>
+            <div class="meter"><div class="meter-fill" id="funFill"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: Giai đoạn 1 — Chơi thử chéo + Máy góp ý -->
+  <section class="slide" data-index="7" aria-label="Giai đoạn 1 chơi thử chéo">
+    <div class="slide-main">
+      <span class="slide-tag red">🕵️ Giai đoạn 1 · Chơi thử chéo (25 phút)</span>
+      <h2><span class="th-badge">GĐ1</span> Sang Máy Bạn Làm Game Tester! 🎮</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div>
+            <p class="section-label" style="margin-top:0;">Việc em làm</p>
+            <div class="card" style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; align-items:center; font-size:0.88rem; font-weight:700; color:#334155;"><span class="step-pill">1</span> Cả lớp đứng dậy, chuyển sang <strong>&nbsp;máy bạn bên cạnh&nbsp;</strong>.</div>
+              <div style="display:flex; align-items:center; font-size:0.88rem; font-weight:700; color:#334155;"><span class="step-pill">2</span> Chơi thử <strong>&nbsp;ít nhất 2 game&nbsp;</strong> từ lúc bấm cờ xanh đến lúc Thắng hoặc Thua.</div>
+              <div style="display:flex; align-items:center; font-size:0.88rem; font-weight:700; color:#334155;"><span class="step-pill">3</span> Mỗi game ghi <strong>&nbsp;1 điểm khen + 1 lỗi&nbsp;</strong> vào giấy note, dán cạnh máy bạn.</div>
+              <div style="display:flex; align-items:center; font-size:0.88rem; font-weight:700; color:#334155;"><span class="step-pill">4</span> Ghi theo 3 tiêu chí: <strong>&nbsp;Khởi động · Gameplay · Kết thúc&nbsp;</strong>.</div>
+            </div>
+            <p class="section-label">Checklist Tester</p>
+            <ul class="checklist">
+              <li><span class="check-icon">✓</span> Chơi trọn 1 ván, không hỏi bạn trước</li>
+              <li><span class="check-icon">✓</span> Lỗi ghi rõ chuyện gì xảy ra và khi nào</li>
+              <li><span class="check-icon">✓</span> Có 1 lời khen thật lòng</li>
+            </ul>
+          </div>
+          <div class="story-gen" id="uiGen">
+            <div class="anim-lab-title" style="color:#9a3412;">💬 Bí lời góp ý lịch sự? Quay thử!</div>
+            <div class="story-reels">
+              <div class="story-reel" id="uiReel0"><span class="story-reel-label">Lời khen</span><span class="story-reel-val">🎵 nhạc nền vui</span></div>
+              <div class="story-reel" id="uiReel1"><span class="story-reel-label">Lỗi em thấy</span><span class="story-reel-val">▶️ nút Bắt đầu còn hiện</span></div>
+              <div class="story-reel" id="uiReel2"><span class="story-reel-label">Gợi ý sửa</span><span class="story-reel-val">🙈 thêm khối ẩn</span></div>
+            </div>
+            <button class="btn-spin" id="btnUiSpin">🎰 QUAY LỜI GÓP Ý!</button>
+            <div class="story-banner" id="uiBanner">
+              💬 Mình thích <strong>🎵 nhạc nền vui</strong>! Mình thấy <strong>▶️ nút Bắt đầu còn hiện</strong>. Bạn thử <strong>🙈 thêm khối ẩn</strong> nhé!
+            </div>
+            <div class="tip" style="margin-top:0; font-size:0.8rem;">
+              <span class="tip-icon">🔇</span>
+              <div>Chơi thử bằng <strong>tai nghe</strong> hoặc âm lượng nhỏ để lớp không ồn nhé!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: Giai đoạn 2 — Sửa lỗi + Bảng theo dõi -->
+  <section class="slide" data-index="8" aria-label="Giai đoạn 2 sửa lỗi">
+    <div class="slide-main">
+      <span class="slide-tag red">🔧 Giai đoạn 2 · Sửa lỗi tại chỗ (40 phút)</span>
+      <h2><span class="th-badge">GĐ2</span> Đọc Phiếu Của Bạn Rồi Sửa Dứt Điểm! 🩺</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div>
+            <p class="section-label" style="margin-top:0;">Quy trình sửa lỗi</p>
+            <ol style="font-size:0.88rem; line-height:1.55;">
+              <li>Về máy mình, đọc giấy note của bạn. <strong>Lưu một bản sao</strong> trước khi sửa lớn!</li>
+              <li>Xếp lỗi theo mức: <span class="sev sev-high">Nghiêm trọng</span> (game hỏng) · <span class="sev sev-mid">Vừa</span> · <span class="sev sev-low">Nhỏ</span>. Sửa lỗi nghiêm trọng trước.</li>
+              <li><strong>Sửa từng lỗi một</strong>, bấm cờ xanh chơi thử lại sau mỗi lần sửa.</li>
+              <li>Gặp khó? Giơ tay mời thầy/cô hoặc trợ giảng đến cùng sửa tại máy.</li>
+              <li>Cân bằng game: chỉnh <strong>tốc độ rơi</strong> và <strong>độ nhạy phím</strong> cho chơi vui nhất.</li>
+            </ol>
+            <div class="tip">
+              <span class="tip-icon">⚠️</span>
+              <div>Sửa quá nhiều chỗ cùng lúc dễ hỏng thêm lỗi mới. <strong>Một lỗi — một lần thử!</strong></div>
+            </div>
+          </div>
+          <div>
+            <div class="hunt-head"><span>🗂️ Bảng theo dõi sửa lỗi (mẫu)</span><span class="hunt-count" id="fixCount">0 / 5 đã sửa</span></div>
+            <p class="legend-optional" style="margin:4px 0 6px;">Bấm vào thẻ để đổi: Cần sửa → Đang sửa → Đã sửa.</p>
+            <div class="fix-board" id="fixBoard">
+              <button class="fix-card"><span class="fix-state">📌 Cần sửa</span><span class="fix-text">Thua rồi game vẫn chạy</span><span class="sev sev-high">Nghiêm trọng</span></button>
+              <button class="fix-card"><span class="fix-state">📌 Cần sửa</span><span class="fix-text">Điểm tăng quá nhanh</span><span class="sev sev-high">Nghiêm trọng</span></button>
+              <button class="fix-card"><span class="fix-state">📌 Cần sửa</span><span class="fix-text">Nút Bắt đầu không biến mất</span><span class="sev sev-mid">Vừa</span></button>
+              <button class="fix-card"><span class="fix-state">📌 Cần sửa</span><span class="fix-text">Vật rơi hơi nhanh</span><span class="sev sev-low">Nhỏ</span></button>
+              <button class="fix-card"><span class="fix-state">📌 Cần sửa</span><span class="fix-text">Chữ Game Over hơi nhỏ</span><span class="sev sev-low">Nhỏ</span></button>
+            </div>
+            <div class="anim-feedback" id="fixFeedback" style="min-height:30px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: Mức A/B/C -->
+  <section class="slide" data-index="9" aria-label="Chọn mức thử thách">
+    <div class="slide-main">
+      <span class="slide-tag green">🎯 Thử thách phân tầng</span>
+      <h2>Chọn Mức Thử Thách Của Em Trong Giờ Sửa Lỗi! 🚀</h2>
+      <div class="slide-body">
+        <div class="tip" style="margin-top:0; margin-bottom:10px;">
+          <span class="tip-icon">📌</span>
+          <div>Em chọn <strong>1 mức</strong> cho phù hợp. Xong sớm thì thử mức cao hơn!</div>
+        </div>
+        <div class="cols-3">
+          <div class="ex-card a">
+            <span class="level-badge level-a">🅰️ Mức A — Cơ bản</span>
+            <h3>🩹 Sửa hết lỗi trong phiếu</h3>
+            <p class="ex-req">🎯 Sửa các lỗi <strong>nghiêm trọng</strong> bạn đã ghi, để cả 3 tiêu chí đều chạy trơn tru.</p>
+            <p class="ex-check">✅ Khởi động · Gameplay · Kết thúc đều ổn</p>
+            <div class="ex-try">✨ <strong>Thử thêm:</strong> Chơi lại từ cờ xanh 3 lần liên tiếp xem còn lỗi không.</div>
+          </div>
+          <div class="ex-card b">
+            <span class="level-badge level-b">🅱️ Mức B — Trung bình</span>
+            <h3>⚖️ Cân bằng game</h3>
+            <p class="ex-req">🎯 Chỉnh <strong>tốc độ rơi</strong> và <strong>độ nhạy phím</strong>, nhờ 2 bạn chơi thử xem có vui không.</p>
+            <p class="ex-check">✅ Không quá khó · Không quá chán</p>
+            <div class="ex-try">✨ <strong>Thử thêm:</strong> Cho vật rơi nhanh dần theo Điểm bằng khối <code>thay đổi y</code> kết hợp biến.</div>
+          </div>
+          <div class="ex-card c">
+            <span class="level-badge level-c">🅲 Mức C — Thử thách</span>
+            <h3>🕵️ Tester xuất sắc</h3>
+            <p class="ex-req">🎯 Giúp <strong>thêm 1 bạn</strong> bắt lỗi và hướng dẫn bạn sửa bằng khối lệnh (không làm hộ!).</p>
+            <p class="ex-check">✅ Bạn tự sửa được · Em ghi thêm 1 lỗi hiếm</p>
+            <div class="ex-try">✨ <strong>Thử thêm:</strong> Thử chơi "cố tình phá game": nhấn phím loạn xạ xem game có hỏng không.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: Quiz -->
+  <section class="slide" data-index="10" aria-label="Đấu trường Quiz">
+    <div class="slide-main">
+      <span class="slide-tag purple">🏆 Đấu trường Quiz (3 phút củng cố)</span>
+      <h2>Thử Tài Game Tester &amp; Thợ Sửa Game! 🧠</h2>
+      <div class="slide-body">
+        <div class="quiz-arena">
+          <div class="quiz-header">
+            <span id="quizProgressText">Câu hỏi 1 / 5</span>
+            <span id="quizScoreText" style="color:var(--scratch-orange); font-weight:900;">⭐ Điểm: 0</span>
+          </div>
+          <div class="quiz-question-box" id="quizQuestion">1. Đang tải câu hỏi...</div>
+          <div class="quiz-options" id="quizOptions"></div>
+          <div class="quiz-explain" id="quizExplain"></div>
+          <div class="quiz-nav-row">
+            <button class="btn-quiz-next" id="btnQuizNext">Câu tiếp theo ➡️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: Chốt danh sách Showcase -->
+  <section class="slide" data-index="11" aria-label="Chốt danh sách sẵn sàng Showcase">
+    <div class="slide-main">
+      <span class="slide-tag yellow">🖼️ Chốt danh sách Showcase (5 phút)</span>
+      <h2>Game Của Em Đã Sẵn Sàng Cho Showcase Chưa? ✅💾</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div>
+            <p class="section-label" style="margin-top:0;">Bấm vào từng mục khi em đã kiểm tra xong</p>
+            <ul class="checklist interactive" id="finalChecklist">
+              <li><span class="check-icon">✓</span> <strong>Khởi động:</strong> cờ xanh và nút Bắt đầu chạy mượt</li>
+              <li><span class="check-icon">✓</span> <strong>Gameplay:</strong> di chuyển không kẹt, Điểm và Mạng đúng</li>
+              <li><span class="check-icon">✓</span> <strong>Kết thúc:</strong> Thắng / Thua rõ ràng và game dừng lại</li>
+              <li><span class="check-icon">✓</span> Đã sửa hết các lỗi nghiêm trọng trong phiếu của bạn</li>
+              <li><span class="check-icon">✓</span> Đã chỉnh tốc độ rơi và độ nhạy phím cho vui</li>
+              <li><span class="check-icon">✓</span> Đã lưu bản mới nhất (Tập tin ➡️ Lưu về máy tính)</li>
+            </ul>
+          </div>
+          <div>
+            <div class="check-progress"><div class="check-progress-fill" id="checkFill"></div></div>
+            <div class="check-status" id="checkStatus">0 / 6 mục hoàn thành</div>
+            <div class="tip" style="margin-top:12px;">
+              <span class="tip-icon">📝</span>
+              <div>Còn lỗi nhỏ chưa sửa kịp? <strong>Ghi lại</strong> để làm ở buổi sau — đừng lo!</div>
+            </div>
+            <div class="tip">
+              <span class="tip-icon">💾</span>
+              <div>Đặt tên file dễ nhớ, ví dụ <code>Game_TenEm_Buoi32</code>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Tổng kết -->
+  <section class="slide title-slide" data-index="12" aria-label="Tổng kết">
+    <div class="slide-main">
+      <div class="title-emoji" style="font-size:3.4rem;"><span>🎉</span><span>🧪</span></div>
+      <h2 style="font-size:1.75rem; margin-bottom:8px;">Chúc Mừng Cả Lớp — Game Chạy Trơn Tru! 🚀</h2>
+      <div class="highlight-box green" style="max-width:740px; text-align:left; margin-bottom:8px; padding:9px 14px;">
+        🌟 <strong>Hôm nay em đã:</strong>
+        <ul style="margin-top:2px; line-height:1.5;">
+          <li>✅ Làm <strong>Game Tester</strong>: chơi thử, ghi Phiếu Bắt Lỗi 3 tiêu chí.</li>
+          <li>✅ Sửa các lỗi nghiêm trọng và chỉnh <strong>cân bằng game</strong>.</li>
+          <li>✅ Chốt dự án sẵn sàng cho Showcase!</li>
+        </ul>
+      </div>
+      <p class="section-label" style="margin:2px 0 0;">🏅 Bấm để nhận huy hiệu hôm nay</p>
+      <div class="award-grid">
+        <button class="award"><span class="award-emoji">🕵️</span><span class="award-name">Game Tester vàng</span><span class="award-desc">Góp ý rõ ràng, lịch sự</span></button>
+        <button class="award"><span class="award-emoji">🐞</span><span class="award-name">Thợ săn lỗi</span><span class="award-desc">Tìm ra lỗi hiếm</span></button>
+        <button class="award"><span class="award-emoji">⚖️</span><span class="award-name">Bậc thầy cân bằng</span><span class="award-desc">Game chơi vui vừa tay</span></button>
+      </div>
+      <div class="card" style="max-width:740px; text-align:left; background:#fff; border:2px solid var(--scratch-orange); margin-top:10px; padding:10px 14px;">
+        <h3 style="color:var(--scratch-orange); margin-bottom:2px;">🔮 Bật mí Tuần 17 (Buổi 33–34, đầu Tháng 5):</h3>
+        <p class="desc"><strong>Buổi 33:</strong> Hoàn thiện đỉnh cao (Polish) &amp; dùng <strong>Danh sách (List)</strong> làm Bảng kỷ lục điểm cao. <strong>Buổi 34:</strong> Đại hội Showcase game hoành tráng trước lớp và phụ huynh!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 14: Ghi chú cho giáo viên -->
+  <section class="slide" data-index="13" aria-label="Ghi chú giáo viên">
+    <div class="slide-main">
+      <span class="slide-tag red">👩‍🏫 Dành cho Giáo viên</span>
+      <h2>Chiến Lược Sư Phạm &amp; Quản Trị Lớp Buổi 32 🧪</h2>
+      <div class="slide-body">
+        <div class="cols" style="margin-top:0;">
+          <div class="card">
+            <h3>⚡ Phân hóa theo nhịp độ</h3>
+            <ul style="font-size:0.84rem; line-height:1.55; margin-top:4px;">
+              <li><strong>Học sinh chậm:</strong> Chọn Mức A, chỉ sửa 1–2 lỗi nghiêm trọng nhất; trợ giảng ngồi cùng máy.</li>
+              <li><strong>Học sinh vừa:</strong> Mức B — cân bằng game, nhờ bạn chơi thử lại.</li>
+              <li><strong>Học sinh nhanh:</strong> Mức C — hướng dẫn bạn tự sửa, ghi thêm lỗi hiếm; nhắc "không làm hộ".</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>🩺 Điểm cần chú ý</h3>
+            <ul style="font-size:0.84rem; line-height:1.55; margin-top:4px;">
+              <li>Tester ghi lỗi mơ hồ ("game dở") — yêu cầu ghi <strong>chuyện gì + khi nào</strong>.</li>
+              <li>Em buồn khi bị góp ý — giữ luật <strong>1 khen + 1 lỗi</strong>, nhắc "giúp bạn, không chê bạn".</li>
+              <li>Sửa nhiều chỗ cùng lúc sinh lỗi mới — nhắc <strong>lưu bản sao</strong> và sửa từng lỗi một.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="cols" style="margin-top:10px;">
+          <div class="card orange">
+            <h3>🔇 Quản lý lớp học</h3>
+            <p class="desc">Giai đoạn đổi máy dễ ồn: quy định đi nhẹ, nói nhỏ, dùng tai nghe. Các lab và minigame trên slide đều <strong>không phát âm thanh</strong>. Trợ giảng đi theo bản đồ máy để không bỏ sót em nào.</p>
+          </div>
+          <div class="card purple">
+            <h3>⏱️ Phân bổ thời gian (90 phút)</h3>
+            <p class="desc" style="color:#4c1d95;">
+              • 00–15p: Khởi động, hướng dẫn, săn lỗi, Bác sĩ, cân bằng (Slide 1–7)<br>
+              • 15–40p: GĐ1 Chơi thử chéo (Slide 8)<br>
+              • 40–80p: GĐ2 Sửa lỗi + chọn mức (Slide 9–10)<br>
+              • 80–83p: Quiz (Slide 11) · 83–88p: Chốt danh sách (Slide 12)<br>
+              • 88–90p: Tổng kết &amp; bật mí Tuần 17 (Slide 13–14)
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 14</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Phím cách · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0, hasNavigated = false;
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
+
+  function buildDots() {
+    document.getElementById('dots').innerHTML = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+  }
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(d => d.classList.toggle('active', Number(d.dataset.goto) === current));
+  }
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) { hasNavigated = true; document.body.classList.add('presenting'); }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1 ? '· Scratch' : '· Tuần 16 Buổi 32';
+    updateDots();
+  }
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, code, .global-topbar, .nav, .quiz-arena, .arena-wrap, .anim-lab, .hunt-lab, .story-gen, .clinic-card, .k-card, .award-grid, .fix-board, .checklist.interactive')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') { if (e.target.tagName !== 'BUTTON') { e.preventDefault(); next(); } }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+  function isFullscreen() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function toggleFullscreen() { if (isFullscreen()) exitFullscreen(); else enterFullscreen(); }
+  function enterFullscreen() { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el); }
+  function exitFullscreen() { (document.exitFullscreen || document.webkitExitFullscreen)?.call(document); }
+  function onFullscreenChange() { document.body.classList.toggle('is-fullscreen', isFullscreen()); }
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+  document.getElementById('btnFullscreen').addEventListener('click', e => { e.stopPropagation(); toggleFullscreen(); });
+  document.getElementById('btnExitFs').addEventListener('click', e => { e.stopPropagation(); exitFullscreen(); });
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+  document.addEventListener('touchend', e => { const diff = e.changedTouches[0].screenX - touchStartX; if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1)); }, { passive: true });
+
+  function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+  function pickRandom(list) { return list[Math.floor(Math.random() * list.length)]; }
+  function bumpEl(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+
+
+  /* KIẾN THỨC — THẺ BẤM ĐỂ XEM VÍ DỤ */
+  document.querySelectorAll('.btn-reveal').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = btn.closest('.k-card').classList.toggle('open');
+      btn.textContent = isOpen ? '🙈 Ẩn ví dụ' : '👀 Xem ví dụ';
+    });
+  });
+
+  /* LAB SĂN LỖI TRÊN GAME MẪU */
+  const HUNT_BUGS = {
+    play:  { crit: 0, critName: 'Khởi động', title: 'Nút Bắt đầu vẫn hiện khi game đang chạy', fix: 'Thêm khối "ẩn" ngay sau "phát tin [BatDau]" ở NutBatDau.' },
+    score: { crit: 1, critName: 'Gameplay', title: 'Điểm 12 / 10 mà vẫn chưa thắng', fix: 'Điểm nhảy cách 2 nên bỏ qua đúng 10 — dùng <Điểm > 9> thay vì <Điểm = 10>.' },
+    rock:  { crit: 1, critName: 'Gameplay', title: 'Thiên thạch chạm đáy không biến mất, chất đống', fix: 'Thêm "xóa bản sao này" ở cuối hành trình rơi.' },
+    stuck: { crit: 1, critName: 'Gameplay', title: 'Phi thuyền kẹt, nhấn ← không đi sang trái', fix: 'Kiểm tra "khi nhấn phím [mũi tên trái]" có "thay đổi x một lượng -10" (nhớ dấu trừ).' },
+    over:  { crit: 2, critName: 'Kết thúc', title: 'Chữ Game Over hiện khi game còn đang chạy', fix: 'GameOver "ẩn" ở cờ xanh, chỉ "hiện" khi nhận tin [Thua], rồi "dừng lại [tất cả]".' }
+  };
+  const HUNT_TOTAL = Object.keys(HUNT_BUGS).length;
+  const huntSpots = document.querySelectorAll('#huntStage .hotspot');
+  const bugList = document.getElementById('bugList');
+  const bugEmpty = document.getElementById('bugEmpty');
+  const huntCount = document.getElementById('huntCount');
+  const huntFeedback = document.getElementById('huntFeedback');
+  let huntFound = 0;
+  function handleHotspot(spot) {
+    const key = spot.dataset.bug;
+    if (spot.classList.contains('found') || spot.classList.contains('decoy')) return;
+    const bug = HUNT_BUGS[key];
+    if (!bug) {
+      spot.classList.add('decoy');
+      huntFeedback.innerHTML = '<span style="color:#15803d;">🌟 Không phải lỗi! Sao rơi đúng chiều đấy. Tester giỏi biết phân biệt lỗi thật với chuyện bình thường.</span>';
+      return;
+    }
+    spot.classList.add('found');
+    huntFound++;
+    if (bugEmpty) bugEmpty.style.display = 'none';
+    const row = document.createElement('div');
+    row.className = 'bug-row';
+    row.innerHTML = `<span class="crit-chip crit-${bug.crit}">${bug.critName}</span><div><div class="bug-title">${bug.title}</div><div class="bug-fix">💊 ${bug.fix.replace(/</g, '&lt;')}</div></div>`;
+    bugList.appendChild(row);
+    huntCount.textContent = `${huntFound} / ${HUNT_TOTAL} lỗi`;
+    huntFeedback.innerHTML = huntFound === HUNT_TOTAL
+      ? '<span style="color:#15803d;">🎉 Bắt đủ 5 lỗi! Em là Game Tester xuất sắc!</span>'
+      : '<span style="color:#dc2626;">🐞 Bắt được 1 lỗi! Ghi vào phiếu rồi tìm tiếp nhé.</span>';
+  }
+  function resetHunt() {
+    huntFound = 0;
+    huntSpots.forEach(s => s.classList.remove('found', 'decoy'));
+    bugList.querySelectorAll('.bug-row').forEach(r => r.remove());
+    if (bugEmpty) bugEmpty.style.display = '';
+    huntCount.textContent = `0 / ${HUNT_TOTAL} lỗi`;
+    huntFeedback.textContent = '';
+  }
+  huntSpots.forEach(spot => spot.addEventListener('click', e => { e.stopPropagation(); handleHotspot(spot); }));
+  document.getElementById('btnHuntReset').addEventListener('click', e => { e.stopPropagation(); resetHunt(); });
+
+  /* LAB CÂN BẰNG GAME */
+  const BAL_FPS = 30, BAL_STAGE_H = 360, BAL_STAGE_W = 480;
+  const FALL_OK_MIN = 1.2, FALL_OK_MAX = 3;
+  const STEP_OK_MIN = 0.8, STEP_OK_MAX = 2.5;
+  const fallSlider = document.getElementById('fallSlider');
+  const stepSlider = document.getElementById('stepSlider');
+  const balApple = document.getElementById('balApple');
+  const balPlayer = document.getElementById('balPlayer');
+  function verdictFor(sec, min, max, fastText, slowText, okText, el) {
+    if (sec < min) { el.className = 'bal-verdict bad'; el.textContent = fastText; return 0; }
+    if (sec > max) { el.className = 'bal-verdict warn'; el.textContent = slowText; return 0; }
+    el.className = 'bal-verdict ok'; el.textContent = okText; return 1;
+  }
+  function renderBalance() {
+    const fall = Number(fallSlider.value), step = Number(stepSlider.value);
+    const fallSec = BAL_STAGE_H / (fall * BAL_FPS);
+    const stepSec = BAL_STAGE_W / (step * BAL_FPS);
+    document.getElementById('fallNum').textContent = '-' + fall;
+    document.getElementById('stepNum').textContent = step;
+    document.getElementById('fallSecText').textContent = `rơi hết màn ≈ ${fallSec.toFixed(1)}s`;
+    document.getElementById('stepSecText').textContent = `giữ phím qua màn ≈ ${stepSec.toFixed(1)}s`;
+    balApple.style.animationDuration = fallSec + 's';
+    balPlayer.style.animationDuration = stepSec + 's';
+    const okFall = verdictFor(fallSec, FALL_OK_MIN, FALL_OK_MAX, '⚡ Quá nhanh — khó bắt lắm!', '🐢 Hơi chậm — dễ chán', '✅ Vừa tay!', document.getElementById('fallVerdict'));
+    const okStep = verdictFor(stepSec, STEP_OK_MIN, STEP_OK_MAX, '⚡ Quá nhạy — khó điều khiển', '🐢 Hơi trễ — nhân vật ì ạch', '✅ Điều khiển dễ chịu!', document.getElementById('stepVerdict'));
+    const fun = okFall && okStep ? 100 : (okFall || okStep ? 55 : 20);
+    document.getElementById('funFill').style.width = fun + '%';
+    document.getElementById('funValue').textContent = fun === 100 ? '100% 🎉' : fun + '%';
+  }
+  fallSlider.addEventListener('input', e => { e.stopPropagation(); renderBalance(); });
+  stepSlider.addEventListener('input', e => { e.stopPropagation(); renderBalance(); });
+  renderBalance();
+
+  /* BẢNG THEO DÕI SỬA LỖI */
+  const FIX_STATES = [
+    { cls: '', text: '📌 Cần sửa' },
+    { cls: 'doing', text: '🔧 Đang sửa' },
+    { cls: 'done', text: '✅ Đã sửa' }
+  ];
+  const fixCards = document.querySelectorAll('#fixBoard .fix-card');
+  const fixCount = document.getElementById('fixCount');
+  const fixFeedback = document.getElementById('fixFeedback');
+  const fixStateOf = new Map();
+  fixCards.forEach(card => fixStateOf.set(card, 0));
+  function renderFix() {
+    let done = 0;
+    fixCards.forEach(card => {
+      const idx = fixStateOf.get(card);
+      const st = FIX_STATES[idx];
+      card.classList.remove('doing', 'done');
+      if (st.cls) card.classList.add(st.cls);
+      card.querySelector('.fix-state').textContent = st.text;
+      if (idx === 2) done++;
+    });
+    fixCount.textContent = `${done} / ${fixCards.length} đã sửa`;
+    fixFeedback.innerHTML = done === fixCards.length ? '<span style="color:#15803d;">🎉 Sửa xong hết! Chơi lại một ván để kiểm tra nhé.</span>' : '';
+  }
+  fixCards.forEach(card => card.addEventListener('click', e => {
+    e.stopPropagation();
+    fixStateOf.set(card, (fixStateOf.get(card) + 1) % FIX_STATES.length);
+    renderFix();
+  }));
+  renderFix();
+
+  /* BÁC SĨ SCRATCH */
+  document.querySelectorAll('.btn-cure').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); btn.closest('.clinic-card').classList.add('cured'); });
+  });
+
+  /* ARENA — ĐÚNG HAY SAI? */
+  const arenaScenarios = [
+    { emoji: '▶️', text: 'Muốn game chỉ chạy sau khi bấm nút Bắt đầu, các sprite dùng "khi nhận [BatDau]".', sub: 'Đúng hay sai?', answer: true, explain: 'Nút phát tin BatDau, các sprite khác "khi nhận [BatDau]" mới bắt đầu làm việc.' },
+    { emoji: '✏️', text: 'Khối phát tin viết [BatDau] còn khối khi nhận viết [Batdau] vẫn chạy bình thường.', sub: 'Đúng hay sai?', answer: false, explain: 'Tên tin phải giống hệt nhau từng chữ, sai 1 chữ hoa/thường là sprite không nhận được tin.' },
+    { emoji: '🔔', text: 'Tiếng ting khi nhặt đồ nên dùng "bắt đầu âm thanh" để kịch bản không đứng chờ.', sub: 'Đúng hay sai?', answer: true, explain: 'Khối "bắt đầu âm thanh" vừa phát tiếng vừa làm tiếp việc khác nên game mượt.' },
+    { emoji: '🎵', text: 'Nhạc nền nên đặt "bắt đầu âm thanh [NhacNen]" trong vòng lặp "liên tục".', sub: 'Đúng hay sai?', answer: false, explain: 'Như vậy mỗi vòng lặp bắt đầu thêm một lớp nhạc, chồng lên nhau. Nhạc nền dùng "phát âm thanh … cho đến hết".' },
+    { emoji: '🚀', text: 'Muốn mỗi vật chỉ cộng điểm 1 lần, em thêm "xóa bản sao này" ngay sau "thay đổi [Điểm]".', sub: 'Đúng hay sai?', answer: true, explain: 'Vật biến mất ngay nên không thể chạm và cộng điểm lần thứ hai.' },
+    { emoji: '👻', text: 'Chữ Game Over không cần "ẩn" lúc bấm cờ xanh, nó tự ẩn khi game chưa thua.', sub: 'Đúng hay sai?', answer: false, explain: 'Sprite không tự ẩn! Phải "ẩn" ở cờ xanh và chỉ "hiện" khi nhận tin [Thua].' }
+  ];
+  let arenaIdx = 0, arenaStreak = 0, arenaAnswered = false;
+  const arenaScenarioEl = document.getElementById('arenaScenario');
+  const arenaEmojiEl = document.getElementById('arenaEmoji');
+  const arenaTextEl = document.getElementById('arenaText');
+  const arenaSubEl = document.getElementById('arenaSub');
+  const arenaFeedbackEl = document.getElementById('arenaFeedback');
+  const arenaStreakEl = document.getElementById('arenaStreak');
+  const btnArenaTrue = document.getElementById('btnArenaTrue');
+  const btnArenaFalse = document.getElementById('btnArenaFalse');
+  const btnArenaNext = document.getElementById('btnArenaNext');
+  function loadArenaScenario() {
+    arenaAnswered = false;
+    btnArenaTrue.disabled = false; btnArenaFalse.disabled = false;
+    btnArenaTrue.classList.remove('correct-glow', 'wrong-glow');
+    btnArenaFalse.classList.remove('correct-glow', 'wrong-glow');
+    arenaScenarioEl.classList.remove('right', 'wrongc');
+    const s = arenaScenarios[arenaIdx];
+    arenaEmojiEl.textContent = s.emoji;
+    arenaTextEl.textContent = `Câu ${arenaIdx + 1}/${arenaScenarios.length}: ${s.text}`;
+    arenaSubEl.textContent = s.sub;
+    arenaFeedbackEl.textContent = 'Cả lớp đoán trước, rồi thầy/cô bấm để kiểm tra nhé!';
+    btnArenaNext.style.display = 'none';
+    arenaScenarioEl.classList.add('pop'); setTimeout(() => arenaScenarioEl.classList.remove('pop'), 300);
+  }
+  function handleArena(chosen) {
+    if (arenaAnswered) return;
+    arenaAnswered = true;
+    const s = arenaScenarios[arenaIdx];
+    const correct = chosen === s.answer;
+    const chosenBtn = chosen ? btnArenaTrue : btnArenaFalse;
+    btnArenaTrue.disabled = true; btnArenaFalse.disabled = true;
+    if (correct) {
+      arenaStreak++;
+      chosenBtn.classList.add('correct-glow');
+      arenaScenarioEl.classList.add('right');
+      arenaFeedbackEl.innerHTML = `<span style="color:#15803d;">🎉 CHÍNH XÁC! ${s.explain}</span>`;
+    } else {
+      arenaStreak = 0;
+      chosenBtn.classList.add('wrong-glow');
+      arenaScenarioEl.classList.add('wrongc');
+      arenaFeedbackEl.innerHTML = `<span style="color:#dc2626;">💡 Chưa đúng, đáp án là ${s.answer ? 'ĐÚNG' : 'SAI'}! ${s.explain}</span>`;
+    }
+    arenaStreakEl.textContent = `🔥 Chuỗi đúng: ${arenaStreak}`;
+    bumpEl(arenaStreakEl);
+    btnArenaNext.textContent = arenaIdx < arenaScenarios.length - 1 ? 'Câu tiếp theo ➡️' : 'Chơi lại từ đầu 🔄';
+    btnArenaNext.style.display = 'block';
+  }
+  btnArenaTrue.addEventListener('click', e => { e.stopPropagation(); handleArena(true); });
+  btnArenaFalse.addEventListener('click', e => { e.stopPropagation(); handleArena(false); });
+  btnArenaNext.addEventListener('click', e => {
+    e.stopPropagation();
+    arenaIdx = (arenaIdx + 1) % arenaScenarios.length;
+    if (arenaIdx === 0) { arenaStreak = 0; arenaStreakEl.textContent = '🔥 Chuỗi đúng: 0'; }
+    loadArenaScenario();
+  });
+  loadArenaScenario();
+
+
+  /* MÁY GỢI Ý GIAO DIỆN GAME */
+  const uiReels = [
+    ['🎵 nhạc nền vui', '🌟 hình vẽ đẹp', '🔔 tiếng ting vui tai', '🚀 nhân vật dễ thương', '🎮 chơi rất cuốn'],
+    ['▶️ nút Bắt đầu còn hiện', '🔁 thua rồi game vẫn chạy', '🐢 vật rơi hơi nhanh', '🧱 nhân vật bị kẹt mép', '💥 Game Over hiện từ đầu'],
+    ['🙈 thêm khối ẩn', '🛑 thêm khối dừng lại [tất cả]', '🔢 giảm số trong thay đổi y', '🗑️ thêm khối xóa bản sao này', '🔍 kiểm tra dấu + / - của khối']
+  ];
+  const UI_SPIN_MS = 900, UI_STAGGER_MS = 350, UI_TICK_MS = 80;
+  const btnUiSpin = document.getElementById('btnUiSpin');
+  const uiBanner = document.getElementById('uiBanner');
+  const uiReelEls = [0, 1, 2].map(i => document.getElementById('uiReel' + i));
+  function spinReel(reelIdx, stopAfterMs) {
+    const el = uiReelEls[reelIdx];
+    const valEl = el.querySelector('.story-reel-val');
+    el.classList.remove('landed');
+    el.classList.add('spinning');
+    const ticker = setInterval(() => { valEl.textContent = pickRandom(uiReels[reelIdx]); }, UI_TICK_MS);
+    return new Promise(resolve => setTimeout(() => {
+      clearInterval(ticker);
+      const finalVal = pickRandom(uiReels[reelIdx]);
+      valEl.textContent = finalVal;
+      el.classList.remove('spinning');
+      el.classList.add('landed');
+      resolve(finalVal);
+    }, stopAfterMs));
+  }
+  btnUiSpin.addEventListener('click', async e => {
+    e.stopPropagation();
+    btnUiSpin.disabled = true;
+    const [start, win, lose] = await Promise.all(uiReelEls.map((_, i) => spinReel(i, UI_SPIN_MS + i * UI_STAGGER_MS)));
+    uiBanner.innerHTML = `💬 Mình thích <strong>${start}</strong>! Mình thấy <strong>${win}</strong>. Bạn thử <strong>${lose}</strong> nhé!`;
+    btnUiSpin.disabled = false;
+  });
+
+
+    /* QUIZ */
+  const quizQuestions = [
+    { q: '1. Game Tester làm công việc gì?', opts: ['Chê game của bạn cho thật nhiều', 'Chơi thử và ghi lại lỗi rõ ràng để giúp bạn sửa game', 'Sửa hộ toàn bộ game của bạn', 'Chỉ chơi cho vui rồi thôi'], ans: 1, explain: 'Tester chơi thử, ghi lỗi rõ ràng và góp ý lịch sự để bạn tự sửa được.' },
+    { q: '2. Ba tiêu chí trong Phiếu Bắt Lỗi là gì?', opts: ['Màu sắc, hình vẽ, âm thanh', 'Tên game, tên tác giả, ngày làm', 'Nhanh, chậm, vừa', 'Khởi động, Gameplay, Kết thúc'], ans: 3, explain: 'Khởi động (cờ xanh, nút Bắt đầu), Gameplay (di chuyển, Điểm, Mạng) và Kết thúc (Thắng / Thua).' },
+    { q: '3. Em thấy mỗi lần nhặt 1 vật mà Điểm tăng 5. Em ghi lỗi này vào tiêu chí nào?', opts: ['Khởi động', 'Kết thúc', 'Gameplay', 'Không cần ghi'], ans: 2, explain: 'Điểm và Mạng tính chưa chính xác là lỗi Gameplay.' },
+    { q: '4. Vật rơi quá nhanh khiến bạn không bắt kịp. Em sửa thế nào?', opts: ['Giảm số trong "thay đổi y một lượng" (ví dụ -10 thành -6)', 'Tăng số lên thật lớn', 'Xóa nhân vật chính', 'Đổi màu vật rơi'], ans: 0, explain: 'Số càng nhỏ thì vật rơi càng chậm, đó là cách cân bằng game.' },
+    { q: '5. Khi góp ý cho bạn, em nên nói thế nào?', opts: ['"Game của bạn dở quá!"', '"Bạn sửa hết đi nhé."', 'Em không nói gì cả', '"Mình thích nhạc nền! Bạn thử ẩn nút Bắt đầu sau khi bấm nhé."'], ans: 3, explain: 'Góp ý tốt = 1 điểm khen + 1 lỗi cụ thể + gợi ý cách sửa.' }
+  ];
+  let currentQuizIdx = 0, quizScore = 0, quizAnswered = false;
+  const quizProgressText = document.getElementById('quizProgressText');
+  const quizScoreText = document.getElementById('quizScoreText');
+  const quizQuestion = document.getElementById('quizQuestion');
+  const quizOptions = document.getElementById('quizOptions');
+  const quizExplain = document.getElementById('quizExplain');
+  const btnQuizNext = document.getElementById('btnQuizNext');
+  function renderQuizQuestion() {
+    quizAnswered = false;
+    const qData = quizQuestions[currentQuizIdx];
+    quizProgressText.textContent = `Câu hỏi ${currentQuizIdx + 1} / ${quizQuestions.length}`;
+    quizQuestion.textContent = qData.q;
+    quizExplain.className = 'quiz-explain'; quizExplain.textContent = '';
+    btnQuizNext.className = 'btn-quiz-next';
+    const letters = ['A', 'B', 'C', 'D'];
+    quizOptions.innerHTML = qData.opts.map((opt, i) => `<button class="quiz-opt-btn" data-opt="${i}"><span class="quiz-opt-badge">${letters[i]}</span><span>${opt}</span></button>`).join('');
+    quizOptions.querySelectorAll('.quiz-opt-btn').forEach(btn => { btn.addEventListener('click', e => { e.stopPropagation(); if (quizAnswered) return; handleQuizSelect(Number(btn.dataset.opt)); }); });
+  }
+  function handleQuizSelect(selectedIdx) {
+    quizAnswered = true;
+    const qData = quizQuestions[currentQuizIdx];
+    const isCorrect = selectedIdx === qData.ans;
+    quizOptions.querySelectorAll('.quiz-opt-btn').forEach((btn, i) => { btn.disabled = true; if (i === qData.ans) btn.classList.add('correct'); else if (i === selectedIdx) btn.classList.add('wrong'); });
+    if (isCorrect) { quizScore += 20; quizScoreText.textContent = `⭐ Điểm: ${quizScore}`; quizExplain.innerHTML = `🎉 <strong>Chính xác!</strong> ${qData.explain}`; }
+    else { quizExplain.innerHTML = `💡 <strong>Chưa chính xác!</strong> ${qData.explain}`; }
+    quizExplain.classList.add('show');
+    btnQuizNext.textContent = currentQuizIdx < quizQuestions.length - 1 ? 'Câu tiếp theo ➡️' : 'Xem kết quả chung cuộc 🏆';
+    btnQuizNext.classList.add('show');
+  }
+  function quizTitleFor(score) {
+    if (score >= 80) return 'GAME TESTER VÀNG!';
+    if (score >= 40) return 'THỢ SỬA GAME CHĂM CHỈ!';
+    return 'NHÀ THÁM HIỂM DŨNG CẢM!';
+  }
+  btnQuizNext.addEventListener('click', e => {
+    e.stopPropagation();
+    if (currentQuizIdx < quizQuestions.length - 1) { currentQuizIdx++; renderQuizQuestion(); return; }
+    quizProgressText.textContent = 'Hoàn thành!';
+    quizQuestion.innerHTML = `🎉 Hoàn thành Đấu trường Quiz Buổi 32! Điểm của em: <strong>${quizScore} / 100</strong>`;
+    quizOptions.innerHTML = `<div style="grid-column: span 2; background:#fff7ed; border:2px solid #fb923c; border-radius:14px; padding:18px; text-align:center;"><div class="trophy">🏆🧪</div><h3 style="color:#c2410c; font-size:1.2rem; margin-bottom:6px;">DANH HIỆU: ${quizTitleFor(quizScore)}</h3><p style="font-size:0.95rem; font-weight:700; color:#9a3412;">Em đã biết cách chơi thử, ghi lỗi, góp ý lịch sự và cân bằng game. Sẵn sàng cho Showcase!</p></div>`;
+    quizExplain.className = 'quiz-explain'; btnQuizNext.className = 'btn-quiz-next';
+  });
+  renderQuizQuestion();
+
+  /* CHECKLIST RÀ SOÁT */
+  const finalItems = document.querySelectorAll('#finalChecklist li');
+  const checkFill = document.getElementById('checkFill');
+  const checkStatus = document.getElementById('checkStatus');
+  function renderChecklist() {
+    const done = document.querySelectorAll('#finalChecklist li.checked').length;
+    checkFill.style.width = (done / finalItems.length) * 100 + '%';
+    checkStatus.textContent = done === finalItems.length ? '🎉 Tuyệt vời! Game của em đã sẵn sàng!' : `${done} / ${finalItems.length} mục hoàn thành`;
+  }
+  finalItems.forEach(li => {
+    li.addEventListener('click', e => { e.stopPropagation(); li.classList.toggle('checked'); renderChecklist(); });
+  });
+  renderChecklist();
+
+  /* HUY HIỆU TỔNG KẾT */
+  document.querySelectorAll('.award').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); btn.classList.toggle('lit'); });
+  });
+
+  /* INIT */
+  buildDots();
+  slides.forEach((s, i) => { s.setAttribute('aria-hidden', i !== 0); if (i === 0) s.classList.add('active'); else s.classList.add('next'); });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
+</html>

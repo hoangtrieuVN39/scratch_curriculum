@@ -1,0 +1,299 @@
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="15" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🚀</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1: Tiêu đề -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji"><span>🔀</span><span>📦</span><span>⭐</span></div>
+      <h1>Scratch Biết Quyết Định &amp; Biết Nhớ!</h1>
+      <p class="subtitle">Nếu … thì … nếu không, Biến (hộp nhớ) và “đang chạm” — nền tảng để làm game có luật chơi &amp; tính điểm</p>
+      <div class="title-meta">
+        <span class="badge highlight">📅 Tuần 8</span>
+        <span class="badge">🎮 Buổi 15 — Học: Điều kiện &amp; Biến</span>
+        <span class="badge">🎯 Độ tuổi: 7–10</span>
+      </div>
+      <p class="start-hint">Nhấn → hoặc Phím cách để bắt đầu! 🚀</p>
+    </div>
+  </section>
+
+  <!-- Slide 2: Mục tiêu & khung giờ -->
+  <section class="slide" data-index="1" aria-label="Mục tiêu và khung giờ">
+    <div class="slide-main">
+      <span class="slide-tag orange">⏱️ Khung thời gian buổi học</span>
+      <h2>Hôm Nay Em Học Gì? Hai Mảnh Ghép Cuối Để Làm Game Hoàn Chỉnh! 🧩</h2>
+      <div class="slide-body">
+        <div class="time-banner">
+          <div>🎯 <strong>Mục tiêu hôm nay:</strong> Dùng <strong>nếu … thì … nếu không</strong> để Scratch <em>quyết định</em>, và <strong>biến</strong> để Scratch <em>ghi nhớ</em> điểm số, số mạng, thời gian!</div>
+          <span class="time-tag">90 Phút</span>
+        </div>
+        <div class="cols-3" style="margin-top:12px;">
+          <div class="card orange">
+            <h3><span class="step-pill">1</span> 35 Phút Đầu</h3>
+            <p class="desc">Khởi động bấm-để-thử, học <strong>nếu / nếu không</strong>, <strong>biến</strong>, “đang chạm”; Bác sĩ Scratch và Minigame Đúng / Sai.</p>
+          </div>
+          <div class="card green">
+            <h3><span class="step-pill" style="background:#16a34a;">2</span> 35 Phút Thực Chiến</h3>
+            <p class="desc"><strong>TH1:</strong> Né quái đuổi, ăn sao ⭐👹<br><strong>TH2:</strong> Đua với thời gian 🏆⏳<br>(có 5 phút giải lao ở giữa)</p>
+          </div>
+          <div class="card blue">
+            <h3><span class="step-pill" style="background:#0284c7;">3</span> 20 Phút Cuối</h3>
+            <p class="desc">Đấu trường Quiz, rà soát game của em, thử thách “Đoán điểm của bạn” rồi lưu project.</p>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:14px;">
+          <span class="tip-icon">💡</span>
+          <div><strong>Vì sao quan trọng?</strong> Đến giờ project của em chỉ <em>phản ứng</em> chứ chưa <em>nhớ</em> gì. Có <strong>biến</strong> + <strong>nếu … thì</strong>, game mới biết “đủ điểm thì thắng, hết mạng thì thua”!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Khởi động — Cổng gác Nếu–Thì -->
+  <section class="slide" data-index="2" aria-label="Khởi động Cổng gác Nếu Thì">
+    <div class="slide-main">
+      <span class="slide-tag purple">🎬 Khởi động tương tác (10 phút)</span>
+      <h2>Cổng Gác “Nếu … Thì …” — Bấm Từng Món Đồ Và Xem Bạn Học Sinh Làm Gì! 🚪</h2>
+      <div class="slide-body">
+        <div class="game-lab" id="gateLab">
+          <div class="gate-stage">
+            <div class="gate-title">🚪 Cổng gác Nếu–Thì</div>
+            <div class="gate-memory" id="gateMemory">📦 Điểm lớp: 0</div>
+            <div class="gate-rule" id="gateRule"></div>
+            <div class="gate-guard"><span>🤖</span><span class="gate-item" id="gateItem">❓</span></div>
+            <div class="gate-student"><b id="gateStudent">🧒</b><span class="gate-act" id="gateAct">đang chờ…</span></div>
+          </div>
+          <div class="game-controls">
+            <p class="section-label" style="margin:0;">Bước 1: bấm một món đồ đến cổng</p>
+            <div class="gate-items">
+              <button class="btn-anim" data-gate="ca">🐟 Cá</button>
+              <button class="btn-anim" data-gate="cho">🐶 Chó</button>
+              <button class="btn-anim" data-gate="cua">🦀 Cua</button>
+              <button class="btn-anim" data-gate="ga">🐔 Gà</button>
+              <button class="btn-anim" data-gate="ghe">🪑 Cái ghế</button>
+              <button class="btn-anim" id="btnGateReset">🔄 Làm lại</button>
+            </div>
+            <p class="section-label" style="margin:0;">Bước 2: thêm “nếu không” và thử lại</p>
+            <button class="sw" id="swGateElse"><span class="sw-knob"></span>🔀 Thêm nhánh “nếu không”</button>
+            <div class="anim-feedback" id="gateFeedback" style="min-height:62px;">Luật: nếu con vật sống dưới nước thì ngồi xuống. Bấm thử Chó rồi bấm thử Cá nhé!</div>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:10px;">
+          <span class="tip-icon">🧠</span>
+          <div>Con số <strong>“Điểm lớp”</strong> cứ tăng mãi — cần có ai đó <strong>nhớ</strong> giúp! Trong Scratch, “chiếc hộp nhớ” đó gọi là <strong>BIẾN</strong>. Cả hai điều này học ngay sau đây!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: Kiến thức mới -->
+  <section class="slide" data-index="3" aria-label="Kiến thức mới nếu thì và biến">
+    <div class="slide-main">
+      <span class="slide-tag cyan">🌌 Kiến thức mới (20 phút)</span>
+      <h2>Ba Công Cụ Để Game Biết Quyết Định Và Biết Nhớ! 🧰</h2>
+      <div class="slide-body">
+        <div class="cols-3">
+          <div class="k-card">
+            <span class="k-emoji">🔀</span>
+            <span class="k-title">1. Nếu … thì … nếu không</span>
+            <span class="k-desc">Điều kiện <strong>ĐÚNG</strong> → chạy nhánh <code>nếu</code>. Điều kiện <strong>SAI</strong> → chạy nhánh <code>nếu không</code>. Mỗi lần chỉ chạy một nhánh.</span>
+            <button class="btn-reveal">👀 Xem khối lệnh</button>
+            <div class="k-reveal">
+              <span class="block control">nếu &lt;…&gt; thì</span>
+              <span class="block control">nếu &lt;…&gt; thì … <strong>nếu không</strong> …</span>
+            </div>
+          </div>
+          <div class="k-card">
+            <span class="k-emoji">📦</span>
+            <span class="k-title">2. Biến = hộp nhớ</span>
+            <span class="k-desc">Lưu một con số (điểm, mạng, giây…). Tạo biến: <strong>Biến → Tạo một biến</strong>; chọn <strong>Cho tất cả nhân vật</strong> nếu cả game dùng chung.</span>
+            <button class="btn-reveal">👀 Xem khối lệnh</button>
+            <div class="k-reveal">
+              <span class="block variable">đặt <span class="block-arg">điểm</span> thành <span class="block-arg">0</span></span>
+              <span class="block variable">thay đổi <span class="block-arg">điểm</span> một lượng <span class="block-arg">1</span></span>
+              <span class="block variable oval"><span class="block-arg" style="background:#fff;">điểm</span> ← ô tròn đọc giá trị</span>
+            </div>
+          </div>
+          <div class="k-card">
+            <span class="k-emoji">👆</span>
+            <span class="k-title">3. Đang chạm &amp; hiện biến</span>
+            <span class="k-desc"><code>đang chạm [Sao]?</code> kiểm tra có chạm nhân vật khác không. Tick ô nhỏ cạnh tên biến để số hiện ở góc Sân khấu.</span>
+            <button class="btn-reveal">👀 Xem khối lệnh</button>
+            <div class="k-reveal">
+              <span class="block sensing">đang chạm <span class="block-arg">Sao v</span>?</span>
+              <span class="block control">nếu &lt;đang chạm …?&gt; thì</span>
+              <span class="block variable">☑ điểm ← tick để hiện</span>
+            </div>
+          </div>
+        </div>
+        <div class="highlight-box green" style="margin-top:12px;">
+          👉 <strong>Công thức làm game:</strong> <strong>Biến</strong> nhớ con số 📦 + <strong>Nếu … thì</strong> quyết định dựa trên con số đó 🔀 = game có luật chơi (đủ điểm thì thắng, hết mạng thì thua)!
+        </div>
+        <div class="tip" style="margin-top:8px;">
+          <span class="tip-icon">🧪</span>
+          <div>Ba slide tiếp theo, em sẽ <strong>tự bấm thử</strong> từng khối trong Phòng thí nghiệm để thấy chuyện gì xảy ra khi <em>có</em> và khi <em>thiếu</em> khối.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: Demo 1 — Nếu / Nếu không -->
+  <section class="slide" data-index="4" aria-label="Demo Nếu và Nếu không">
+    <div class="slide-main">
+      <span class="slide-tag blue">🧱 Khối lệnh then chốt · Demo 1</span>
+      <h2>Nếu Chạm Sao Thì +1 Điểm, Nếu Không Thì Nhắc Nhở 🔀⭐</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div>
+            <p class="block-label">Sprite Mèo — hai nhánh rõ ràng</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block control c-block">
+                <span class="block-head">nếu &lt;đang chạm <span class="block-arg">Sao v</span>?&gt; thì</span>
+                <div class="c-body">
+                  <div class="block variable">thay đổi <span class="block-arg">điểm</span> một lượng <span class="block-arg">1</span></div>
+                </div>
+                <span class="block-head">nếu không</span>
+                <div class="c-body">
+                  <div class="block looks">nói <span class="block-arg">Chưa chạm sao!</span> trong <span class="block-arg">1</span> giây</div>
+                </div>
+              </div>
+            </div>
+            <div class="highlight-box orange" style="font-size:0.86rem;">
+              🔎 <strong>Nhớ nhé:</strong> điều kiện <strong>ĐÚNG</strong> → nhánh <code>nếu</code>; <strong>SAI</strong> → nhánh <code>nếu không</code>. Chỉ chạy <strong>một</strong> trong hai!
+            </div>
+            <div class="tip">
+              <span class="tip-icon">🔁</span>
+              <div>Mỗi lần bấm nút trong Phòng thí nghiệm = khối này chạy <strong>một lượt</strong>. Trong game thật, ta bọc nó vào <code>liên tục</code> để kiểm tra suốt ván chơi.</div>
+            </div>
+          </div>
+          <div class="anim-lab" id="ifLab">
+            <div class="anim-lab-title">🔬 Phòng thí nghiệm Nếu / Nếu không</div>
+            <div class="lb-stage">
+              <div class="lb-monitor"><span>điểm</span><b id="ifScore">0</b></div>
+              <div class="lb-bubble" id="ifBubble">Chưa chạm sao!</div>
+              <div class="lb-star" id="ifStar">⭐</div>
+              <div class="lb-sprite" id="ifCat">🐱</div>
+            </div>
+            <div class="anim-btns three">
+              <button class="btn-anim" id="btnIfNear">🐱 Chạm sao</button>
+              <button class="btn-anim danger" id="btnIfFar">🐱 Xa sao</button>
+              <button class="btn-anim" id="btnIfReset">🔄 Làm lại</button>
+            </div>
+            <button class="sw on" id="swIfElse"><span class="sw-knob"></span>🔀 Có khối “nếu không”</button>
+            <div class="anim-feedback" id="ifFeedback">Bấm “Xa sao” khi đang BẬT rồi TẮT công tắc — xem mèo còn nhắc nhở không?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Demo 2 — Biến -->
+  <section class="slide" data-index="5" aria-label="Demo Biến">
+    <div class="slide-main">
+      <span class="slide-tag blue">🧱 Khối lệnh then chốt · Demo 2</span>
+      <h2>Biến “điểm”: Đặt Về 0 Và Thay Đổi Thêm 1 📦</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div>
+            <div class="mini-steps">
+              <div>① <strong>Biến</strong> → <strong>Tạo một biến</strong> → đặt tên <code>điểm</code> → <strong>Cho tất cả nhân vật</strong>.</div>
+              <div>② Tick ô nhỏ cạnh <code>điểm</code> → số hiện ở góc Sân khấu.</div>
+            </div>
+            <p class="block-label">Mỗi ván mới — bắt đầu từ 0</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block variable">đặt <span class="block-arg">điểm</span> thành <span class="block-arg">0</span></div>
+            </div>
+            <p class="block-label">Mỗi lần được điểm — cộng thêm</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào sprite này</div>
+              <div class="block variable">thay đổi <span class="block-arg">điểm</span> một lượng <span class="block-arg">1</span></div>
+            </div>
+            <div class="highlight-box green" style="font-size:0.86rem;">
+              📦 <strong>đặt</strong> = gán hẳn một giá trị mới (làm lại từ đầu) · <strong>thay đổi</strong> = cộng thêm vào số đang có.
+            </div>
+          </div>
+          <div class="anim-lab" id="varLab">
+            <div class="anim-lab-title">🔬 Phòng thí nghiệm Biến</div>
+            <div class="lb-stage">
+              <div class="lb-monitor" id="varMonitor"><span>điểm</span><b id="varShown">0</b></div>
+              <div class="lb-mem">🧠 Scratch đang nhớ<b id="varMem">0</b></div>
+              <div class="lb-sprite" id="varCat" style="left:12%;">🐱</div>
+              <div class="lb-note" id="varNote">Click mèo để cộng điểm</div>
+            </div>
+            <div class="anim-btns">
+              <button class="btn-anim" id="btnVarClick">🖱️ Click mèo (+1)</button>
+              <button class="btn-anim danger" id="btnVarFlag">🏳️ Bấm cờ xanh</button>
+            </div>
+            <button class="sw on" id="swVarReset"><span class="sw-knob"></span>Có khối “đặt điểm thành 0”</button>
+            <button class="sw on" id="swVarMonitor"><span class="sw-knob"></span>☑ Tick hiện biến trên Sân khấu</button>
+            <div class="anim-feedback" id="varFeedback">Click vài lần, rồi bấm cờ xanh. Thử tắt từng công tắc và so sánh!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: Demo 3 — Đếm click + nếu/nếu không -->
+  <section class="slide" data-index="6" aria-label="Demo Đếm click kết hợp nếu không">
+    <div class="slide-main">
+      <span class="slide-tag green">📋 Ví dụ mẫu hoàn chỉnh</span>
+      <h2>Biến + Nếu Không = Mèo Biết Động Viên Theo Số Lần Click! 👆🐱</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div>
+            <p class="block-label">Sprite Mèo — đếm click rồi quyết định nói gì</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block variable">đặt <span class="block-arg">số lần click</span> thành <span class="block-arg">0</span></div>
+            </div>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào sprite này</div>
+              <div class="block variable">thay đổi <span class="block-arg">số lần click</span> một lượng <span class="block-arg">1</span></div>
+              <div class="block control c-block">
+                <span class="block-head">nếu &lt;<span class="block-arg">số lần click</span> &gt; <span class="block-arg">5</span>&gt; thì</span>
+                <div class="c-body">
+                  <div class="block looks">nói <span class="block-arg">Em click giỏi quá!</span></div>
+                </div>
+                <span class="block-head">nếu không</span>
+                <div class="c-body">
+                  <div class="block looks">nói <span class="block-arg">ghép <span class="block-arg" style="background:#e2e8f0;">Click thêm </span> <span class="block-arg" style="background:#e2e8f0;">ghép (5 − số lần click) “ lần nữa!”</span></span></div>
+                </div>
+              </div>
+            </div>
+            <div class="predict">
+              🔮 <strong>Em đoán xem?</strong> Biến <code>số lần click</code> đang là <strong>3</strong>, em click thêm <strong>2</strong> lần nữa (thành <strong>5</strong>). Mèo sẽ nói câu nào — “Em click giỏi quá!” hay “Click thêm …”? Đoán trước rồi bấm thử bên phải!
+            </div>
+          </div>
+          <div class="anim-lab" id="clkLab">
+            <div class="anim-lab-title">🔬 Phòng thí nghiệm Đếm click</div>
+            <div class="lb-stage">
+              <div class="lb-monitor"><span>số lần click</span><b id="clkCount">0</b></div>
+              <div class="lb-bubble" id="clkBubble"></div>
+              <div class="lb-sprite" id="clkCat" style="left:12%;">🐱</div>
+            </div>
+            <div class="anim-btns">
+              <button class="btn-anim" id="btnClkOne">👆 Click mèo</button>
+              <button class="btn-anim" id="btnClkFive">⏩ Click 5 lần liền</button>
+            </div>
+            <button class="btn-anim wide" id="btnClkFlag">🏳️ Bấm cờ xanh (đặt về 0)</button>
+            <div class="anim-feedback" id="clkFeedback">Bấm “Click 5 lần liền” rồi quan sát câu mèo nói ở lần thứ 5 và lần thứ 6.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>

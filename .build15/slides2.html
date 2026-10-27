@@ -1,0 +1,352 @@
+
+  <!-- Slide 8: Bác sĩ Scratch -->
+  <section class="slide" data-index="7" aria-label="Bác sĩ Scratch sửa lỗi">
+    <div class="slide-main">
+      <span class="slide-tag red">🩺 Bác sĩ Scratch sửa lỗi</span>
+      <h2>Phòng Khám: Chữa Bệnh Cho Game Tính Điểm! 🚑</h2>
+      <div class="slide-body">
+        <div class="cols-40-60" style="margin-top:0;">
+          <div>
+            <p class="block-label">🤒 Bệnh nhân 1 — sprite Sao</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block control c-block">
+                <span class="block-head">nếu &lt;đang chạm <span class="block-arg">Mèo v</span>?&gt; thì</span>
+                <div class="c-body">
+                  <div class="block variable">thay đổi <span class="block-arg">điểm</span> một lượng <span class="block-arg">1</span></div>
+                </div>
+              </div>
+            </div>
+            <p class="block-label">🤒 Bệnh nhân 2 — sprite Mèo</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block variable">đặt <span class="block-arg">điểm</span> thành <span class="block-arg">0</span></div>
+              <div class="block control c-block">
+                <span class="block-head">liên tục</span>
+                <div class="c-body">
+                  <div class="block control c-block">
+                    <span class="block-head">nếu &lt;đang chạm <span class="block-arg">Sao v</span>?&gt; thì</span>
+                    <div class="c-body">
+                      <div class="block variable">thay đổi <span class="block-arg">điểm</span> một lượng <span class="block-arg">1</span></div>
+                    </div>
+                  </div>
+                  <div class="block control c-block">
+                    <span class="block-head">nếu &lt;<span class="block-arg">điểm</span> = <span class="block-arg">10</span>&gt; thì</span>
+                    <div class="c-body">
+                      <div class="block looks">nói <span class="block-arg">Em thắng rồi!</span></div>
+                      <div class="block control">dừng lại <span class="block-arg">tất cả v</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="highlight-box red" style="font-size:0.82rem; padding:8px 12px;">
+              🔎 Chơi ván 2: điểm vẫn là số cũ; chạm sao mà điểm đứng yên; có lúc điểm nhảy ào ào; thắng mà chẳng thấy chữ! 👉 Cả lớp tìm xem có mấy bệnh?
+            </div>
+          </div>
+          <div class="clinic-grid">
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 1: Điểm cũ còn nguyên 🧟</span>
+              <span class="clinic-symptom">Chơi ván 2, bấm cờ xanh mà điểm vẫn là số của ván trước.</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Thêm <code>đặt [điểm] thành 0</code> ngay dưới <code>khi bấm vào 🏳️</code> — ván mới phải bắt đầu từ 0.</div>
+            </div>
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 2: Chạm mà điểm đứng yên 😴</span>
+              <span class="clinic-symptom">Mèo đã chạm sao nhưng điểm không tăng chút nào.</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Bọc <code>nếu &lt;đang chạm …?&gt; thì</code> vào trong <code>liên tục</code> để kiểm tra mãi, không chỉ kiểm tra một lần lúc bấm cờ.</div>
+            </div>
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 3: Điểm nhảy ào ào 🚀</span>
+              <span class="clinic-symptom">Chạm sao đúng một lần mà điểm tăng vùn vụt, chưa gì đã thắng!</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Sau khi cộng điểm, cho Sao <code>đi tới x: (số ngẫu nhiên) y: (số ngẫu nhiên)</code> để hết chạm — mỗi lần chạm chỉ tính 1 điểm.</div>
+            </div>
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 4: Thắng mà mất chữ 🫥</span>
+              <span class="clinic-symptom">Đủ 10 điểm nhưng không thấy mèo nói “Em thắng rồi!”.</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Dùng <code>nói [Em thắng rồi!] trong (2) giây</code> rồi mới <code>dừng lại [tất cả]</code>. Vì <code>dừng lại [tất cả]</code> xóa luôn bong bóng lời nói!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: Minigame Đúng hay Sai -->
+  <section class="slide" data-index="8" aria-label="Minigame Đúng hay Sai">
+    <div class="slide-main">
+      <span class="slide-tag green">⚡ Minigame tương tác</span>
+      <h2>Đúng Hay Sai? Thử Tài Phản Xạ Của Kỹ Sư Nhí! 🧠</h2>
+      <div class="slide-body">
+        <div class="arena-wrap">
+          <div class="arena-rule-bar">
+            <span>Đọc to tình huống → cả lớp đoán → bấm <strong>✅ ĐÚNG</strong> hoặc <strong>❌ SAI</strong></span>
+            <span class="arena-streak-badge" id="arenaStreak">🔥 Chuỗi đúng: 0</span>
+          </div>
+          <div class="arena-scenario" id="arenaScenario">
+            <div class="arena-scenario-emoji" id="arenaEmoji">🎮</div>
+            <div class="arena-scenario-text" id="arenaText">Đang tải tình huống...</div>
+            <div class="arena-scenario-sub" id="arenaSub"></div>
+          </div>
+          <div class="arena-btns">
+            <button class="btn-arena win" id="btnArenaTrue">✅ ĐÚNG!</button>
+            <button class="btn-arena lose" id="btnArenaFalse">❌ SAI!</button>
+          </div>
+          <div class="arena-feedback-msg" id="arenaFeedback">Cả lớp đoán trước, rồi thầy/cô bấm để kiểm tra nhé!</div>
+          <button class="btn-arena-next" id="btnArenaNext" style="display:none;">Câu tiếp theo ➡️</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: TH1 -->
+  <section class="slide" data-index="9" aria-label="Thực hành 1">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Bắt tay vào làm · Phần 1 (15 phút)</span>
+      <h2><span class="th-badge">TH1</span> Né Quái Đuổi, Ăn Sao ⭐👹💨</h2>
+      <div class="slide-body">
+        <div class="th-cols">
+          <div>
+            <p class="section-label" style="margin-top:0;">Nhiệm vụ thực hiện trên máy tính</p>
+            <ol class="th-list">
+              <li>Thêm sprite <strong>Sao</strong> và <strong>Quái vật</strong>. Tạo 3 biến <code>mạng</code>, <code>giây sống</code>, <code>tốc độ quái</code> (<em>Cho tất cả nhân vật</em>).</li>
+              <li><strong>Quái vật</strong> không đứng yên: <code>liên tục</code> → <code>di chuyển (tốc độ quái) bước</code> + <code>nếu chạm cạnh, nảy lại</code>.</li>
+              <li>Quái vật đi nhanh dần: <code>liên tục</code> → <code>đợi 10 giây</code> → <code>thay đổi [tốc độ quái] một lượng 1</code>.</li>
+              <li><strong>Mèo</strong> (phím mũi tên): cờ xanh → <code>đặt [mạng] thành 3</code>, <code>đặt [giây sống] thành 0</code>; script riêng đếm giây: <code>đợi 1 giây</code> → <code>thay đổi [giây sống] một lượng 1</code>.</li>
+              <li><strong>Sao</strong>: <code>nếu &lt;đang chạm Mèo?&gt; thì</code> bắt đầu âm thanh + <code>đi tới x: (ngẫu nhiên) y: (ngẫu nhiên)</code>.</li>
+            </ol>
+            <p class="section-label">Checklist tự kiểm TH1</p>
+            <ul class="checklist small">
+              <li><span class="check-icon">✓</span> Quái vật di chuyển qua lại và tăng tốc sau mỗi 10 giây</li>
+              <li><span class="check-icon">✓</span> Chạm sao: sao đổi chỗ + có tiếng</li>
+              <li><span class="check-icon">✓</span> Chạm quái: <code>mạng</code> giảm đúng 1 (có <code>đợi</code> ngắn)</li>
+              <li><span class="check-icon">✓</span> Hết mạng: báo số giây sống rồi dừng · Đã lưu <code>TH1-ne-quai-duoi</code></li>
+            </ul>
+          </div>
+          <div>
+            <p class="block-label">Mèo — chạm quái vật &amp; hết mạng</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block control c-block">
+                <span class="block-head">liên tục</span>
+                <div class="c-body">
+                  <div class="block control c-block">
+                    <span class="block-head">nếu &lt;đang chạm <span class="block-arg">Quái vật v</span>?&gt; thì</span>
+                    <div class="c-body">
+                      <div class="block variable">thay đổi <span class="block-arg">mạng</span> một lượng <span class="block-arg">-1</span></div>
+                      <div class="block control">đợi <span class="block-arg">1</span> giây</div>
+                    </div>
+                  </div>
+                  <div class="block control c-block">
+                    <span class="block-head">nếu &lt;<span class="block-arg">mạng</span> = <span class="block-arg">0</span>&gt; thì</span>
+                    <div class="c-body">
+                      <div class="block looks">nói <span class="block-arg">ghép “Hết mạng rồi! Em sống được ” (ghép (giây sống) “ giây!”)</span> trong <span class="block-arg">2</span> giây</div>
+                      <div class="block control">dừng lại <span class="block-arg">tập lệnh này v</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tip" style="font-size:0.8rem;">
+              <span class="tip-icon">💡</span>
+              <div>Tính điểm &amp; phát tiếng ở <strong>một nơi</strong> (sprite Sao) để tiếng không kêu đôi. Dừng lại [tập lệnh này] mới chỉ dừng Mèo — quái vẫn chạy, ở TH2 em sẽ dừng cả game!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: TH2 -->
+  <section class="slide" data-index="10" aria-label="Thực hành 2">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Bắt tay vào làm · Phần 2 (15 phút)</span>
+      <h2><span class="th-badge">TH2</span> Đua Với Thời Gian: 10 Điểm Trước Khi Hết 20 Giây! 🏆⏳</h2>
+      <div class="slide-body">
+        <div class="th-cols">
+          <div>
+            <p class="section-label" style="margin-top:0;">Nhiệm vụ thực hiện trên máy tính</p>
+            <ol class="th-list">
+              <li>Tạo biến <code>điểm</code>, <code>giây còn lại</code> (<em>Cho tất cả nhân vật</em>), tick cho hiện trên Sân khấu.</li>
+              <li>Cờ xanh (ở Sao): <code>đặt [điểm] thành 0</code> và <code>đặt [giây còn lại] thành 20</code>.</li>
+              <li>Script đếm ngược: <code>liên tục</code> → <code>đợi 1 giây</code> → <code>thay đổi [giây còn lại] một lượng -1</code>.</li>
+              <li>Khi Sao chạm Mèo: <code>thay đổi [điểm] một lượng 1</code> rồi cho Sao đổi chỗ.</li>
+              <li><strong>Ba cách kết thúc</strong> (luôn <code>nói … trong 2 giây</code> rồi mới <code>dừng lại [tất cả]</code>):<br>
+                • <code>điểm = 10</code> → “Em thắng rồi!”<br>
+                • <code>giây còn lại = 0</code> <strong>và</strong> <code>điểm &lt; 10</code> → “Hết giờ! Thua rồi.”<br>
+                • <code>mạng = 0</code> (từ TH1) → “Thua rồi!”</li>
+            </ol>
+          </div>
+          <div>
+            <p class="block-label">Thua vì hết giờ (đặt trong liên tục)</p>
+            <div class="blocks-container compact">
+              <div class="block control c-block">
+                <span class="block-head">nếu &lt;&lt;<span class="block-arg">giây còn lại</span> = <span class="block-arg">0</span>&gt; và &lt;<span class="block-arg">điểm</span> &lt; <span class="block-arg">10</span>&gt;&gt; thì</span>
+                <div class="c-body">
+                  <div class="block looks">nói <span class="block-arg">Hết giờ! Thua rồi.</span> trong <span class="block-arg">2</span> giây</div>
+                  <div class="block control">dừng lại <span class="block-arg">tất cả v</span></div>
+                </div>
+              </div>
+            </div>
+            <p class="section-label">Checklist tự kiểm TH2</p>
+            <ul class="checklist small">
+              <li><span class="check-icon">✓</span> Có <code>điểm</code> và <code>giây còn lại</code> trên Sân khấu</li>
+              <li><span class="check-icon">✓</span> Đủ 10 điểm trước khi hết giờ → báo thắng và dừng</li>
+              <li><span class="check-icon">✓</span> Hết giờ hoặc hết mạng → báo thua và dừng</li>
+              <li><span class="check-icon">✓</span> Đã lưu <code>TH2-dua-voi-thoi-gian</code></li>
+            </ul>
+            <div class="tip" style="font-size:0.8rem;">
+              <span class="tip-icon">⭐</span>
+              <div><strong>Thử thêm:</strong> giảm còn 15 giây hoặc tăng lên 15 điểm; thêm đếm ngược “3, 2, 1” bằng <code>nói</code> trước khi chơi. Nhớ thử cả <strong>3 cách kết thúc</strong>!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: Quiz -->
+  <section class="slide" data-index="11" aria-label="Đấu trường Quiz">
+    <div class="slide-main">
+      <span class="slide-tag purple">🏆 Đấu trường Quiz (5 phút củng cố)</span>
+      <h2>Thử Tài Thám Tử Nếu–Thì &amp; Thủ Kho Biến! 🧠</h2>
+      <div class="slide-body">
+        <div class="quiz-arena">
+          <div class="quiz-header">
+            <span id="quizProgressText">Câu hỏi 1 / 5</span>
+            <span id="quizScoreText" style="color:var(--scratch-orange); font-weight:900;">⭐ Điểm: 0</span>
+          </div>
+          <div class="quiz-question-box" id="quizQuestion">1. Đang tải câu hỏi...</div>
+          <div class="quiz-options" id="quizOptions"></div>
+          <div class="quiz-explain" id="quizExplain"></div>
+          <div class="quiz-nav-row">
+            <button class="btn-quiz-next" id="btnQuizNext">Câu tiếp theo ➡️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Rà soát & lưu bài -->
+  <section class="slide" data-index="12" aria-label="Rà soát và lưu bài">
+    <div class="slide-main">
+      <span class="slide-tag yellow">🖼️ Rà soát &amp; Lưu bài (10 phút)</span>
+      <h2>Chơi Thử Game Của Em Rồi Tự Kiểm Tra! ✅💾</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div>
+            <p class="section-label" style="margin-top:0;">Bấm vào từng mục khi em đã kiểm tra xong</p>
+            <ul class="checklist interactive" id="finalChecklist">
+              <li><span class="check-icon">✓</span> Bấm cờ xanh: điểm và mạng quay về số ban đầu (0 và 3)</li>
+              <li><span class="check-icon">✓</span> Chạm sao: điểm tăng đúng 1 và sao nhảy sang chỗ khác</li>
+              <li><span class="check-icon">✓</span> Chạm quái vật: mạng giảm 1, quái đi nhanh dần theo thời gian</li>
+              <li><span class="check-icon">✓</span> Đủ 10 điểm trước khi hết giờ: nói “Em thắng rồi!” rồi dừng</li>
+              <li><span class="check-icon">✓</span> Hết giờ hoặc hết mạng: báo thua rồi dừng</li>
+              <li><span class="check-icon">✓</span> Đã lưu <code>TH1-ne-quai-duoi</code> và <code>TH2-dua-voi-thoi-gian</code></li>
+            </ul>
+            <div class="check-progress"><div class="check-progress-fill" id="checkFill"></div></div>
+            <div class="check-status" id="checkStatus">0 / 6 mục hoàn thành</div>
+          </div>
+          <div>
+            <div class="card purple">
+              <h3>🤝 Thử thách cặp đôi: “Đoán điểm của bạn”</h3>
+              <p class="desc">Bạn A chạm sao vài lần (không nói to) rồi <strong>che biến điểm</strong>. Bạn B đoán: “Điểm đang là mấy?” rồi mới nhìn số thật. Đổi vai! Còn thời gian? Thêm một nhánh <code>nếu không</code> — ví dụ điểm chưa đủ 5 thì nói “Cố thêm chút nữa!”.</p>
+            </div>
+            <div class="tip">
+              <span class="tip-icon">🧪</span>
+              <div>Biến vẫn nhớ số điểm dù em che nó đi — giống hệt công tắc “tick hiện biến” ở Demo 2!</div>
+            </div>
+            <div class="tip">
+              <span class="tip-icon">💾</span>
+              <div>Lưu bằng <strong>Tập tin ➡️ Lưu về máy tính</strong>, đặt tên dễ nhớ như <code>Game_TenEm_Buoi15</code>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 14: Tổng kết -->
+  <section class="slide title-slide" data-index="13" aria-label="Tổng kết">
+    <div class="slide-main">
+      <div class="title-emoji" style="font-size:3.4rem;"><span>🎉</span><span>🔀</span><span>📦</span></div>
+      <h2 style="font-size:1.75rem; margin-bottom:8px;">Hoàn Thành Xuất Sắc Buổi 15! 🚀</h2>
+      <div class="highlight-box green" style="max-width:740px; text-align:left; margin-bottom:8px; padding:9px 14px;">
+        🌟 <strong>Thành tựu lập trình hôm nay của Em:</strong>
+        <ul style="margin-top:2px; line-height:1.5;">
+          <li>✅ Dùng <code>nếu … thì … nếu không</code> để Scratch tự quyết định.</li>
+          <li>✅ Tạo biến để nhớ điểm, mạng, thời gian — và biết <code>đặt</code> khác <code>thay đổi</code>.</li>
+          <li>✅ Làm game có luật Thắng / Thua: ăn sao, né quái, đua với thời gian!</li>
+        </ul>
+      </div>
+      <p class="section-label" style="margin:2px 0 0;">🏅 Bấm để nhận huy hiệu hôm nay</p>
+      <div class="award-grid">
+        <button class="award"><span class="award-emoji">🔀</span><span class="award-name">Thám tử Nếu–Thì</span><span class="award-desc">Biết dùng nhánh nếu không</span></button>
+        <button class="award"><span class="award-emoji">📦</span><span class="award-name">Thủ kho Biến</span><span class="award-desc">Tạo và dùng biến điểm</span></button>
+        <button class="award"><span class="award-emoji">🩺</span><span class="award-name">Bác sĩ Scratch</span><span class="award-desc">Tự sửa được lỗi</span></button>
+      </div>
+      <div class="card" style="max-width:740px; text-align:left; background:#fff; border:2px solid var(--scratch-orange); margin-top:10px; padding:10px 14px;">
+        <h3 style="color:var(--scratch-orange); margin-bottom:2px;">🔮 Bật mí Buổi 16 — Bài tập:</h3>
+        <p class="desc">Em luyện lại <strong>nếu / nếu không</strong> và <strong>biến</strong> qua <strong>“If-else đơn giản”</strong> và <strong>“Bắt sao đơn giản”</strong> rồi cùng làm game điểm cơ bản của riêng mình!</p>
+      </div>
+      <p style="margin-top:8px; font-size:0.95rem; color:var(--scratch-blue); font-weight:900;">💾 Nhớ bấm “Tập tin ➡️ Lưu về máy tính” để bảo vệ thành quả nhé!</p>
+    </div>
+  </section>
+
+  <!-- Slide 15: Ghi chú giáo viên -->
+  <section class="slide" data-index="14" aria-label="Ghi chú giáo viên">
+    <div class="slide-main">
+      <span class="slide-tag red">👩‍🏫 Dành cho Giáo viên</span>
+      <h2>Chiến Lược Sư Phạm &amp; Quản Trị Lớp Buổi 15 🔀📦</h2>
+      <div class="slide-body">
+        <div class="cols" style="margin-top:0;">
+          <div class="card">
+            <h3>⚡ Phân hóa theo nhịp độ</h3>
+            <ul style="font-size:0.82rem; line-height:1.5; margin-top:4px;">
+              <li><strong>Học sinh chậm:</strong> Chỉ cần xong TH1 phần Sao + biến <code>mạng</code> (chưa cần quái tăng tốc); TH2 làm điều kiện thắng <code>điểm = 10</code> trước.</li>
+              <li><strong>Học sinh xong sớm:</strong> Thêm “Thử thêm” của TH2 (15 giây / 15 điểm / đếm ngược 3-2-1) và nhánh <code>nếu không</code> “Cố thêm chút nữa!”.</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>🩺 Lỗi thường gặp</h3>
+            <ul style="font-size:0.82rem; line-height:1.5; margin-top:4px;">
+              <li>Quên <code>đặt [điểm] thành 0</code> khi cờ xanh nên điểm cộng dồn từ ván trước.</li>
+              <li><code>thay đổi [điểm]</code> nằm ngoài <code>nếu</code> nên điểm tăng dù không chạm — kiểm tra khối có “lọt” vào trong không.</li>
+              <li><code>nói …</code> rồi <code>dừng lại [tất cả]</code> ngay nên mất chữ → dùng <code>nói … trong 2 giây</code>.</li>
+              <li>Nhầm khối <code>=</code> (so sánh, hình lục giác xanh) với việc gán giá trị — gán là <code>đặt … thành …</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="cols" style="margin-top:10px;">
+          <div class="card orange">
+            <h3>🔇 Âm thanh &amp; giải lao</h3>
+            <p class="desc">Các Phòng thí nghiệm và minigame trên slide <strong>không phát âm thanh</strong>. Sao ở TH1 có tiếng khi ăn: nhắc đeo tai nghe hoặc vặn nhỏ loa. Giải lao 5 phút giữa TH1 và TH2 (trò “Nếu chạm thì…” theo giáo án): giới hạn khu vực di chuyển rõ ràng.</p>
+          </div>
+          <div class="card purple">
+            <h3>⏱️ Phân bổ thời gian (90 phút)</h3>
+            <p class="desc" style="color:#4c1d95;">
+              • 00–10p: Khởi động Cổng gác (Slide 1–3)<br>
+              • 10–35p: Kiến thức, Demo 1–3, Bác sĩ, Minigame (Slide 4–9)<br>
+              • 35–50p: TH1 (Slide 10) · 50–55p: Giải lao<br>
+              • 55–70p: TH2 (Slide 11) · 70–75p: Quiz (Slide 12)<br>
+              • 75–85p: Rà soát &amp; Đoán điểm (Slide 13) · 85–90p: Tổng kết (Slide 14–15)
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 15</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Phím cách · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
+

@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buổi 2: Người Phân Loại Tin Nhắn CLB — AI với Python (InnoMind Academy)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --py-blue: #387eb8;
+      --py-yellow: #f7c843;
+      --ai-cyan: #00f0ff;
+      --ai-purple: #a855f7;
+      --ai-pink: #ec4899;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg-dark: #070d19;
+      --card-bg: #0f1d36;
+      --card-border: rgba(56, 189, 248, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --slide-w: min(1120px, 95vw);
+      --slide-h: min(720px, 86vh);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: radial-gradient(circle at 15% 15%, #0e1e38 0%, #060b14 90%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    /* Global Topbar */
+    .global-topbar {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--slide-w);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 20px;
+      background: rgba(15, 29, 54, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      backdrop-filter: blur(14px);
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--py-blue), var(--ai-cyan));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+    }
+
+    .brand-title {
+      font-weight: 900;
+      font-size: 0.95rem;
+      letter-spacing: -0.01em;
+      color: #fff;
+    }
+
+    .brand-sub {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--py-yellow);
+      margin-left: 6px;
+    }
+
+    .topbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .slide-counter {
+      font-weight: 800;
+      font-size: 0.88rem;
+      color: var(--ai-cyan);
+      background: rgba(0, 240, 255, 0.1);
+      padding: 3px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 240, 255, 0.2);
+    }
+
+    .btn-nav-top {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-radius: 8px;
+      padding: 5px 11px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-nav-top:hover {
+      background: var(--py-blue);
+      border-color: var(--ai-cyan);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Slide Deck Container */
+    .deck-container {
+      width: var(--slide-w);
+      height: var(--slide-h);
+      position: relative;
+      margin-top: 54px;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(35px) scale(0.98);
+      pointer-events: none;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.3s;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+      z-index: 10;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-35px) scale(0.98);
+      pointer-events: none;
+    }
+
+    /* Slide Header & Body */
+    .slide-header {
+      padding: 16px 28px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .slide-tag {
+      font-size: 0.76rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--py-yellow);
+      background: rgba(247, 200, 67, 0.12);
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(247, 200, 67, 0.25);
+    }
+
+    .slide-title-wrap h2 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slide-subtitle {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .slide-body {
+      flex: 1;
+      padding: 18px 28px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Grids & Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+      height: 100%;
+    }
+
+    .grid-60-40 {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      align-items: stretch;
+      height: 100%;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    /* Cards & Boxes */
+    .ai-card {
+      background: rgba(14, 27, 50, 0.7);
+      border: 1px solid rgba(56, 189, 248, 0.16);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+
+    .ai-card.highlight {
+      border-color: rgba(0, 240, 255, 0.4);
+      background: linear-gradient(145deg, rgba(14, 27, 50, 0.9), rgba(15, 35, 68, 0.7));
+      box-shadow: 0 4px 20px rgba(0, 240, 255, 0.1);
+    }
+
+    .card-label {
+      font-size: 0.78rem;
+      font-weight: 900;
+      color: var(--ai-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    /* Code Block / Cell */
+    .code-cell {
+      background: #060b14;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: #e2e8f0;
+      overflow-x: auto;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: #64748b;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .kw { color: #f43f5e; font-weight: 600; }
+    .fn { color: #38bdf8; font-weight: 600; }
+    .str { color: #34d399; }
+    .num { color: #f59e0b; }
+    .com { color: #64748b; font-style: italic; }
+    .var { color: #c084fc; }
+
+    /* Interactive Lab Container */
+    .anim-lab {
+      background: #081120;
+      border: 2px solid rgba(0, 240, 255, 0.3);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .anim-lab-title {
+      font-size: 0.84rem;
+      font-weight: 900;
+      color: var(--ai-cyan);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, var(--py-blue), #2563eb);
+      border: 1px solid var(--ai-cyan);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.86rem;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0, 240, 255, 0.35);
+    }
+
+    .btn-action.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+    }
+
+    .btn-action.secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .btn-action.success {
+      background: linear-gradient(135deg, #059669, #10b981);
+      border-color: #34d399;
+    }
+
+    /* Keyframes */
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      40% { transform: scale(1.06); }
+      70% { transform: scale(0.97); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.92); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.2); }
+      50% { box-shadow: 0 0 22px rgba(0, 240, 255, 0.5); }
+    }
+
+    /* Lab 1: Mailbox Sorting Styles */
+    .mailbox-stage {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .mail-card {
+      background: #142340;
+      border: 2px dashed rgba(247, 200, 67, 0.5);
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      width: 100%;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s;
+    }
+
+    .mailbox-bins {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+
+    .bin-btn {
+      background: #0d1b33;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: #e2e8f0;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .bin-btn:hover {
+      border-color: var(--ai-cyan);
+      background: #14284d;
+      transform: translateY(-2px);
+    }
+
+    .bin-btn.correct-bin {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.2);
+      animation: bounce 0.4s ease;
+    }
+
+    .bin-btn.wrong-bin {
+      border-color: var(--danger);
+      background: rgba(239, 68, 68, 0.2);
+      animation: shake 0.4s ease;
+    }
+
+    .bin-icon { font-size: 1.4rem; }
+    .bin-name { font-size: 0.8rem; font-weight: 900; }
+    .bin-count { font-size: 0.7rem; color: var(--text-muted); }
+
+    /* Lab 2: CountVectorizer Simulator */
+    .count-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      margin-top: 4px;
+    }
+
+    .count-table th, .count-table td {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 10px;
+      text-align: center;
+    }
+
+    .count-table th {
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--ai-cyan);
+      font-weight: 700;
+    }
+
+    .count-table td.active-cell {
+      background: rgba(247, 200, 67, 0.25);
+      color: var(--py-yellow);
+      font-weight: 900;
+      animation: bounce 0.3s ease;
+    }
+
+    /* Lab 3: Live Predictor */
+    .predictor-input-wrap {
+      display: flex;
+      gap: 8px;
+    }
+
+    .predictor-input {
+      flex: 1;
+      background: #060b14;
+      border: 1.5px solid rgba(56, 189, 248, 0.3);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .predictor-input:focus {
+      border-color: var(--ai-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+    }
+
+    .pred-result-card {
+      background: #0b172a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pred-badge {
+      font-size: 0.95rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .prob-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+
+    .prob-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--py-blue), var(--ai-cyan));
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* Debugging Clinic (Bác sĩ AI) */
+    .clinic-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .clinic-card {
+      background: #091322;
+      border: 2px solid rgba(239, 68, 68, 0.35);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.25s;
+    }
+
+    .clinic-card.cured {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.08);
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.2);
+    }
+
+    .clinic-badge {
+      font-size: 0.68rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 5px;
+      width: fit-content;
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+    }
+
+    .clinic-card.cured .clinic-badge {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+    }
+
+    .clinic-name {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .clinic-symptom {
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    .clinic-cure {
+      display: none;
+      font-size: 0.78rem;
+      color: #6ee7b7;
+      line-height: 1.4;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 8px;
+      border-radius: 8px;
+      border-left: 3px solid var(--success);
+    }
+
+    .clinic-card.cured .clinic-cure {
+      display: block;
+      animation: popIn 0.3s ease;
+    }
+
+    .btn-cure {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      border-radius: 8px;
+      padding: 5px 8px;
+      font-family: inherit;
+      font-size: 0.74rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-cure:hover {
+      background: rgba(239, 68, 68, 0.3);
+      color: #fff;
+    }
+
+    .clinic-card.cured .btn-cure {
+      display: none;
+    }
+
+    /* Minigame Đúng / Sai */
+    .arena-wrap {
+      background: #091322;
+      border: 2px solid rgba(56, 189, 248, 0.25);
+      border-radius: 18px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .arena-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .arena-streak {
+      background: linear-gradient(135deg, var(--py-yellow), #f97316);
+      color: #000;
+      font-weight: 900;
+      font-size: 0.76rem;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .arena-scenario {
+      background: #111d35;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.25s;
+    }
+
+    .arena-scenario.correct {
+      border-color: var(--success);
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
+      animation: bounce 0.4s ease;
+    }
+
+    .arena-scenario.wrong {
+      border-color: var(--danger);
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.3);
+      animation: shake 0.4s ease;
+    }
+
+    .arena-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn-arena {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 2px solid;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-arena.true-btn {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--success);
+      color: #6ee7b7;
+    }
+
+    .btn-arena.true-btn:hover:not(:disabled) {
+      background: rgba(16, 185, 129, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .btn-arena.false-btn {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: var(--danger);
+      color: #fca5a5;
+    }
+
+    .btn-arena.false-btn:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .arena-feedback {
+      text-align: center;
+      font-size: 0.86rem;
+      font-weight: 700;
+      min-height: 22px;
+      color: #cbd5e1;
+    }
+
+    /* Quiz Arena */
+    .quiz-arena {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #091322;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 16px;
+      padding: 14px 18px;
+    }
+
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .quiz-question-box {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.4;
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .quiz-opt-btn {
+      background: #111d35;
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+
+    .quiz-opt-btn:hover:not(:disabled) {
+      border-color: var(--ai-cyan);
+      background: #182a4d;
+      transform: translateY(-2px);
+    }
+
+    .quiz-opt-btn.correct {
+      background: rgba(16, 185, 129, 0.25) !important;
+      border-color: var(--success) !important;
+      color: #6ee7b7 !important;
+      animation: bounce 0.4s ease;
+    }
+
+    .quiz-opt-btn.wrong {
+      background: rgba(239, 68, 68, 0.25) !important;
+      border-color: var(--danger) !important;
+      color: #fca5a5 !important;
+      animation: shake 0.4s ease;
+    }
+
+    .quiz-opt-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .quiz-explain {
+      display: none;
+      background: rgba(56, 189, 248, 0.1);
+      border-radius: 10px;
+      padding: 8px 12px;
+      border-left: 3px solid var(--ai-cyan);
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #bae6fd;
+    }
+
+    .quiz-explain.show { display: block; }
+
+    /* Checklist & Exit Ticket */
+    .checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .checklist.interactive li {
+      cursor: pointer;
+      background: #111d35;
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+
+    .checklist.interactive li:hover {
+      border-color: var(--ai-cyan);
+      transform: translateX(4px);
+    }
+
+    .checklist.interactive li.checked {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--success);
+      color: #6ee7b7;
+    }
+
+    .check-box-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .checklist.interactive li.checked .check-box-icon {
+      background: var(--success);
+      color: #fff;
+      animation: bounce 0.3s ease;
+    }
+
+    .progress-bar-wrap {
+      background: rgba(255, 255, 255, 0.08);
+      height: 10px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--py-blue), var(--ai-cyan));
+      transition: width 0.3s ease;
+    }
+
+    /* Bottom Dots Indicator */
+    .dots-nav {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      z-index: 100;
+      background: rgba(15, 29, 54, 0.75);
+      padding: 6px 14px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .dot.active {
+      width: 22px;
+      border-radius: 6px;
+      background: var(--ai-cyan);
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+    }
+
+    /* Progress bar on top */
+    .top-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--py-blue), var(--ai-cyan), var(--py-yellow));
+      z-index: 200;
+      transition: width 0.3s ease;
+    }
+
+    /* Exit Ticket Question Cards */
+    .exit-card {
+      background: #111d35;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .exit-q {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .exit-ans {
+      display: none;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ai-cyan);
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-toggle-ans {
+      align-self: flex-start;
+      background: transparent;
+      border: none;
+      color: var(--py-yellow);
+      font-size: 0.74rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Progress Bar -->
+  <div class="top-progress" id="topProgress" style="width: 5.88%;"></div>
+
+  <!-- Global Topbar -->
+  <header class="global-topbar">
+    <div class="brand-wrap">
+      <div class="brand-logo">AI</div>
+      <div>
+        <span class="brand-title">InnoMind AI Academy</span>
+        <span class="brand-sub">· Python & Machine Learning (THCS)</span>
+      </div>
+    </div>
+    <div class="topbar-controls">
+      <span class="slide-counter" id="slideCounter">1 / 17</span>
+      <button class="btn-nav-top" id="btnPrev" title="Slide trước (←)">◀ Trước</button>
+      <button class="btn-nav-top" id="btnNext" title="Slide sau (→ / Space)">Sau ▶</button>
+      <button class="btn-nav-top" id="btnFull" title="Toàn màn hình (F)">⛶</button>
+    </div>
+  </header>
+
+  <!-- Slide Deck Container -->
+  <main class="deck-container" id="deckContainer">
+
+    <!-- SLIDE 1: Cover -->
+    <section class="slide active" data-index="0">
+      <div class="slide-header">
+        <span class="slide-tag">Buổi 2 · Xử lý Ngôn ngữ Tự nhiên (NLP)</span>
+        <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted);">Thực hành Cá nhân · Google Colab</span>
+      </div>
+      <div class="slide-body" style="justify-content: center; align-items: center; text-align: center; gap: 18px;">
+        <div style="font-size: 3.5rem; line-height: 1; filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.4));">📨 🤖 📬</div>
+        <div>
+          <h1 style="font-size: 2.3rem; font-weight: 900; background: linear-gradient(135deg, #fff 30%, var(--ai-cyan) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Người Phân Loại Tin Nhắn Câu Lạc Bộ
+          </h1>
+          <p style="font-size: 1.1rem; color: var(--py-yellow); font-weight: 800; margin-top: 6px;">
+            Dạy máy tính tự động xếp thư vào 3 ngăn với Python & Machine Learning
+          </p>
+        </div>
+        <div style="display: flex; gap: 14px; max-width: 680px; margin-top: 10px;">
+          <div class="ai-card" style="flex: 1; text-align: left;">
+            <div class="card-label">🎯 Mục tiêu cốt lõi</div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: 700;">
+              Biến văn bản thành số với <b>CountVectorizer</b> và xây dựng dây chuyền phân loại <b>Pipeline</b> độc lập trên máy tính cá nhân.
+            </div>
+          </div>
+          <div class="ai-card" style="flex: 1; text-align: left;">
+            <div class="card-label">💡 Tư duy kỹ sư</div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: 700;">
+              Nhận diện câu nhiều ý định, teencode và câu ngoài phạm vi để thấy rõ giới hạn thực tế của AI.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: Timeline & Outcomes -->
+    <section class="slide" data-index="1">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>⏱️ Chuẩn Đầu Ra & Lộ Trình 90 Phút</h2>
+          <div class="slide-subtitle">Mỗi học sinh tự chủ hoàn thành 7 ô code từ T0 đến T6</div>
+        </div>
+        <span class="slide-tag">Kế hoạch cá nhân</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-60-40">
+          <div class="ai-card">
+            <div class="card-label">Lịch trình làm việc trên Notebook (T0 → T6)</div>
+            <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+              <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 0.82rem; font-weight: 700;">
+                <span><b>0–8'</b> · Phân loại bằng tay & Kết nối Buổi 1</span>
+                <span style="color: var(--py-yellow);">Ô T0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 0.82rem; font-weight: 700;">
+                <span><b>8–20'</b> · Thống nhất nhãn & Xem 90 câu dữ liệu</span>
+                <span style="color: var(--py-yellow);">Ô T1</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 0.82rem; font-weight: 700;">
+                <span><b>20–32'</b> · Biến chữ thành bảng đếm số</span>
+                <span style="color: var(--py-yellow);">Ô T2</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 0.82rem; font-weight: 700;">
+                <span><b>32–45'</b> · Ghép Pipeline & Cho máy học (`fit`)</span>
+                <span style="color: var(--py-yellow);">Ô T3</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 0.82rem; font-weight: 700;">
+                <span><b>45–58'</b> · Viết hàm `phan_loai_tin_nhan(cau)`</span>
+                <span style="color: var(--py-yellow);">Ô T4</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 0.82rem; font-weight: 700;">
+                <span><b>58–70'</b> · Chấm điểm trên 30 câu giữ riêng</span>
+                <span style="color: var(--py-yellow);">Ô T5</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 0.82rem; font-weight: 700;">
+                <span><b>70–83'</b> · Thử câu khó & Tìm giới hạn AI</span>
+                <span style="color: var(--py-yellow);">Ô T6</span>
+              </div>
+            </div>
+          </div>
+          <div class="ai-card highlight">
+            <div class="card-label">Chuẩn đầu ra cá nhân hôm nay</div>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 6px; font-size: 0.84rem; font-weight: 700; color: #e2e8f0;">
+              <li style="display: flex; gap: 8px;">
+                <span style="color: var(--success);">✔</span>
+                <span>Tự chạy được pipeline phân loại văn bản tiếng Việt.</span>
+              </li>
+              <li style="display: flex; gap: 8px;">
+                <span style="color: var(--success);">✔</span>
+                <span>Báo cáo chính xác kết quả đo lường trên 30 câu kiểm tra.</span>
+              </li>
+              <li style="display: flex; gap: 8px;">
+                <span style="color: var(--success);">✔</span>
+                <span>Hiểu vì sao mô hình <b>phân loại</b> khác với <b>chatbot sinh chữ</b>.</span>
+              </li>
+              <li style="display: flex; gap: 8px;">
+                <span style="color: var(--success);">✔</span>
+                <span>Giải thích được nguyên nhân câu 2 ý định hoặc câu troll bị gán nhãn bừa.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: Interactive Sorting Mailbox Lab -->
+    <section class="slide" data-index="2">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>📮 Khởi Động: Thử Thách Người Phụ Việc</h2>
+          <div class="slide-subtitle">Trước khi dạy máy, hãy thử tài phân loại tin nhắn bằng tay vào 3 ngăn</div>
+        </div>
+        <span class="slide-tag">Thí nghiệm Tương tác</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-60-40">
+          <div class="anim-lab" id="mailboxLab">
+            <div class="anim-lab-title">📬 Phòng Thí Nghiệm Phân Loại Hòm Thư</div>
+            <div class="mailbox-stage">
+              <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted);">TIN NHẮN CHỜ XỬ LÝ:</div>
+              <div class="mail-card" id="mailText">"Buổi sinh hoạt bắt đầu lúc mấy giờ ạ?"</div>
+              <div style="font-size: 0.8rem; color: var(--ai-cyan); font-weight: 800;">👉 Bấm vào ngăn bạn muốn xếp vào:</div>
+              <div class="mailbox-bins">
+                <button class="bin-btn" data-bin="lich">
+                  <span class="bin-icon">📅</span>
+                  <span class="bin-name">Hỏi lịch</span>
+                  <span class="bin-count" id="countLich">Đã xếp: 0</span>
+                </button>
+                <button class="bin-btn" data-bin="dangky">
+                  <span class="bin-icon">📝</span>
+                  <span class="bin-name">Đăng ký</span>
+                  <span class="bin-count" id="countDangKy">Đã xếp: 0</span>
+                </button>
+                <button class="bin-btn" data-bin="dungcu">
+                  <span class="bin-icon">🎒</span>
+                  <span class="bin-name">Hỏi dụng cụ</span>
+                  <span class="bin-count" id="countDungCu">Đã xếp: 0</span>
+                </button>
+              </div>
+            </div>
+            <div id="mailboxFeedback" style="font-size: 0.84rem; font-weight: 800; min-height: 22px; text-align: center; color: #cbd5e1;">
+              Chọn 1 trong 3 ngăn ở trên...
+            </div>
+            <div style="display: flex; justify-content: flex-end;">
+              <button class="btn-action secondary" id="btnNextMail">Tin nhắn tiếp theo ❯</button>
+            </div>
+          </div>
+
+          <div class="ai-card">
+            <div class="card-label">Kết nối với Buổi 1</div>
+            <div style="font-size: 0.86rem; color: #cbd5e1; font-weight: 700; line-height: 1.5;">
+              <p>📸 <b>Buổi 1:</b> Đầu vào là bức ảnh con số ➔ Máy dự đoán số từ 0 đến 9.</p>
+              <p style="margin-top: 8px;">💬 <b>Buổi 2:</b> Đầu vào là chuỗi chữ ➔ Máy dự đoán 1 trong 3 nhãn.</p>
+              <div style="background: rgba(247, 200, 67, 0.12); border-left: 3px solid var(--py-yellow); padding: 8px 10px; border-radius: 6px; margin-top: 10px; font-size: 0.82rem; color: #fde68a;">
+                <b>Lưu ý quan trọng:</b> Người phụ việc này <i>không tự gõ câu trả lời</i> như ChatGPT. Nhiệm vụ duy nhất của nó là <b>chọn đúng ngăn</b>!
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: Data & Labels -->
+    <section class="slide" data-index="3">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>📋 Thống Nhất Nhãn & Khám Phá Dữ Liệu</h2>
+          <div class="slide-subtitle">Nguyên tắc "Rác vào thì rác ra" (Garbage In, Garbage Out) trong AI</div>
+        </div>
+        <span class="slide-tag">Khái niệm cốt lõi</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3" style="margin-bottom: 6px;">
+          <div class="ai-card" style="border-top: 3px solid var(--ai-cyan);">
+            <div style="font-size: 1.4rem;">📅</div>
+            <div class="card-title">Hỏi lịch</div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: 700;">
+              Ngày, giờ, địa điểm, thời lượng hoặc thông báo đổi lịch sinh hoạt.
+            </div>
+            <div style="font-size: 0.76rem; color: var(--py-yellow); font-style: italic; margin-top: 4px;">
+              "Mai câu lạc bộ gặp nhau lúc mấy giờ?"
+            </div>
+          </div>
+          <div class="ai-card" style="border-top: 3px solid var(--py-yellow);">
+            <div style="font-size: 1.4rem;">📝</div>
+            <div class="card-title">Đăng ký tham gia</div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: 700;">
+              Xin gia nhập, thủ tục, điều kiện, sửa đổi hoặc hủy đơn tham gia.
+            </div>
+            <div style="font-size: 0.76rem; color: var(--py-yellow); font-style: italic; margin-top: 4px;">
+              "Em muốn gia nhập câu lạc bộ tin học."
+            </div>
+          </div>
+          <div class="ai-card" style="border-top: 3px solid var(--ai-purple);">
+            <div style="font-size: 1.4rem;">🎒</div>
+            <div class="card-title">Hỏi dụng cụ</div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: 700;">
+              Thiết bị, máy tính, tập vở, phần mềm cần chuẩn bị hoặc mượn.
+            </div>
+            <div style="font-size: 0.76rem; color: var(--py-yellow); font-style: italic; margin-top: 4px;">
+              "Buổi đầu có cần mang laptop không ạ?"
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="ai-card">
+            <div class="card-label">Tập Học (Train Set) — 60 câu</div>
+            <div style="font-size: 0.84rem; color: #cbd5e1; font-weight: 700;">
+              Mỗi nhãn gồm đúng 20 câu mẫu đa dạng cách diễn đạt. Dùng để dạy cho mô hình nhận diện từ khóa và cấu trúc câu.
+            </div>
+            <div class="code-cell" style="margin-top: 6px;">
+              <span class="com"># Ô T1: Nạp tập dữ liệu học</span><br>
+              <span class="var">X_hoc</span> = [<span class="str">"mấy giờ sinh hoạt"</span>, <span class="str">"xin gia nhập nhóm"</span>, ...]  <span class="com"># 60 câu</span><br>
+              <span class="var">y_hoc</span> = [<span class="num">0</span>, <span class="num">1</span>, <span class="num">2</span>, ...]  <span class="com"># 60 nhãn tương ứng</span>
+            </div>
+          </div>
+          <div class="ai-card highlight">
+            <div class="card-label">Tập Kiểm Tra (Test Set) — 30 câu giữ riêng</div>
+            <div style="font-size: 0.84rem; color: #cbd5e1; font-weight: 700;">
+              Mỗi nhãn 10 câu hoàn toàn độc lập, cất riêng trong két sắt. Tuyệt đối không cho mô hình nhìn thấy trong lúc học!
+            </div>
+            <div style="background: rgba(239, 68, 68, 0.15); border-left: 3px solid var(--danger); padding: 8px 10px; border-radius: 6px; margin-top: 8px; font-size: 0.8rem; color: #fca5a5; font-weight: 700;">
+              ⚠️ Nếu đưa tập kiểm tra cho máy học trước, ta sẽ mắc lỗi "Học lận" (Data Leakage) khiến điểm số cao ảo nhưng ra đời thực lại vô dụng!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: Individual Task - Writing 3 sentences -->
+    <section class="slide" data-index="4">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>✍️ Hoạt Động Cá Nhân: Tự Sáng Tạo Dữ Liệu</h2>
+          <div class="slide-subtitle">Thử đóng vai người dùng thật gửi tin nhắn đến câu lạc bộ (4 phút)</div>
+        </div>
+        <span class="slide-tag">Thực hành cá nhân</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="ai-card highlight">
+            <div class="card-label">Nhiệm vụ của mỗi học sinh</div>
+            <div style="font-size: 0.88rem; color: #e2e8f0; font-weight: 700; line-height: 1.5;">
+              Mỗi bạn tự mở vở nháp hoặc ô ghi chú trên máy, tự viết <b>3 câu tin nhắn hoàn toàn mới</b> theo phong cách của riêng mình:
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+              <div style="padding: 8px 10px; background: rgba(0,240,255,0.08); border-radius: 8px; border: 1px solid rgba(0,240,255,0.2); font-size: 0.82rem; font-weight: 800;">
+                1️⃣ Một câu <b>Hỏi lịch</b> (ví dụ: ngày giờ, dời lịch, địa điểm sinh hoạt).
+              </div>
+              <div style="padding: 8px 10px; background: rgba(247,200,67,0.08); border-radius: 8px; border: 1px solid rgba(247,200,67,0.2); font-size: 0.82rem; font-weight: 800;">
+                2️⃣ Một câu <b>Đăng ký</b> (ví dụ: xin gia nhập, hỏi điều kiện tham gia).
+              </div>
+              <div style="padding: 8px 10px; background: rgba(168,85,247,0.08); border-radius: 8px; border: 1px solid rgba(168,85,247,0.2); font-size: 0.82rem; font-weight: 800;">
+                3️⃣ Một câu <b>Hỏi dụng cụ</b> (ví dụ: đồ mang theo, cài phần mềm gì).
+              </div>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--py-yellow); margin-top: 8px; font-weight: 800;">
+              📌 Giữ 3 câu này để dùng thử nghiệm cá nhân ở phút 45!
+            </div>
+          </div>
+
+          <div class="ai-card">
+            <div class="card-label">🧠 Câu hỏi phản biện tư duy</div>
+            <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-top: 4px;">
+              Đọc câu này: <br>
+              <span style="color: var(--ai-cyan);">"Mai học lúc mấy giờ và cần mang theo những gì?"</span>
+            </div>
+            <div style="font-size: 0.84rem; color: #cbd5e1; font-weight: 700; line-height: 1.5; margin-top: 6px;">
+              Liệu chúng ta có thể gán <b>một nhãn duy nhất</b> một cách dứt khoát cho câu này không?
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 10px; margin-top: 10px;">
+              <div style="font-size: 0.8rem; font-weight: 900; color: var(--py-yellow);">ĐÚC KẾT KỸ SƯ AI:</div>
+              <div style="font-size: 0.82rem; color: #94a3b8; font-weight: 700; margin-top: 2px;">
+                Câu này chứa <b>hai ý định</b> (Hỏi lịch + Hỏi dụng cụ). Thiết kế 3 nhãn đơn chưa thể biểu diễn đầy đủ. Ta không ép máy vào các câu mập mờ này trong bộ kiểm tra!
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: Bag of Words Concept -->
+    <section class="slide" data-index="5">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>🔢 Chuyển Chữ Thành Số: Chiếc Túi Đếm Từ</h2>
+          <div class="slide-subtitle">Máy tính không đọc hiểu chữ như con người — nó chỉ tính toán trên các con số</div>
+        </div>
+        <span class="slide-tag">Kỹ thuật Bag of Words</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="ai-card">
+            <div class="card-label">Nguyên lý hoạt động của CountVectorizer</div>
+            <div style="font-size: 0.86rem; color: #cbd5e1; font-weight: 700; line-height: 1.5;">
+              1. Lập một danh sách (từ điển) gồm tất cả các từ vựng đã từng gặp trong tập học.<br>
+              2. Với mỗi câu mới, đếm xem mỗi từ trong từ điển xuất hiện <b>mấy lần</b>.<br>
+              3. Ghép các số đếm thành một <b>vector số</b> (mảng số).
+            </div>
+            <div class="code-cell" style="margin-top: 8px;">
+              <span class="com"># Giả sử từ điển gồm 3 từ: ['bút', 'giấy', 'mang']</span><br>
+              <span class="str">"mang bút"</span>      ➔ [<span class="num">1</span>, <span class="num">0</span>, <span class="num">1</span>]<br>
+              <span class="str">"mang giấy"</span>     ➔ [<span class="num">0</span>, <span class="num">1</span>, <span class="num">1</span>]<br>
+              <span class="str">"mang bút bút"</span> ➔ [<span class="num">2</span>, <span class="num">0</span>, <span class="num">1</span>]
+            </div>
+          </div>
+
+          <div class="ai-card highlight">
+            <div class="card-label">🔍 Nhược điểm chí mạng của Bag of Words</div>
+            <div style="font-size: 0.86rem; color: #fff; font-weight: 800; line-height: 1.5;">
+              Xem xét hai câu sau:
+              <div style="padding: 6px 10px; background: rgba(0,0,0,0.3); border-radius: 6px; margin: 6px 0; color: var(--ai-cyan);">
+                Câu A: "Mèo đuổi chó" 🐾<br>
+                Câu B: "Chó đuổi mèo" 🐶
+              </div>
+              Nghĩa của 2 câu hoàn toàn trái ngược nhau! Nhưng chiếc túi đếm từ sẽ đếm:
+            </div>
+            <div style="font-size: 0.82rem; color: var(--py-yellow); font-weight: 700; margin-top: 6px;">
+              • Cả hai câu đều có 1 từ "mèo", 1 từ "đuổi", 1 từ "chó".<br>
+              ➔ Vector đếm từ của cả hai câu <b>giống hệt nhau 100%</b>!
+            </div>
+            <div style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; margin-top: 6px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 6px;">
+              💡 <b>Kết luận:</b> Đếm từ làm <i>mất hoàn toàn thứ tự từ</i>. Nhưng với câu hỏi ngắn trong CLB, phương pháp này vẫn chạy cực nhanh và hiệu quả!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: CountVectorizer Simulator Lab -->
+    <section class="slide" data-index="6">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>🧪 Phòng Thí Nghiệm: Ma Trận Đếm Từ (T2)</h2>
+          <div class="slide-subtitle">Bấm thử các câu để xem máy tính biến câu văn thành mảng số như thế nào</div>
+        </div>
+        <span class="slide-tag">Thí nghiệm Tương tác</span>
+      </div>
+      <div class="slide-body">
+        <div class="anim-lab" id="countVecLab">
+          <div class="anim-lab-title">📊 Bộ Mô Phỏng CountVectorizer Trực Quan</div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-action secondary cv-btn" data-s="mang but">Câu: "mang bút"</button>
+            <button class="btn-action secondary cv-btn" data-s="mang giay">Câu: "mang giấy"</button>
+            <button class="btn-action secondary cv-btn" data-s="mang but but">Câu: "mang bút bút"</button>
+            <button class="btn-action secondary cv-btn" data-s="meo duoi cho" style="border-color: var(--py-yellow); color: var(--py-yellow);">⚡ "mèo đuổi chó"</button>
+            <button class="btn-action secondary cv-btn" data-s="cho duoi meo" style="border-color: var(--py-yellow); color: var(--py-yellow);">⚡ "chó đuổi mèo"</button>
+          </div>
+
+          <div style="background: #060b14; border-radius: 10px; padding: 10px; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto;">
+            <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); margin-bottom: 6px;">
+              BẢNG ĐẾM TỪ (VOCABULARY MATRIX):
+            </div>
+            <table class="count-table" id="cvTable">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Câu đầu vào</th>
+                  <th>bút</th>
+                  <th>giấy</th>
+                  <th>mang</th>
+                  <th>chó</th>
+                  <th>đuổi</th>
+                  <th>mèo</th>
+                  <th>Vector số tạo ra</th>
+                </tr>
+              </thead>
+              <tbody id="cvTbody">
+                <tr>
+                  <td style="text-align: left; font-weight: 700; color: #fff;">mang bút</td>
+                  <td class="active-cell">1</td>
+                  <td>0</td>
+                  <td class="active-cell">1</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td style="color: var(--ai-cyan); font-weight: 800;">[1, 0, 1, 0, 0, 0]</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="cvFeedback" style="font-size: 0.84rem; font-weight: 700; color: #bae6fd; min-height: 24px;">
+            💡 Hãy bấm thử hai nút màu vàng để kiểm chứng việc mất thứ tự từ!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: Pipeline in Machine Learning -->
+    <section class="slide" data-index="7">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>🔄 Ghép Dây Chuyền Tự Động: Pipeline</h2>
+          <div class="slide-subtitle">Kết nối bước đếm từ và bước phân loại thành một quy trình xuyên suốt</div>
+        </div>
+        <span class="slide-tag">Kiến trúc AI</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-60-40">
+          <div class="ai-card">
+            <div class="card-label">Sơ đồ dòng chảy dữ liệu</div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 10px; background: #060b14; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.2); margin: 8px 0;">
+              <div style="text-align: center;">
+                <div style="font-size: 1.4rem;">💬</div>
+                <div style="font-size: 0.76rem; font-weight: 800; color: #fff;">Tin nhắn</div>
+                <div style="font-size: 0.68rem; color: #94a3b8;">(Văn bản)</div>
+              </div>
+              <div style="color: var(--ai-cyan); font-weight: 900;">➔</div>
+              <div style="text-align: center; background: rgba(56, 189, 248, 0.12); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--ai-cyan);">
+                <div style="font-size: 0.8rem; font-weight: 900; color: var(--ai-cyan);">CountVectorizer</div>
+                <div style="font-size: 0.68rem; color: #94a3b8;">Đếm túi từ</div>
+              </div>
+              <div style="color: var(--ai-cyan); font-weight: 900;">➔</div>
+              <div style="text-align: center; background: rgba(247, 200, 67, 0.12); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--py-yellow);">
+                <div style="font-size: 0.8rem; font-weight: 900; color: var(--py-yellow);">MultinomialNB</div>
+                <div style="font-size: 0.68rem; color: #94a3b8;">Phân loại Naive Bayes</div>
+              </div>
+              <div style="color: var(--ai-cyan); font-weight: 900;">➔</div>
+              <div style="text-align: center;">
+                <div style="font-size: 1.4rem;">🏷️</div>
+                <div style="font-size: 0.76rem; font-weight: 800; color: var(--success);">Tên nhãn</div>
+                <div style="font-size: 0.68rem; color: #94a3b8;">(1 trong 3 ngăn)</div>
+              </div>
+            </div>
+            <div style="font-size: 0.84rem; color: #cbd5e1; font-weight: 700; line-height: 1.45;">
+              <b>Pipeline</b> đóng vai trò như một băng chuyền tự động trong nhà máy: Ta chỉ cần đưa chuỗi chữ vào một đầu, nó sẽ tự động đổi sang số rồi tính toán xác suất và trả nhãn ở đầu kia!
+            </div>
+          </div>
+
+          <div class="ai-card highlight">
+            <div class="card-label">Code Ô T3 trong Notebook</div>
+            <div class="code-cell" style="margin-top: 6px;">
+              <span class="kw">from</span> <span class="var">sklearn.pipeline</span> <span class="kw">import</span> <span class="fn">make_pipeline</span><br>
+              <span class="kw">from</span> <span class="var">sklearn.feature_extraction.text</span> <span class="kw">import</span> <span class="fn">CountVectorizer</span><br>
+              <span class="kw">from</span> <span class="var">sklearn.naive_bayes</span> <span class="kw">import</span> <span class="fn">MultinomialNB</span><br><br>
+              <span class="com"># Ghép 2 công cụ thành pipeline duy nhất:</span><br>
+              <span class="var">mo_hinh</span> = <span class="fn">make_pipeline</span>(<br>
+              &nbsp;&nbsp;<span class="fn">CountVectorizer</span>(),<br>
+              &nbsp;&nbsp;<span class="fn">MultinomialNB</span>()<br>
+              )
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: Training the model (fit) -->
+    <section class="slide" data-index="8">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>🎓 Huấn Luyện Mô Hình: Lệnh `fit` (T3)</h2>
+          <div class="slide-subtitle">Máy tính kết hợp nhiều dấu hiệu từ vựng để học quy luật của từng nhãn</div>
+        </div>
+        <span class="slide-tag">Thực hành Notebook</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="ai-card">
+            <div class="card-label">Câu lệnh huấn luyện</div>
+            <div class="code-cell" style="margin-top: 8px;">
+              <span class="com"># Dạy mô hình bằng 60 câu và nhãn học:</span><br>
+              <span class="var">mo_hinh</span>.<span class="fn">fit</span>(<span class="var">X_hoc</span>, <span class="var">y_hoc</span>)<br><br>
+              <span class="fn">print</span>(<span class="str">"Đã huấn luyện xong mô hình!"</span>)
+            </div>
+            <div style="font-size: 0.84rem; color: #cbd5e1; font-weight: 700; line-height: 1.5; margin-top: 10px;">
+              Khi gọi <code>fit()</code>, thuật toán <b>Multinomial Naive Bayes</b> sẽ đếm tần suất xuất hiện của từng từ khóa trong mỗi nhóm câu để tính toán bảng trọng số xác suất.
+            </div>
+          </div>
+
+          <div class="ai-card highlight">
+            <div class="card-label">⚠️ Điểm kiểm tra an toàn phút 45</div>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 8px; font-size: 0.84rem; font-weight: 700;">
+              <li style="display: flex; gap: 8px;">
+                <span style="color: var(--ai-cyan);">🔹</span>
+                <span>Mỗi bạn chạy thành công ô <b>T3</b> trên máy tính của mình.</span>
+              </li>
+              <li style="display: flex; gap: 8px;">
+                <span style="color: var(--ai-cyan);">🔹</span>
+                <span>Đảm bảo lệnh <code>fit</code> <b>CHỈ</b> nhận <code>X_hoc</code> và <code>y_hoc</code>.</span>
+              </li>
+              <li style="display: flex; gap: 8px;">
+                <span style="color: var(--warning);">👁️</span>
+                <span><b>Nghỉ mắt 30 giây:</b> Rời mắt khỏi màn hình máy tính, nhìn ra cửa sổ hoặc nhìn xa để thư giãn mắt trước khi sang phần viết hàm!</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: Live Predictor Lab (T4) -->
+    <section class="slide" data-index="9">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>🚀 Viết Hàm Dự Đoán & Dùng Thử Trực Tiếp (T4)</h2>
+          <div class="slide-subtitle">Mỗi bạn tự viết hàm `phan_loai_tin_nhan(cau)` và thử nghiệm với câu của mình</div>
+        </div>
+        <span class="slide-tag">Thí nghiệm Tương tác</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-60-40">
+          <div class="anim-lab" id="predictorLab">
+            <div class="anim-lab-title">🔮 Thử Nghiệm Mô Hình Phân Loại Sống</div>
+            <div style="font-size: 0.82rem; font-weight: 700; color: #cbd5e1;">
+              Gõ tin nhắn bất kỳ của bạn hoặc chọn câu mẫu bên dưới:
+            </div>
+            <div class="predictor-input-wrap">
+              <input type="text" id="predInput" class="predictor-input" placeholder="Nhập câu tin nhắn (vd: Mai mấy giờ tập trung ạ?)..." value="Mai câu lạc bộ gặp nhau lúc mấy giờ?">
+              <button class="btn-action" id="btnPredict">Dự đoán ❯</button>
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button class="btn-action secondary pred-quick" data-text="Cho em xin đơn đăng ký tham gia CLB với ạ">Câu 1 (ĐK)</button>
+              <button class="btn-action secondary pred-quick" data-text="Buổi sau có phải đem laptop không thầy?">Câu 2 (Dụng cụ)</button>
+              <button class="btn-action secondary pred-quick" data-text="Lịch sinh hoạt thứ Bảy dời sang Chủ nhật được không?">Câu 3 (Lịch)</button>
+            </div>
+
+            <div class="pred-result-card" id="predResultCard">
+              <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted);">KẾT QUẢ DỰ ĐOÁN TỪ MÔ HÌNH:</div>
+              <div class="pred-badge" id="predBadge" style="color: var(--ai-cyan);">
+                <span>📅 Nhãn: Hỏi lịch</span>
+              </div>
+              <div style="font-size: 0.76rem; color: #94a3b8; font-weight: 700;" id="predExplain">
+                Từ khóa nhận diện: 'lịch', 'gặp', 'mấy giờ'.
+              </div>
+              <div class="prob-bar">
+                <div class="prob-fill" id="probFill" style="width: 85%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ai-card">
+            <div class="card-label">Mổ xẻ cú pháp hàm ở Ô T4</div>
+            <div class="code-cell" style="margin-top: 6px;">
+              <span class="kw">def</span> <span class="fn">phan_loai_tin_nhan</span>(<span class="var">cau</span>):<br>
+              &nbsp;&nbsp;<span class="com"># [cau] biến 1 câu thành danh sách</span><br>
+              &nbsp;&nbsp;<span class="var">nhan</span> = <span class="var">mo_hinh</span>.<span class="fn">predict</span>([<span class="var">cau</span>])[<span class="num">0</span>]<br>
+              &nbsp;&nbsp;<span class="kw">return</span> <span class="var">ten_nhan</span>[<span class="var">nhan</span>]
+            </div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: 700; line-height: 1.45; margin-top: 8px;">
+              💡 <b>Tại sao là <code>[cau]</code>?</b> Vì hàm <code>predict</code> luôn nhận một danh sách nhiều câu. Ta bọc ngoặc vuông để tạo danh sách 1 phần tử.<br>
+              💡 <b>Tại sao là <code>[0]</code>?</b> Để lấy kết quả dự đoán của phần tử đầu tiên trong danh sách trả về!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: Testing with 30 held-out sentences (T5) -->
+    <section class="slide" data-index="10">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>📊 Chấm Điểm Trên 30 Câu Giữ Riêng (T5)</h2>
+          <div class="slide-subtitle">Kiểm tra năng lực thực sự của mô hình trên dữ liệu chưa từng gặp</div>
+        </div>
+        <span class="slide-tag">Đánh giá mô hình</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="ai-card">
+            <div class="card-label">Lệnh đánh giá ở Ô T5</div>
+            <div class="code-cell" style="margin-top: 6px;">
+              <span class="com"># Dự đoán toàn bộ 30 câu kiểm tra:</span><br>
+              <span class="var">du_doan</span> = <span class="var">mo_hinh</span>.<span class="fn">predict</span>(<span class="var">X_kiem_tra</span>)<br><br>
+              <span class="com"># Tính số câu đoán đúng:</span><br>
+              <span class="var">so_dung</span> = (<span class="var">du_doan</span> == <span class="var">y_kiem_tra</span>).<span class="fn">sum</span>()<br>
+              <span class="fn">print</span>(<span class="str">f"Kết quả: {so_dung}/30 câu đúng!"</span>)
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <div style="flex: 1; text-align: center; background: rgba(16,185,129,0.15); border: 1px solid var(--success); border-radius: 8px; padding: 8px;">
+                <div style="font-size: 1.2rem; font-weight: 900; color: #6ee7b7;">28–30 / 30</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">Tỷ lệ đúng ~95%</div>
+              </div>
+              <div style="flex: 1; text-align: center; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px;">
+                <div style="font-size: 1.2rem; font-weight: 900; color: var(--py-yellow);">10 / 10</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">Mỗi nhãn kiểm tra</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ai-card highlight">
+            <div class="card-label">🧠 Câu hỏi của Kỹ sư trưởng</div>
+            <div style="font-size: 0.95rem; font-weight: 800; color: #fff;">
+              "Nếu mô hình của bạn đạt 30/30 câu đúng (100%), bạn đã có thể giao toàn bộ hòm thư thật của trường cho nó tự chạy mà không cần người giám sát chưa?"
+            </div>
+            <div style="font-size: 0.84rem; color: #cbd5e1; font-weight: 700; line-height: 1.5; margin-top: 8px;">
+              <b>Câu trả lời là: CHƯA THỂ!</b><br>
+              • 30 câu này là do giáo viên viết giả lập, câu văn rõ ràng, chuẩn ngữ pháp.<br>
+              • Ngoài đời thực, học sinh viết tắt, teencode, sai chính tả, câu nói bóng gió hoặc gửi các câu không liên quan gì đến CLB.<br>
+              • 100% trên tập nhỏ chỉ là bằng chứng trên bộ dữ liệu này, không đại diện cho toàn bộ thế giới thực!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: Exploring Limitations (T6) -->
+    <section class="slide" data-index="11">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>⚡ Thử Thách Câu Khó: Tìm Giới Hạn AI (T6)</h2>
+          <div class="slide-subtitle">Quan sát phản ứng của mô hình khi gặp các câu nằm ngoài kịch bản</div>
+        </div>
+        <span class="slide-tag">Thử nghiệm giới hạn</span>
+      </div>
+      <div class="slide-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+          <div class="ai-card">
+            <div class="card-label" style="color: var(--py-yellow);">1. Câu hai ý định</div>
+            <div style="font-size: 0.82rem; font-weight: 800; color: #fff;">
+              "Mình muốn đăng ký, mà lịch sinh hoạt là hôm nào?"
+            </div>
+            <div style="font-size: 0.76rem; color: #94a3b8; font-weight: 700; margin-top: 4px;">
+              👉 Máy bắt buộc phải chọn 1 nhãn. Thiết kế 3 ngăn đơn lẻ chưa thể xử lý đa ý định.
+            </div>
+          </div>
+          <div class="ai-card">
+            <div class="card-label" style="color: var(--danger);">2. Câu có từ phủ định</div>
+            <div style="font-size: 0.82rem; font-weight: 800; color: #fff;">
+              "Mình không hỏi lịch, mình muốn biết cần mang gì."
+            </div>
+            <div style="font-size: 0.76rem; color: #94a3b8; font-weight: 700; margin-top: 4px;">
+              👉 Máy thấy từ 'lịch' có thể đoán nhầm sang Hỏi lịch vì Bag of Words không hiểu chữ 'không'.
+            </div>
+          </div>
+          <div class="ai-card">
+            <div class="card-label" style="color: var(--ai-purple);">3. Câu ngoài phạm vi (Troll)</div>
+            <div style="font-size: 0.82rem; font-weight: 800; color: #fff;">
+              "Hôm nay trời đẹp quá đi uống trà sữa đi!"
+            </div>
+            <div style="font-size: 0.76rem; color: #94a3b8; font-weight: 700; margin-top: 4px;">
+              👉 Máy vẫn ép vào 1 trong 3 nhãn! Mô hình chưa có khả năng nói "Tôi không biết".
+            </div>
+          </div>
+          <div class="ai-card">
+            <div class="card-label" style="color: #64748b;">4. Từ vô nghĩa</div>
+            <div style="font-size: 0.82rem; font-weight: 800; color: #fff;">
+              "zzzx qqqv blabla"
+            </div>
+            <div style="font-size: 0.76rem; color: #94a3b8; font-weight: 700; margin-top: 4px;">
+              👉 Không có từ nào trong từ điển, máy chọn bừa nhãn xuất hiện nhiều nhất.
+            </div>
+          </div>
+          <div class="ai-card">
+            <div class="card-label" style="color: var(--ai-cyan);">5. Teencode / Không dấu</div>
+            <div style="font-size: 0.82rem; font-weight: 800; color: #fff;">
+              "mai hoc may gio vay"
+            </div>
+            <div style="font-size: 0.76rem; color: #94a3b8; font-weight: 700; margin-top: 4px;">
+              👉 Dữ liệu học có dấu nên từ 'hoc', 'gio' không khớp với 'học', 'giờ'.
+            </div>
+          </div>
+          <div class="ai-card">
+            <div class="card-label" style="color: var(--success);">6. Từ đồng nghĩa mới</div>
+            <div style="font-size: 0.82rem; font-weight: 800; color: #fff;">
+              "Em muốn ghi danh vào nhóm"
+            </div>
+            <div style="font-size: 0.76rem; color: #94a3b8; font-weight: 700; margin-top: 4px;">
+              👉 Máy đoán đúng Đăng ký nếu các từ xung quanh mang ngữ cảnh gia nhập.
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(0, 240, 255, 0.08); border-left: 4px solid var(--ai-cyan); border-radius: 8px; padding: 10px 14px; font-size: 0.84rem; font-weight: 700; color: #e2e8f0;">
+          💡 <b>Lời chốt của Kỹ sư AI:</b> Máy trả ra một nhãn không có nghĩa là câu đó thật sự thuộc nhóm đó. Vấn đề không chỉ ở thuật toán, mà ở <b>cách thiết kế sản phẩm</b> (cần thêm tính năng hỏi lại hoặc từ chối lịch sự).
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: Debugging Clinic (Bác sĩ AI) -->
+    <section class="slide" data-index="12">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>🩺 Bác Sĩ AI: Bắt Bệnh Code Python</h2>
+          <div class="slide-subtitle">3 ca bệnh kinh điển khiến chương trình báo lỗi hoặc chạy sai kết quả</div>
+        </div>
+        <span class="slide-tag">Debugging Clinic</span>
+      </div>
+      <div class="slide-body">
+        <div class="clinic-grid">
+          <!-- Ca bệnh 1 -->
+          <div class="clinic-card" id="clinic1">
+            <span class="clinic-badge">Ca Bệnh 1</span>
+            <div class="clinic-name">Quên ngoặc vuông `[cau]`</div>
+            <div class="clinic-symptom">
+              <b>Triệu chứng:</b> Gõ <code>mo_hinh.predict(cau)</code> bị báo lỗi <i>ValueError</i> hoặc kết quả kỳ lạ.
+            </div>
+            <div class="clinic-cure">
+              <b>💊 Phương thuốc:</b> Sửa thành <code>mo_hinh.predict([cau])[0]</code>. Thư viện luôn cần một danh sách câu (List), không nhận chuỗi đơn lẻ!
+            </div>
+            <button class="btn-cure" onclick="cureClinic(1)">💊 Xem phương thuốc</button>
+          </div>
+
+          <!-- Ca bệnh 2 -->
+          <div class="clinic-card" id="clinic2">
+            <span class="clinic-badge">Ca Bệnh 2</span>
+            <div class="clinic-name">Học lận dữ liệu kiểm tra</div>
+            <div class="clinic-symptom">
+              <b>Triệu chứng:</b> Lệnh fit viết <code>mo_hinh.fit(X_kiem_tra, y_kiem_tra)</code>. Chấm điểm được 100% nhưng thầy cô trừ điểm!
+            </div>
+            <div class="clinic-cure">
+              <b>💊 Phương thuốc:</b> Sửa thành <code>mo_hinh.fit(X_hoc, y_hoc)</code>. Tuyệt đối không cho mô hình nhìn đề thi trước khi kiểm tra!
+            </div>
+            <button class="btn-cure" onclick="cureClinic(2)">💊 Xem phương thuốc</button>
+          </div>
+
+          <!-- Ca bệnh 3 -->
+          <div class="clinic-card" id="clinic3">
+            <span class="clinic-badge">Ca Bệnh 3</span>
+            <div class="clinic-name">Hàm trả về số 0, 1, 2</div>
+            <div class="clinic-symptom">
+              <b>Triệu chứng:</b> Gọi hàm <code>phan_loai_tin_nhan</code> máy trả về số <code>0</code> thay vì chữ "Hỏi lịch", người dùng không hiểu gì.
+            </div>
+            <div class="clinic-cure">
+              <b>💊 Phương thuốc:</b> Dùng từ điển tra nhãn: <code>return ten_nhan[nhan]</code> với <code>ten_nhan = {0: "Hỏi lịch", 1: "Đăng ký", 2: "Hỏi dụng cụ"}</code>.
+            </div>
+            <button class="btn-cure" onclick="cureClinic(3)">💊 Xem phương thuốc</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: Minigame Đúng / Sai -->
+    <section class="slide" data-index="13">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>⚡ Đấu Trường Đúng / Sai: Phá Vỡ Định Kiến AI</h2>
+          <div class="slide-subtitle">Click ĐÚNG hoặc SAI để kiểm tra hiểu biết thực tế về mô hình phân loại</div>
+        </div>
+        <span class="slide-tag">Minigame Tương tác</span>
+      </div>
+      <div class="slide-body">
+        <div class="arena-wrap" id="arenaWrap">
+          <div class="arena-bar">
+            <span>Tình huống <b id="arenaCurIdx">1</b> / 6</span>
+            <span class="arena-streak">🔥 Streak: <span id="arenaStreak">0</span></span>
+          </div>
+
+          <div class="arena-scenario" id="arenaScenario">
+            <div style="font-size: 2rem;" id="arenaEmoji">💬</div>
+            <div style="font-size: 1.05rem; font-weight: 800; color: #fff;" id="arenaText">
+              "Mô hình phân loại tin nhắn này cũng có thể trò chuyện và viết thơ như ChatGPT."
+            </div>
+          </div>
+
+          <div class="arena-btns">
+            <button class="btn-arena true-btn" id="btnArenaTrue">✅ ĐÚNG</button>
+            <button class="btn-arena false-btn" id="btnArenaFalse">❌ SAI</button>
+          </div>
+
+          <div class="arena-feedback" id="arenaFeedback">
+            Chọn ĐÚNG hoặc SAI để trả lời...
+          </div>
+
+          <button class="btn-action secondary" id="btnArenaNext" style="display: none; align-self: center;">
+            Câu tiếp theo ❯
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 15: Quiz Arena -->
+    <section class="slide" data-index="14">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>🏆 Đấu Trường Quiz: Thử Thách Kỹ Sư AI</h2>
+          <div class="slide-subtitle">5 câu hỏi trắc nghiệm đánh giá kiến thức buổi học (20 điểm / câu)</div>
+        </div>
+        <span class="slide-tag">Quiz Arena</span>
+      </div>
+      <div class="slide-body">
+        <div class="quiz-arena" id="quizArena">
+          <div class="quiz-header">
+            <span>Câu hỏi <b id="quizIdx">1</b> / 5</span>
+            <span style="color: var(--py-yellow); font-weight: 900;">Điểm: <span id="quizScore">0</span> / 100</span>
+          </div>
+
+          <div class="quiz-question-box" id="quizQuestion">
+            Công cụ nào trong bài học có nhiệm vụ biến các câu văn bản thành bảng đếm số?
+          </div>
+
+          <div class="quiz-options" id="quizOptions">
+            <!-- Rendered by JS -->
+          </div>
+
+          <div class="quiz-explain" id="quizExplain">
+            <!-- Explanation -->
+          </div>
+
+          <div style="display: flex; justify-content: flex-end;">
+            <button class="btn-action" id="btnQuizNext" style="display: none;">Câu tiếp theo ❯</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 16: Checklist & Exit Ticket -->
+    <section class="slide" data-index="15">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>✅ Checklist Cá Nhân & Phiếu Ra Cửa</h2>
+          <div class="slide-subtitle">Kiểm tra lại sản phẩm của bạn trước khi tắt máy và hoàn thành buổi học</div>
+        </div>
+        <span class="slide-tag">Tổng kết bài học</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="ai-card">
+            <div class="card-label">Checklist hoàn thành cá nhân (Click để tick)</div>
+            <ul class="checklist interactive" id="checkList">
+              <li data-id="1"><span class="check-box-icon">✔</span> Chạy ô T0 và khởi động notebook cá nhân.</li>
+              <li data-id="2"><span class="check-box-icon">✔</span> Tự viết 3 câu tin nhắn nháp vào vở.</li>
+              <li data-id="3"><span class="check-box-icon">✔</span> Chạy ô T2 tạo bảng đếm số CountVectorizer.</li>
+              <li data-id="4"><span class="check-box-icon">✔</span> Huấn luyện Pipeline với lệnh `fit` ở ô T3.</li>
+              <li data-id="5"><span class="check-box-icon">✔</span> Viết hàm `phan_loai_tin_nhan` ở T4 và đo điểm T5.</li>
+            </ul>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="checkProgressFill"></div>
+            </div>
+            <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-align: center; margin-top: 4px;" id="checkStatusText">
+              Đã hoàn thành: 0 / 5 mục
+            </div>
+          </div>
+
+          <div class="ai-card highlight">
+            <div class="card-label">🎫 Phiếu ra cửa (Exit Ticket)</div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div class="exit-card">
+                <div class="exit-q">1. Pipeline của bài này gồm hai bước nào?</div>
+                <button class="btn-toggle-ans" onclick="toggleAns(1)">[Xem đáp án]</button>
+                <div class="exit-ans" id="ans1">Đếm từ (CountVectorizer) ➔ Phân loại (MultinomialNB).</div>
+              </div>
+              <div class="exit-card">
+                <div class="exit-q">2. Vì sao câu "trời đẹp quá" vẫn bị máy gán một nhãn?</div>
+                <button class="btn-toggle-ans" onclick="toggleAns(2)">[Xem đáp án]</button>
+                <div class="exit-ans" id="ans2">Mô hình được lập trình luôn chọn 1 trong 3 nhãn, chưa có cơ chế từ chối câu ngoài lề.</div>
+              </div>
+              <div class="exit-card">
+                <div class="exit-q">3. Đề xuất cách giúp máy hiểu tin nhắn không dấu?</div>
+                <button class="btn-toggle-ans" onclick="toggleAns(3)">[Xem đáp án]</button>
+                <div class="exit-ans" id="ans3">Bổ sung câu không dấu vào tập học, rồi thu thập một bộ câu không dấu mới để kiểm tra.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 17: Teacher Notes -->
+    <section class="slide" data-index="16">
+      <div class="slide-header">
+        <div class="slide-title-wrap">
+          <h2>👩‍🏫 Ghi Chú Sư Phạm (Dành Cho Giáo Viên)</h2>
+          <div class="slide-subtitle">Chiến lược hỗ trợ học sinh THCS thực hành cá nhân hiệu quả</div>
+        </div>
+        <span class="slide-tag">Teacher Guide</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="ai-card">
+            <div class="card-label" style="color: var(--py-yellow);">Phân hóa tốc độ</div>
+            <div style="font-size: 0.82rem; color: #cbd5e1; font-weight: 700; line-height: 1.5;">
+              • <b>Học sinh nhanh:</b> Khuyến khích các em thử các câu có từ viết tắt, câu nhiều ý định ở T6 hoặc tự viết thêm câu vào tập dữ liệu.<br>
+              • <b>Học sinh chậm:</b> Hướng dẫn dùng phím tắt <code>Shift + Enter</code> để chạy từng ô; kiểm tra kỹ cú pháp ngoặc vuông <code>[cau]</code>.
+            </div>
+          </div>
+          <div class="ai-card">
+            <div class="card-label" style="color: var(--danger);">Bẫy hiểu nhầm phổ biến</div>
+            <div style="font-size: 0.82rem; color: #cbd5e1; font-weight: 700; line-height: 1.5;">
+              • Học sinh cấp 2 hay nghĩ AI hiểu nghĩa tiếng Việt như người thật. Cần nhấn mạnh: Máy chỉ <b>đếm số lần từ xuất hiện</b> chứ không hiểu ngữ cảnh triết lý.<br>
+              • Học sinh thích gõ câu troll để xem máy phản ứng: Hãy dùng việc này làm bài học về giới hạn sản phẩm.
+            </div>
+          </div>
+          <div class="ai-card">
+            <div class="card-label" style="color: var(--ai-cyan);">Phân bổ thời gian</div>
+            <div style="font-size: 0.82rem; color: #cbd5e1; font-weight: 700; line-height: 1.5;">
+              • Dành đủ 13 phút cho phần T6 (thử câu khó) vì đây là lúc học sinh THCS hứng thú nhất khi phát hiện ra điểm yếu của AI.<br>
+              • Giữ đúng 2 phút cuối cho học sinh điền phiếu ra cửa cá nhân để lưu lại đúc kết bài học.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Dots Indicator -->
+  <nav class="dots-nav" id="dotsNav" aria-label="Slide dots navigation"></nav>
+
+  <script>
+    /* =====================================================================
+       GLOBAL NAVIGATION ENGINE
+       ===================================================================== */
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    const slideCounter = document.getElementById('slideCounter');
+    const topProgress = document.getElementById('topProgress');
+    const dotsNav = document.getElementById('dotsNav');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const btnFull = document.getElementById('btnFull');
+
+    // Build Dots
+    slides.forEach((_, idx) => {
+      const dot = document.createElement('div');
+      dot.className = `dot ${idx === 0 ? 'active' : ''}`;
+      dot.title = `Tới slide ${idx + 1}`;
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        goToSlide(idx);
+      });
+      dotsNav.appendChild(dot);
+    });
+
+    const dots = Array.from(dotsNav.querySelectorAll('.dot'));
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.remove('active', 'prev');
+        if (idx === currentSlide) {
+          s.classList.add('active');
+        } else if (idx < currentSlide) {
+          s.classList.add('prev');
+        }
+      });
+
+      dots.forEach((d, idx) => {
+        d.classList.toggle('active', idx === currentSlide);
+      });
+
+      slideCounter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+      topProgress.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+    }
+
+    function goToSlide(n) {
+      if (n >= 0 && n < totalSlides) {
+        currentSlide = n;
+        updateSlide();
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    btnNext.addEventListener('click', (e) => { e.stopPropagation(); nextSlide(); });
+    btnPrev.addEventListener('click', (e) => { e.stopPropagation(); prevSlide(); });
+
+    // Keyboard Navigation
+    window.addEventListener('keydown', (e) => {
+      // Do not navigate if user is typing in an input
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goToSlide(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        goToSlide(totalSlides - 1);
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      }
+    });
+
+    // Fullscreen toggle
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    }
+    btnFull.addEventListener('click', (e) => { e.stopPropagation(); toggleFullScreen(); });
+
+    // Touch Swipe
+    let touchStartX = 0;
+    window.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].screenX;
+      const diff = touchEndX - touchStartX;
+      if (diff < -50) nextSlide();
+      else if (diff > 50) prevSlide();
+    }, { passive: true });
+
+    // Click on slide background to advance (excluding interactive elements)
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('button, input, textarea, a, .anim-lab, .quiz-arena, .arena-wrap, .clinic-card, .checklist, .exit-card, .code-cell, .dots-nav, .global-topbar')) {
+        return;
+      }
+      nextSlide();
+    });
+
+    /* =====================================================================
+       LAB 1: SORTING MAILBOX (SLIDE 3)
+       ===================================================================== */
+    const sampleMails = [
+      { text: "Buổi sinh hoạt bắt đầu lúc mấy giờ ạ?", correct: "lich", reason: "Chính xác! Câu này hỏi về thời gian bắt đầu sinh hoạt." },
+      { text: "Em muốn đăng ký tham gia câu lạc bộ tin học.", correct: "dangky", reason: "Chính xác! Câu này thể hiện nguyện vọng gia nhập nhóm." },
+      { text: "Có cần mang theo máy tính laptop không thầy?", correct: "dungcu", reason: "Chính xác! Câu này hỏi về thiết bị, dụng cụ mang theo." },
+      { text: "Địa điểm phòng sinh hoạt hôm nay ở đâu ạ?", correct: "lich", reason: "Chính xác! Câu này hỏi về nơi diễn ra buổi gặp." },
+      { text: "Lớp 7 có được nộp đơn ứng tuyển không ạ?", correct: "dangky", reason: "Chính xác! Hỏi về điều kiện đăng ký tham gia." }
+    ];
+    let mailIdx = 0;
+    const binCounts = { lich: 0, dangky: 0, dungcu: 0 };
+
+    const mailTextEl = document.getElementById('mailText');
+    const mailboxFeedbackEl = document.getElementById('mailboxFeedback');
+    const btnNextMail = document.getElementById('btnNextMail');
+    const binBtns = document.querySelectorAll('.bin-btn');
+
+    binBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const chosen = btn.dataset.bin;
+        const currentMail = sampleMails[mailIdx];
+
+        binBtns.forEach(b => b.classList.remove('correct-bin', 'wrong-bin'));
+
+        if (chosen === currentMail.correct) {
+          btn.classList.add('correct-bin');
+          binCounts[chosen]++;
+          document.getElementById(`count${chosen.charAt(0).toUpperCase() + chosen.slice(1)}`).textContent = `Đã xếp: ${binCounts[chosen]}`;
+          mailboxFeedbackEl.style.color = '#34d399';
+          mailboxFeedbackEl.textContent = `🎉 ${currentMail.reason}`;
+        } else {
+          btn.classList.add('wrong-bin');
+          mailboxFeedbackEl.style.color = '#f87171';
+          mailboxFeedbackEl.textContent = `❌ Chưa đúng rồi! Câu này thuộc nhóm khác. Thử lại nhé!`;
+        }
+      });
+    });
+
+    btnNextMail.addEventListener('click', (e) => {
+      e.stopPropagation();
+      binBtns.forEach(b => b.classList.remove('correct-bin', 'wrong-bin'));
+      mailIdx = (mailIdx + 1) % sampleMails.length;
+      mailTextEl.textContent = `"${sampleMails[mailIdx].text}"`;
+      mailboxFeedbackEl.style.color = '#cbd5e1';
+      mailboxFeedbackEl.textContent = "Hãy chọn ngăn phù hợp...";
+    });
+
+    /* =====================================================================
+       LAB 2: COUNTVECTORIZER SIMULATOR (SLIDE 7)
+       ===================================================================== */
+    const cvData = {
+      "mang but": { bút: 1, giấy: 0, mang: 1, chó: 0, đuổi: 0, mèo: 0, vec: "[1, 0, 1, 0, 0, 0]", note: "✅ Từ 'bút' và 'mang' xuất hiện 1 lần, các từ khác bằng 0." },
+      "mang giay": { bút: 0, giấy: 1, mang: 1, chó: 0, đuổi: 0, mèo: 0, vec: "[0, 1, 1, 0, 0, 0]", note: "✅ Từ 'giấy' và 'mang' xuất hiện 1 lần." },
+      "mang but but": { bút: 2, giấy: 0, mang: 1, chó: 0, đuổi: 0, mèo: 0, vec: "[2, 0, 1, 0, 0, 0]", note: "🔥 Từ 'bút' xuất hiện 2 lần nên giá trị cột bút là 2!" },
+      "meo duoi cho": { bút: 0, giấy: 0, mang: 0, chó: 1, đuổi: 1, mèo: 1, vec: "[0, 0, 0, 1, 1, 1]", note: "⚡ Chú ý: Vector số là [0, 0, 0, 1, 1, 1]. Hãy đối chiếu với câu tiếp theo!" },
+      "cho duoi meo": { bút: 0, giấy: 0, mang: 0, chó: 1, đuổi: 1, mèo: 1, vec: "[0, 0, 0, 1, 1, 1]", note: "🚨 BẤT NGỜ CHƯA: Vector cũng là [0, 0, 0, 1, 1, 1] y hệt! Bag of Words làm mất hoàn toàn thứ tự từ!" }
+    };
+
+    const cvButtons = document.querySelectorAll('.cv-btn');
+    const cvTbody = document.getElementById('cvTbody');
+    const cvFeedback = document.getElementById('cvFeedback');
+
+    cvButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cvButtons.forEach(b => b.classList.add('secondary'));
+        btn.classList.remove('secondary');
+
+        const key = btn.dataset.s;
+        const d = cvData[key];
+        const sentenceName = btn.textContent.replace('Câu: ', '').replace('⚡ ', '');
+
+        cvTbody.innerHTML = `
+          <tr>
+            <td style="text-align: left; font-weight: 700; color: #fff;">${sentenceName}</td>
+            <td class="${d.bút > 0 ? 'active-cell' : ''}">${d.bút}</td>
+            <td class="${d.giấy > 0 ? 'active-cell' : ''}">${d.giấy}</td>
+            <td class="${d.mang > 0 ? 'active-cell' : ''}">${d.mang}</td>
+            <td class="${d.chó > 0 ? 'active-cell' : ''}">${d.chó}</td>
+            <td class="${d.đuổi > 0 ? 'active-cell' : ''}">${d.đuổi}</td>
+            <td class="${d.mèo > 0 ? 'active-cell' : ''}">${d.mèo}</td>
+            <td style="color: var(--ai-cyan); font-weight: 800;">${d.vec}</td>
+          </tr>
+        `;
+        cvFeedback.textContent = d.note;
+      });
+    });
+
+    /* =====================================================================
+       LAB 3: LIVE PREDICTOR (SLIDE 10)
+       ===================================================================== */
+    const predInput = document.getElementById('predInput');
+    const btnPredict = document.getElementById('btnPredict');
+    const predBadge = document.getElementById('predBadge');
+    const predExplain = document.getElementById('predExplain');
+    const probFill = document.getElementById('probFill');
+    const predQuickBtns = document.querySelectorAll('.pred-quick');
+
+    function simulatePrediction(text) {
+      const lower = text.toLowerCase();
+      let scoreLich = 0, scoreDangKy = 0, scoreDungCu = 0;
+
+      // Keywords
+      const lichKw = ['lịch', 'giờ', 'khi nào', 'ngày', 'mai', 'thứ', 'sinh hoạt', 'gặp', 'tập trung', 'bắt đầu', 'địa điểm', 'ở đâu', 'phòng'];
+      const dangKyKw = ['đăng ký', 'tham gia', 'gia nhập', 'vào', 'xin', 'đơn', 'thành viên', 'thủ tục', 'ghi danh', 'ứng tuyển', 'lớp 7', 'lớp 8', 'lớp 6'];
+      const dungCuKw = ['laptop', 'máy tính', 'mang', 'dụng cụ', 'bút', 'giấy', 'đem', 'phần mềm', 'cài', 'chuẩn bị', 'thiết bị', 'bảng vẽ'];
+
+      lichKw.forEach(w => { if (lower.includes(w)) scoreLich += 2; });
+      dangKyKw.forEach(w => { if (lower.includes(w)) scoreDangKy += 2; });
+      dungCuKw.forEach(w => { if (lower.includes(w)) scoreDungCu += 2; });
+
+      // Fallback
+      if (scoreLich === 0 && scoreDangKy === 0 && scoreDungCu === 0) {
+        scoreDangKy = 1; // Prior baseline
+      }
+
+      let predictedLabel = "Hỏi lịch";
+      let icon = "📅";
+      let maxScore = scoreLich;
+      let matched = lichKw.filter(w => lower.includes(w));
+
+      if (scoreDangKy > maxScore) {
+        predictedLabel = "Đăng ký tham gia";
+        icon = "📝";
+        maxScore = scoreDangKy;
+        matched = dangKyKw.filter(w => lower.includes(w));
+      }
+      if (scoreDungCu > maxScore) {
+        predictedLabel = "Hỏi dụng cụ";
+        icon = "🎒";
+        maxScore = scoreDungCu;
+        matched = dungCuKw.filter(w => lower.includes(w));
+      }
+
+      // Check special hard cases
+      let extraNote = "";
+      if (lower.includes("mai") && lower.includes("mang")) {
+        extraNote = " (Phát hiện 2 ý định: vừa hỏi lịch vừa hỏi dụng cụ!)";
+      } else if (lower.includes("trời đẹp") || lower.includes("trà sữa")) {
+        extraNote = " (Câu nằm ngoài phạm vi CLB nhưng máy vẫn bị ép gán 1 nhãn!)";
+      }
+
+      predBadge.innerHTML = `<span>${icon} Nhãn: ${predictedLabel}</span>`;
+      predExplain.textContent = matched.length > 0 
+        ? `Từ khóa nhận diện: ${matched.map(m => `'${m}'`).join(', ')}.${extraNote}`
+        : `Không có từ khóa rõ ràng; mô hình chọn nhãn theo xác suất nền.${extraNote}`;
+      
+      probFill.style.width = '0%';
+      setTimeout(() => {
+        probFill.style.width = `${Math.min(96, 65 + maxScore * 6)}%`;
+      }, 50);
+    }
+
+    btnPredict.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const val = predInput.value.trim();
+      if (val) simulatePrediction(val);
+    });
+
+    predQuickBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        predInput.value = btn.dataset.text;
+        simulatePrediction(btn.dataset.text);
+      });
+    });
+
+    /* =====================================================================
+       DEBUGGING CLINIC (SLIDE 13)
+       ===================================================================== */
+    window.cureClinic = function(num) {
+      const card = document.getElementById(`clinic${num}`);
+      if (card) {
+        card.classList.add('cured');
+      }
+    };
+
+    /* =====================================================================
+       MINIGAME ĐÚNG / SAI (SLIDE 14)
+       ===================================================================== */
+    const arenaScenarios = [
+      {
+        emoji: "💬",
+        text: "Mô hình phân loại tin nhắn này cũng có thể trò chuyện và viết thơ như ChatGPT.",
+        ans: false,
+        explain: "SAI! Mô hình hôm nay chỉ có nhiệm vụ xếp tin vào 1 trong 3 ngăn, hoàn toàn không sinh văn bản."
+      },
+      {
+        emoji: "🛡️",
+        text: "Tập kiểm tra giữ riêng (30 câu) tuyệt đối không được xuất hiện trong lệnh mo_hinh.fit().",
+        ans: true,
+        explain: "ĐÚNG! Đưa tập kiểm tra vào lúc học gọi là 'học lận' (Data Leakage), làm mất tính khách quan."
+      },
+      {
+        emoji: "🐾",
+        text: "Kỹ thuật đếm từ CountVectorizer hiểu được sự khác biệt giữa 'mèo đuổi chó' và 'chó đuổi mèo'.",
+        ans: false,
+        explain: "SAI! CountVectorizer làm mất hoàn toàn thứ tự từ; cả 2 câu đều có vector số giống hệt nhau."
+      },
+      {
+        emoji: "📦",
+        text: "Trong hàm phan_loai_tin_nhan(cau), ta cần bọc [cau] vì thư viện luôn nhận đầu vào là danh sách.",
+        ans: true,
+        explain: "ĐÚNG! Scikit-learn mong đợi một danh sách nhiều câu, nên 1 câu phải bọc trong [cau]."
+      },
+      {
+        emoji: "💯",
+        text: "Nếu đạt 30/30 câu đúng, ta có thể tự tin giao toàn bộ hòm thư thật cho máy chạy một mình.",
+        ans: false,
+        explain: "SAI! Tập kiểm tra nhỏ chưa bao quát được teencode, câu troll, câu nhiều ý định ngoài đời thực."
+      },
+      {
+        emoji: "🌤️",
+        text: "Câu 'Hôm nay trời đẹp quá' không liên quan gì đến CLB nhưng mô hình vẫn gán cho nó 1 nhãn.",
+        ans: true,
+        explain: "ĐÚNG! Mô hình được thiết kế chỉ chọn 1 trong 3 ngăn, nó chưa có cơ chế từ chối 'Tôi không biết'."
+      }
+    ];
+
+    let arenaCur = 0;
+    let arenaStreak = 0;
+
+    const arenaCurIdxEl = document.getElementById('arenaCurIdx');
+    const arenaStreakEl = document.getElementById('arenaStreak');
+    const arenaEmojiEl = document.getElementById('arenaEmoji');
+    const arenaTextEl = document.getElementById('arenaText');
+    const arenaScenarioEl = document.getElementById('arenaScenario');
+    const arenaFeedbackEl = document.getElementById('arenaFeedback');
+    const btnArenaTrue = document.getElementById('btnArenaTrue');
+    const btnArenaFalse = document.getElementById('btnArenaFalse');
+    const btnArenaNext = document.getElementById('btnArenaNext');
+
+    function checkArena(userChoice) {
+      const cur = arenaScenarios[arenaCur];
+      btnArenaTrue.disabled = true;
+      btnArenaFalse.disabled = true;
+
+      arenaScenarioEl.classList.remove('correct', 'wrong');
+
+      if (userChoice === cur.ans) {
+        arenaStreak++;
+        arenaScenarioEl.classList.add('correct');
+        arenaFeedbackEl.style.color = '#34d399';
+        arenaFeedbackEl.textContent = `🎉 CHÍNH XÁC! ${cur.explain}`;
+      } else {
+        arenaStreak = 0;
+        arenaScenarioEl.classList.add('wrong');
+        arenaFeedbackEl.style.color = '#f87171';
+        arenaFeedbackEl.textContent = `❌ CHƯA ĐÚNG! ${cur.explain}`;
+      }
+      arenaStreakEl.textContent = arenaStreak;
+      btnArenaNext.style.display = 'inline-flex';
+    }
+
+    btnArenaTrue.addEventListener('click', (e) => { e.stopPropagation(); checkArena(true); });
+    btnArenaFalse.addEventListener('click', (e) => { e.stopPropagation(); checkArena(false); });
+
+    btnArenaNext.addEventListener('click', (e) => {
+      e.stopPropagation();
+      arenaCur = (arenaCur + 1) % arenaScenarios.length;
+      arenaCurIdxEl.textContent = arenaCur + 1;
+      const s = arenaScenarios[arenaCur];
+      arenaEmojiEl.textContent = s.emoji;
+      arenaTextEl.textContent = `"${s.text}"`;
+      arenaScenarioEl.classList.remove('correct', 'wrong');
+      arenaFeedbackEl.style.color = '#cbd5e1';
+      arenaFeedbackEl.textContent = "Chọn ĐÚNG hoặc SAI để trả lời...";
+      btnArenaTrue.disabled = false;
+      btnArenaFalse.disabled = false;
+      btnArenaNext.style.display = 'none';
+    });
+
+    /* =====================================================================
+       QUIZ ARENA (SLIDE 15)
+       ===================================================================== */
+    const quizData = [
+      {
+        q: "Công cụ nào trong bài học có nhiệm vụ biến câu văn bản thành bảng đếm số?",
+        opts: ["MultinomialNB", "CountVectorizer", "make_pipeline", "train_test_split"],
+        ans: 1,
+        exp: "CountVectorizer thực hiện kỹ thuật Bag of Words: lập từ điển và đếm số lần xuất hiện của các từ."
+      },
+      {
+        q: "Vì sao không được đưa 30 câu kiểm tra vào lệnh `mo_hinh.fit()`?",
+        opts: ["Sẽ làm chương trình báo lỗi cú pháp", "Khiến máy học lâu hơn bình thường", "Mắc lỗi 'học lận' khiến điểm số cao ảo", "Vì tập kiểm tra chỉ gồm các câu sai"],
+        ans: 2,
+        exp: "Đưa dữ liệu kiểm tra vào lúc học làm mất tính khách quan, mô hình học vẹt đáp án và mất khả năng tổng quát."
+      },
+      {
+        q: "Tại sao trong lệnh `predict([cau])[0]`, câu văn bản phải được bọc trong cặp ngoặc vuông `[cau]`?",
+        opts: ["Để biến câu thành chữ hoa", "Vì mô hình luôn nhận đầu vào là một danh sách nhiều câu", "Để sửa lỗi chính tả tự động", "Vì quy tắc bắt buộc của Python cho mọi hàm"],
+        ans: 1,
+        exp: "Thư viện Scikit-learn thiết kế hàm predict nhận một mảng/danh sách các câu để xử lý hàng loạt."
+      },
+      {
+        q: "Khi gặp câu có 2 ý định: 'Mai học mấy giờ và cần mang gì?', mô hình sẽ xử lý thế nào?",
+        opts: ["Tự động tạo ra một ngăn mới", "Báo lỗi dừng chương trình", "Bắt buộc chọn 1 trong 3 nhãn có xác suất cao hơn", "Tự động chia câu làm đôi"],
+        ans: 2,
+        exp: "Mô hình phân loại đơn nhãn bắt buộc phải chọn 1 nhãn duy nhất, đây là giới hạn của thiết kế 3 ngăn."
+      },
+      {
+        q: "Một bạn học sinh đề xuất cách giúp máy hiểu tin nhắn không dấu ('mai hoc may gio'). Cách nào đúng nhất?",
+        opts: ["Chỉ cần chạy lệnh fit lại 10 lần", "Bổ sung câu không dấu vào tập học và kiểm tra lại bằng câu không dấu mới", "Bắt người gửi phải cài lại bàn phím", "Xóa toàn bộ tập học cũ đi"],
+        ans: 1,
+        exp: "Trong AI, muốn máy hiểu kiểu dữ liệu nào thì phải cung cấp dữ liệu huấn luyện kiểu đó và kiểm tra độc lập!"
+      }
+    ];
+
+    let quizCur = 0;
+    let quizScore = 0;
+
+    const quizIdxEl = document.getElementById('quizIdx');
+    const quizScoreEl = document.getElementById('quizScore');
+    const quizQuestionEl = document.getElementById('quizQuestion');
+    const quizOptionsEl = document.getElementById('quizOptions');
+    const quizExplainEl = document.getElementById('quizExplain');
+    const btnQuizNext = document.getElementById('btnQuizNext');
+
+    function renderQuiz() {
+      const q = quizData[quizCur];
+      quizIdxEl.textContent = quizCur + 1;
+      quizQuestionEl.textContent = q.q;
+      quizExplainEl.classList.remove('show');
+      btnQuizNext.style.display = 'none';
+
+      quizOptionsEl.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+      q.opts.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-opt-btn';
+        btn.innerHTML = `<span class="quiz-opt-badge">${letters[idx]}</span> <span>${opt}</span>`;
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          handleQuizAnswer(idx);
+        });
+        quizOptionsEl.appendChild(btn);
+      });
+    }
+
+    function handleQuizAnswer(chosenIdx) {
+      const q = quizData[quizCur];
+      const allBtns = quizOptionsEl.querySelectorAll('.quiz-opt-btn');
+      allBtns.forEach(b => b.disabled = true);
+
+      if (chosenIdx === q.ans) {
+        allBtns[chosenIdx].classList.add('correct');
+        quizScore += 20;
+        quizScoreEl.textContent = quizScore;
+      } else {
+        allBtns[chosenIdx].classList.add('wrong');
+        allBtns[q.ans].classList.add('correct');
+      }
+
+      quizExplainEl.innerHTML = `<b>💡 Giải thích:</b> ${q.exp}`;
+      quizExplainEl.classList.add('show');
+
+      if (quizCur < quizData.length - 1) {
+        btnQuizNext.textContent = "Câu tiếp theo ❯";
+        btnQuizNext.style.display = 'inline-flex';
+      } else {
+        btnQuizNext.textContent = `Hoàn thành Quiz! (Đạt ${quizScore}/100đ)`;
+        btnQuizNext.style.display = 'inline-flex';
+      }
+    }
+
+    btnQuizNext.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (quizCur < quizData.length - 1) {
+        quizCur++;
+        renderQuiz();
+      } else {
+        let title = quizScore >= 80 ? "🏆 Kỹ sư AI Xuất Sắc" : (quizScore >= 60 ? "⭐ Chuyên Viên AI Tiềm Năng" : "🌱 Học Viên AI Chăm Chỉ");
+        quizQuestionEl.innerHTML = `🎉 <b>CHÚC MỪNG BẠN ĐÃ HOÀN THÀNH QUIZ!</b><br><span style="color: var(--py-yellow);">Tổng điểm: ${quizScore}/100</span> — Danh hiệu: <b>${title}</b>!`;
+        quizOptionsEl.innerHTML = '';
+        quizExplainEl.classList.remove('show');
+        btnQuizNext.style.display = 'none';
+      }
+    });
+
+    renderQuiz();
+
+    /* =====================================================================
+       CHECKLIST (SLIDE 16)
+       ===================================================================== */
+    const checkItems = document.querySelectorAll('#checkList li');
+    const checkProgressFill = document.getElementById('checkProgressFill');
+    const checkStatusText = document.getElementById('checkStatusText');
+
+    checkItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        item.classList.toggle('checked');
+        const checkedCount = document.querySelectorAll('#checkList li.checked').length;
+        checkProgressFill.style.width = `${(checkedCount / checkItems.length) * 100}%`;
+        checkStatusText.textContent = `Đã hoàn thành: ${checkedCount} / ${checkItems.length} mục`;
+        if (checkedCount === checkItems.length) {
+          checkStatusText.innerHTML = `🎉 Tuyệt vời! Bạn đã hoàn thành toàn bộ bài thực hành hôm nay!`;
+          checkStatusText.style.color = '#34d399';
+        } else {
+          checkStatusText.style.color = 'var(--text-muted)';
+        }
+      });
+    });
+
+    // Exit ticket toggle
+    window.toggleAns = function(num) {
+      const el = document.getElementById(`ans${num}`);
+      if (el) {
+        el.style.display = el.style.display === 'block' ? 'none' : 'block';
+      }
+    };
+  </script>
+</body>
+</html>

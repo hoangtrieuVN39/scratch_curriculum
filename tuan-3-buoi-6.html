@@ -1,1819 +1,1251 @@
 <!doctype html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1a2744" />
-    <title>Tuần 3 — Buổi 6: Luyện Looks</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --scratch-orange: #ff8c1a;
-        --scratch-blue: #4c97ff;
-        --scratch-purple: #9966ff;
-        --scratch-green: #59c059;
-        --scratch-yellow: #ffbf00;
-        --scratch-red: #ff6680;
-        --scratch-dark: #1e2a3a;
-        --scratch-bg: #f0f4f8;
-        --slide-w: min(1100px, 94vw);
-        --slide-h: min(700px, 84vh);
-      }
-
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      html {
-        scroll-behavior: smooth;
-      }
-
-      body {
-        font-family: "Nunito", "Segoe UI", sans-serif;
-        background: linear-gradient(
-          135deg,
-          #1a2744 0%,
-          #2d4a7a 50%,
-          #1a2744 100%
-        );
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        color: var(--scratch-dark);
-        user-select: none;
-      }
-
-      body.presenting .hint {
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      /* Progress */
-      .progress-bar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 4px;
-        width: 0;
-        background: linear-gradient(
-          90deg,
-          var(--scratch-orange),
-          var(--scratch-yellow)
-        );
-        transition: width 0.35s ease;
-        z-index: 200;
-      }
-
-      /* Deck */
-      .deck {
-        width: var(--slide-w);
-        height: var(--slide-h);
-        position: relative;
-        margin-top: 56px;
-      }
-
-      .slide {
-        position: absolute;
-        inset: 0;
-        background: #fff;
-        border-radius: 20px;
-        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.38);
-        display: flex;
-        flex-direction: column;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateX(40px);
-        pointer-events: none;
-        z-index: 0;
-        transition:
-          opacity 0.32s ease,
-          transform 0.32s ease,
-          visibility 0s linear 0.32s;
-        overflow: hidden;
-      }
-
-      .slide.active {
-        opacity: 1;
-        visibility: visible;
-        transform: translateX(0);
-        pointer-events: auto;
-        z-index: 10;
-        transition:
-          opacity 0.32s ease,
-          transform 0.32s ease,
-          visibility 0s;
-      }
-
-      .slide.prev {
-        opacity: 0;
-        visibility: hidden;
-        transform: translateX(-40px);
-        pointer-events: none;
-        z-index: 0;
-      }
-
-      .slide.next {
-        opacity: 0;
-        visibility: hidden;
-        transform: translateX(40px);
-        pointer-events: none;
-        z-index: 0;
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .slide,
-        .progress-bar {
-          transition: none;
-        }
-      }
-
-      /* Global top bar */
-      .global-topbar {
-        position: fixed;
-        top: 12px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: var(--slide-w);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 20px;
-        background: rgba(255, 255, 255, 0.96);
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        border-radius: 14px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        z-index: 150;
-        backdrop-filter: blur(10px);
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 800;
-        font-size: 0.88rem;
-        color: var(--scratch-dark);
-        white-space: nowrap;
-      }
-
-      .brand-icon {
-        width: 30px;
-        height: 30px;
-        background: linear-gradient(
-          135deg,
-          var(--scratch-orange),
-          var(--scratch-blue)
-        );
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-      }
-
-      .brand-sub {
-        font-weight: 600;
-        color: #7a8a9e;
-        font-size: 0.78rem;
-      }
-
-      .slide-dots {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
-        justify-content: center;
-        max-width: 360px;
-      }
-
-      .dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #d0d8e4;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        transition:
-          transform 0.2s,
-          background 0.2s;
-      }
-
-      .dot:hover {
-        transform: scale(1.25);
-        background: #aab4c4;
-      }
-      .dot.active {
-        background: var(--scratch-orange);
-        transform: scale(1.2);
-      }
-
-      .topbar-actions {
-        display: flex;
-        gap: 6px;
-      }
-
-      .icon-btn {
-        width: 34px;
-        height: 34px;
-        border: 1px solid #dde3ec;
-        background: #fff;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.95rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.15s;
-        color: var(--scratch-dark);
-      }
-
-      .icon-btn:hover {
-        background: var(--scratch-bg);
-      }
-
-      /* Slide content */
-      .slide-main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        padding: 24px 40px 20px;
-        min-height: 0;
-      }
-
-      .title-slide .slide-main {
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 32px;
-      }
-
-      .slide-tag {
-        display: inline-flex;
-        align-items: center;
-        font-size: 0.72rem;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #fff;
-        background: var(--scratch-blue);
-        padding: 4px 12px;
-        border-radius: 20px;
-        margin-bottom: 10px;
-        align-self: flex-start;
-      }
-
-      .slide-tag.orange {
-        background: var(--scratch-orange);
-      }
-      .slide-tag.purple {
-        background: var(--scratch-purple);
-      }
-      .slide-tag.green {
-        background: var(--scratch-green);
-      }
-      .slide-tag.red {
-        background: var(--scratch-red);
-      }
-      .slide-tag.yellow {
-        background: #c98a00;
-      }
-
-      h1 {
-        font-size: clamp(1.8rem, 4vw, 2.6rem);
-        line-height: 1.2;
-        font-weight: 800;
-        margin-bottom: 6px;
-      }
-
-      h2 {
-        font-size: clamp(1.3rem, 2.8vw, 1.75rem);
-        font-weight: 800;
-        margin-bottom: 14px;
-        line-height: 1.25;
-      }
-
-      .subtitle {
-        font-size: 1.05rem;
-        color: #5a6a7e;
-        font-weight: 600;
-      }
-
-      .slide-body {
-        flex: 1;
-        overflow-y: auto;
-        padding-right: 6px;
-        min-height: 0;
-      }
-
-      .slide-body::-webkit-scrollbar {
-        width: 5px;
-      }
-      .slide-body::-webkit-scrollbar-thumb {
-        background: #c8d0da;
-        border-radius: 4px;
-      }
-
-      /* Title slide */
-      .title-slide {
-        background: linear-gradient(160deg, #fff8f0 0%, #fff 55%, #f0f7ff 100%);
-      }
-
-      .title-emoji {
-        font-size: clamp(3rem, 8vw, 4.5rem);
-        margin-bottom: 8px;
-        line-height: 1;
-      }
-
-      .title-slide h1 {
-        font-size: clamp(2rem, 5vw, 2.8rem);
-        background: linear-gradient(
-          90deg,
-          var(--scratch-orange),
-          var(--scratch-blue)
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      .title-meta {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-top: 24px;
-      }
-
-      .badge {
-        background: #fff;
-        border: 2px solid #dde3ec;
-        border-radius: 12px;
-        padding: 7px 16px;
-        font-weight: 700;
-        font-size: 0.9rem;
-      }
-
-      .start-hint {
-        margin-top: 28px;
-        color: #7a8a9e;
-        font-size: 0.88rem;
-        font-weight: 600;
-        animation: pulse 2.5s ease-in-out infinite;
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 0.55;
-        }
-        50% {
-          opacity: 1;
-        }
-      }
-
-      /* Typography */
-      ul,
-      ol {
-        padding-left: 1.3em;
-        line-height: 1.7;
-        font-size: 1rem;
-        font-weight: 600;
-      }
-
-      li {
-        margin-bottom: 4px;
-      }
-
-      code {
-        font-family: "Consolas", "Courier New", monospace;
-        font-size: 0.92em;
-        font-weight: 700;
-        background: #eef2f7;
-        color: #5b3ea8;
-        padding: 1px 7px;
-        border-radius: 5px;
-      }
-
-      strong {
-        font-weight: 800;
-      }
-
-      .highlight-box {
-        background: #f0f7ff;
-        border-left: 4px solid var(--scratch-blue);
-        border-radius: 0 12px 12px 0;
-        padding: 14px 18px;
-        margin: 12px 0;
-        font-size: 1rem;
-        line-height: 1.6;
-        font-weight: 600;
-      }
-
-      .highlight-box.orange {
-        background: #fff8f0;
-        border-color: var(--scratch-orange);
-      }
-      .highlight-box.green {
-        background: #f0fff4;
-        border-color: var(--scratch-green);
-      }
-      .highlight-box.purple {
-        background: #f5f0ff;
-        border-color: var(--scratch-purple);
-      }
-
-      /* Scratch blocks */
-      .blocks {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 2px;
-        margin: 10px 0;
-        font-size: 0.88rem;
-        font-weight: 700;
-      }
-
-      .block {
-        position: relative;
-        display: inline-block;
-        padding: 7px 14px 7px 12px;
-        border-radius: 6px;
-        color: #fff;
-        box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
-        white-space: normal;
-        line-height: 1.35;
-        max-width: 100%;
-      }
-
-      .block::before {
-        content: "";
-        position: absolute;
-        top: -3px;
-        left: 10px;
-        width: 12px;
-        height: 6px;
-        background: inherit;
-        border-radius: 3px 3px 0 0;
-        filter: brightness(0.92);
-      }
-
-      .block:first-child::before,
-      .block.event::before,
-      .block.c-block::before {
-        display: none;
-      }
-
-      .block.event {
-        background: #ffbf00;
-        color: #422c00;
-        border-radius: 14px 6px 6px 6px;
-        padding-top: 9px;
-      }
-
-      .block.looks {
-        background: #9966ff;
-      }
-      .block.control {
-        background: #ffab19;
-        color: #422c00;
-      }
-      .block.motion {
-        background: #4c97ff;
-      }
-      .block.sound {
-        background: #cf63cf;
-      }
-
-      .block.indent {
-        margin-left: 20px;
-      }
-      .block.indent-2 {
-        margin-left: 40px;
-      }
-      .block.optional {
-        opacity: 0.65;
-        font-style: italic;
-      }
-
-      .block.c-block {
-        border-radius: 6px 6px 4px 4px;
-        padding-bottom: 4px;
-      }
-
-      .c-body {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        margin: 4px 0 2px 8px;
-        padding-left: 8px;
-        border-left: 3px solid rgba(0, 0, 0, 0.12);
-      }
-
-      /* Layout */
-      .cols {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 18px;
-        margin-top: 6px;
-      }
-
-      .cols-60-40 {
-        grid-template-columns: 1.1fr 0.9fr;
-      }
-
-      @media (max-width: 720px) {
-        .cols,
-        .cols-60-40 {
-          grid-template-columns: 1fr;
-        }
-        .slide-main {
-          padding: 18px 22px 14px;
-        }
-        .global-topbar {
-          padding: 8px 12px;
-          top: 8px;
-        }
-        .slide-dots {
-          display: none;
-        }
-        .brand-sub {
-          display: none;
-        }
-      }
-
-      .card {
-        background: var(--scratch-bg);
-        border-radius: 12px;
-        padding: 14px 16px;
-      }
-
-      .card h3 {
-        font-size: 0.95rem;
-        font-weight: 800;
-        color: var(--scratch-blue);
-        margin-bottom: 8px;
-      }
-
-      .section-label {
-        font-size: 0.82rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #7a8a9e;
-        margin: 10px 0 6px;
-      }
-
-      /* Knowledge grid */
-      .knowledge-grid {
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 12px;
-      }
-
-      .k-card {
-        border-radius: 12px;
-        padding: 14px 16px;
-        color: #fff;
-        font-size: 0.88rem;
-        line-height: 1.45;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      }
-
-      .k-card strong {
-        display: block;
-        font-size: 0.95rem;
-        font-weight: 800;
-        margin-bottom: 5px;
-      }
-
-      .k-card.span-2 {
-        grid-column: span 2;
-      }
-      .k-card.span-3 {
-        grid-column: span 3;
-      }
-
-      .k-card.blue {
-        background: var(--scratch-blue);
-      }
-      .k-card.orange {
-        background: var(--scratch-orange);
-        color: #422c00;
-      }
-      .k-card.purple {
-        background: var(--scratch-purple);
-      }
-      .k-card.green {
-        background: var(--scratch-green);
-      }
-      .k-card.red {
-        background: var(--scratch-red);
-      }
-
-      @media (max-width: 720px) {
-        .knowledge-grid {
-          grid-template-columns: 1fr;
-        }
-        .k-card.span-2,
-        .k-card.span-3 {
-          grid-column: span 1;
-        }
-      }
-
-      /* Quiz */
-      .quiz-item {
-        background: var(--scratch-bg);
-        border-radius: 12px;
-        padding: 12px 16px;
-        margin-bottom: 8px;
-        font-weight: 700;
-        font-size: 0.96rem;
-        display: flex;
-        gap: 12px;
-        align-items: flex-start;
-        cursor: pointer;
-        transition: background 0.15s;
-      }
-
-      .quiz-item:hover {
-        background: #e4eaf2;
-      }
-
-      .quiz-num {
-        background: var(--scratch-purple);
-        color: #fff;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-size: 0.82rem;
-        flex-shrink: 0;
-      }
-
-      .quiz-answer {
-        display: none;
-        margin-top: 8px;
-        padding: 8px 12px;
-        background: #e8f4e8;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: #2d6a3a;
-      }
-
-      .quiz-item.revealed .quiz-answer {
-        display: block;
-      }
-      .quiz-item.revealed {
-        background: #eef6ee;
-      }
-
-      /* Tips */
-      .tip {
-        display: flex;
-        gap: 12px;
-        align-items: flex-start;
-        background: #fffbe6;
-        border: 2px dashed var(--scratch-yellow);
-        border-radius: 12px;
-        padding: 12px 16px;
-        margin-bottom: 8px;
-        font-size: 0.94rem;
-        line-height: 1.55;
-        font-weight: 600;
-      }
-
-      .tip-icon {
-        font-size: 1.4rem;
-        flex-shrink: 0;
-      }
-
-      /* Labels */
-      .th-label {
-        display: inline-block;
-        background: var(--scratch-green);
-        color: #fff;
-        font-weight: 800;
-        font-size: 0.72rem;
-        padding: 3px 9px;
-        border-radius: 6px;
-        margin-right: 4px;
-        vertical-align: middle;
-        letter-spacing: 0.03em;
-      }
-
-      .btvn-label {
-        background: var(--scratch-red);
-      }
-      .th-label.level-b {
-        background: var(--scratch-blue);
-      }
-      .th-label.level-c {
-        background: var(--scratch-purple);
-      }
-
-      .emoji-row {
-        font-size: 1.6rem;
-        letter-spacing: 6px;
-        margin: 10px 0;
-      }
-
-      /* Navigation */
-      .nav {
-        position: fixed;
-        bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        z-index: 100;
-      }
-
-      .nav button {
-        background: rgba(255, 255, 255, 0.14);
-        border: 2px solid rgba(255, 255, 255, 0.38);
-        color: #fff;
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        font-size: 1.2rem;
-        cursor: pointer;
-        transition:
-          background 0.2s,
-          transform 0.15s;
-        backdrop-filter: blur(8px);
-      }
-
-      .nav button:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.28);
-        transform: scale(1.07);
-      }
-
-      .nav button:disabled {
-        opacity: 0.28;
-        cursor: default;
-      }
-
-      .slide-counter {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.88rem;
-        font-weight: 800;
-        min-width: 56px;
-        text-align: center;
-      }
-
-      .hint {
-        position: fixed;
-        bottom: 76px;
-        color: rgba(255, 255, 255, 0.42);
-        font-size: 0.74rem;
-        font-weight: 600;
-        transition: opacity 0.4s;
-      }
-
-      /* Fullscreen presentation */
-      html:fullscreen,
-      html:-webkit-full-screen {
-        width: 100%;
-        height: 100%;
-      }
-
-      html:fullscreen body,
-      html:-webkit-full-screen body {
-        width: 100%;
-        height: 100%;
-        min-height: 100%;
-        background: #1a2744;
-        padding: 0;
-      }
-
-      html:fullscreen .deck,
-      html:-webkit-full-screen .deck {
-        width: 100vw;
-        height: 100dvh;
-        height: 100vh;
-        max-width: none;
-        margin: 0;
-      }
-
-      html:fullscreen .slide,
-      html:-webkit-full-screen .slide {
-        border-radius: 0;
-        box-shadow: none;
-      }
-
-      html:fullscreen .global-topbar,
-      html:-webkit-full-screen .global-topbar {
-        display: none;
-      }
-
-      html:fullscreen .hint,
-      html:-webkit-full-screen .hint {
-        display: none;
-      }
-
-      html:fullscreen .nav,
-      html:-webkit-full-screen .nav {
-        bottom: 16px;
-        opacity: 0.35;
-        transition: opacity 0.25s;
-      }
-
-      html:fullscreen .nav:hover,
-      html:-webkit-full-screen .nav:hover {
-        opacity: 1;
-      }
-
-      html:fullscreen .progress-bar,
-      html:-webkit-full-screen .progress-bar {
-        height: 3px;
-      }
-
-      /* Nút thoát fullscreen (chỉ hiện khi full màn hình) */
-      .fs-exit {
-        display: none;
-        position: fixed;
-        top: 12px;
-        right: 12px;
-        z-index: 300;
-        background: rgba(0, 0, 0, 0.45);
-        border: 1px solid rgba(255, 255, 255, 0.35);
-        color: #fff;
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-size: 1rem;
-        backdrop-filter: blur(6px);
-        transition: background 0.15s;
-      }
-
-      .fs-exit:hover {
-        background: rgba(0, 0, 0, 0.65);
-      }
-
-      html:fullscreen .fs-exit,
-      html:-webkit-full-screen .fs-exit {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      /* Print */
-      @media print {
-        body {
-          background: #fff;
-          overflow: visible;
-        }
-        .nav,
-        .hint,
-        .progress-bar,
-        .global-topbar {
-          display: none !important;
-        }
-        .deck {
-          width: 100%;
-          height: auto;
-        }
-        .slide {
-          position: relative;
-          opacity: 1 !important;
-          transform: none !important;
-          page-break-after: always;
-          box-shadow: none;
-          border: 1px solid #ccc;
-          margin-bottom: 20px;
-          min-height: 90vh;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div
-      class="progress-bar"
-      id="progressBar"
-      role="progressbar"
-      aria-valuemin="1"
-      aria-valuemax="14"
-      aria-valuenow="1"
-    ></div>
-
-    <header class="global-topbar">
-      <div class="brand">
-        <span class="brand-icon">🐱</span>
-        <span
-          >InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span
-        >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a2744">
+  <title>Tuần 3 — Buổi 6: Luyện Hiển thị &amp; Âm nhạc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --scratch-orange: #ff8c1a;
+      --scratch-blue: #4c97ff;
+      --scratch-purple: #9966ff;
+      --scratch-green: #59c059;
+      --scratch-yellow: #ffbf00;
+      --scratch-red: #ff6680;
+      --scratch-cyan: #00bcd4;
+      --scratch-dark: #1e2a3a;
+      --scratch-bg: #f0f4f8;
+      --slide-w: min(1120px, 95vw);
+      --slide-h: min(720px, 86vh);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at 10% 20%, #1e3a8a 0%, #0f172a 90%);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      overflow: hidden; color: var(--scratch-dark); user-select: none;
+    }
+    body.presenting .hint { opacity: 0; pointer-events: none; }
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 5px; width: 0;
+      background: linear-gradient(90deg, var(--scratch-orange), var(--scratch-yellow), var(--scratch-green), var(--scratch-cyan));
+      transition: width 0.35s ease; z-index: 200;
+      box-shadow: 0 0 10px rgba(255, 140, 26, 0.6);
+    }
+    .deck { width: var(--slide-w); height: var(--slide-h); position: relative; margin-top: 56px; }
+    .slide {
+      position: absolute; inset: 0; background: #ffffff; border-radius: 22px;
+      box-shadow: 0 28px 70px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.1);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden; transform: translateX(40px) scale(0.98);
+      pointer-events: none; z-index: 0;
+      transition: opacity 0.32s cubic-bezier(0.4,0,0.2,1), transform 0.32s cubic-bezier(0.4,0,0.2,1), visibility 0s linear 0.32s;
+      overflow: hidden;
+    }
+    .slide.active {
+      opacity: 1; visibility: visible; transform: translateX(0) scale(1);
+      pointer-events: auto; z-index: 10;
+      transition: opacity 0.32s cubic-bezier(0.4,0,0.2,1), transform 0.32s cubic-bezier(0.4,0,0.2,1), visibility 0s;
+    }
+    .slide.prev { opacity: 0; visibility: hidden; transform: translateX(-40px) scale(0.98); pointer-events: none; z-index: 0; }
+    .slide.next { opacity: 0; visibility: hidden; transform: translateX(40px) scale(0.98); pointer-events: none; z-index: 0; }
+    @media (prefers-reduced-motion: reduce) { .slide, .progress-bar { transition: none; } }
+    .global-topbar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      width: var(--slide-w); display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 22px; background: rgba(255,255,255,0.95);
+      border: 1px solid rgba(255,255,255,0.8); border-radius: 16px;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.25); z-index: 150; backdrop-filter: blur(12px);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.92rem; color: var(--scratch-dark); white-space: nowrap; }
+    .brand-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #9966ff, #0fbd8c); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 3px 8px rgba(153,102,255,0.35); }
+    .brand-sub { font-weight: 700; color: #64748b; font-size: 0.8rem; }
+    .slide-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 440px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; border: none; cursor: pointer; padding: 0; transition: transform 0.2s, background 0.2s; }
+    .dot:hover { transform: scale(1.3); background: #94a3b8; }
+    .dot.active { background: var(--scratch-purple); transform: scale(1.3); box-shadow: 0 0 6px rgba(153,102,255,0.8); }
+    .topbar-actions { display: flex; gap: 8px; }
+    .icon-btn { width: 36px; height: 36px; border: 1px solid #e2e8f0; background: #fff; border-radius: 9px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.18s; color: var(--scratch-dark); }
+    .icon-btn:hover { background: #f1f5f9; transform: translateY(-1px); }
+    .slide-main { flex: 1; display: flex; flex-direction: column; padding: 22px 42px 18px; min-height: 0; }
+    .title-slide .slide-main { justify-content: center; align-items: center; text-align: center; padding: 36px; }
+    .slide-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; background: var(--scratch-blue); padding: 5px 14px; border-radius: 20px; margin-bottom: 8px; align-self: flex-start; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .slide-tag.orange { background: var(--scratch-orange); }
+    .slide-tag.purple { background: var(--scratch-purple); }
+    .slide-tag.green  { background: var(--scratch-green); }
+    .slide-tag.red    { background: var(--scratch-red); }
+    .slide-tag.cyan   { background: #0284c7; }
+    .slide-tag.yellow { background: #b45309; }
+    .slide-tag.music  { background: #0f9d76; }
+    h1 { font-size: clamp(2rem, 4.2vw, 2.7rem); line-height: 1.2; font-weight: 900; margin-bottom: 8px; }
+    h2 { font-size: clamp(1.3rem, 2.5vw, 1.75rem); font-weight: 900; margin-bottom: 10px; line-height: 1.25; color: #0f172a; }
+    .subtitle { font-size: 1.1rem; color: #475569; font-weight: 700; }
+    .slide-body { flex: 1; overflow-y: auto; padding-right: 6px; min-height: 0; }
+    .slide-body::-webkit-scrollbar { width: 6px; }
+    .slide-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .section-label { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin: 8px 0 5px; }
+    .title-slide { background: radial-gradient(circle at 50% 10%, #faf5ff 0%, #ffffff 65%, #ecfdf5 100%); }
+    .title-emoji { font-size: clamp(3.2rem, 7.5vw, 4.6rem); margin-bottom: 8px; line-height: 1; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12)); }
+    .title-emoji span { display: inline-block; animation: bounceY 1.6s ease-in-out infinite; }
+    .title-emoji span:nth-child(2) { animation-delay: 0.2s; }
+    .title-emoji span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounceY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .title-slide h1 { background: linear-gradient(135deg, #7c3aed 0%, #db2777 45%, #0f9d76 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .title-meta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+    .badge { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 14px; padding: 8px 18px; font-weight: 800; font-size: 0.92rem; color: #1e293b; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .badge.highlight { background: #faf5ff; border-color: #e9d5ff; color: #7e22ce; }
+    .start-hint { margin-top: 24px; color: #64748b; font-size: 0.9rem; font-weight: 700; animation: pulse 2.5s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    ul, ol { padding-left: 1.3em; line-height: 1.65; font-size: 0.94rem; font-weight: 600; color: #334155; }
+    li { margin-bottom: 5px; }
+    code { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.92em; font-weight: 800; background: #f1f5f9; color: #c2410c; padding: 2px 7px; border-radius: 6px; border: 1px solid #e2e8f0; }
+    strong { font-weight: 800; color: #0f172a; }
+    .highlight-box { background: #eff6ff; border-left: 5px solid var(--scratch-blue); border-radius: 0 14px 14px 0; padding: 12px 16px; margin: 8px 0; font-size: 0.95rem; line-height: 1.55; font-weight: 600; color: #1e3a8a; }
+    .highlight-box.orange { background: #fff7ed; border-color: var(--scratch-orange); color: #9a3412; }
+    .highlight-box.green  { background: #f0fdf4; border-color: var(--scratch-green); color: #166534; }
+    .highlight-box.purple { background: #faf5ff; border-color: var(--scratch-purple); color: #581c87; }
+    .highlight-box.red    { background: #fff1f2; border-color: var(--scratch-red); color: #9f1239; }
+    .highlight-box.yellow { background: #fefce8; border-color: var(--scratch-yellow); color: #713f12; }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+    .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+    .cols-60-40 { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; margin-top: 8px; }
+    .cols-40-60 { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 16px; margin-top: 8px; }
+    @media (max-width: 768px) { .cols, .cols-3, .cols-60-40, .cols-40-60, .knowledge-grid, .clinic-grid { grid-template-columns: 1fr; } .slide-main { padding: 16px 20px 12px; } .global-topbar { padding: 8px 14px; top: 8px; } .slide-dots { display: none; } }
+    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+    .card h3 { font-size: 0.98rem; font-weight: 800; color: var(--scratch-blue); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .card.purple h3 { color: var(--scratch-purple); }
+    .card.orange h3 { color: var(--scratch-orange); }
+    .card.green  h3 { color: #16a34a; }
+    .card.red    h3 { color: var(--scratch-red); }
+    .card.blue   h3 { color: #0284c7; }
+    .card p.desc { font-size: 0.84rem; color: #334155; line-height: 1.5; font-weight: 600; }
+    .step-pill { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--scratch-green); color: #fff; font-size: 0.78rem; font-weight: 900; margin-right: 6px; flex-shrink: 0; }
+    .tip { display: flex; gap: 10px; align-items: flex-start; background: #fefce8; border: 2px dashed #facc15; border-radius: 12px; padding: 10px 14px; margin-top: 8px; font-size: 0.88rem; line-height: 1.5; font-weight: 600; color: #713f12; }
+    .tip-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .table-custom { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.86rem; }
+    .table-custom th, .table-custom td { border: 1px solid #cbd5e1; padding: 7px 10px; text-align: left; vertical-align: middle; }
+    .table-custom th { background: #f1f5f9; font-weight: 800; color: #1e293b; }
+    .table-custom tr:nth-child(even) td { background: #f8fafc; }
+    .table-custom td { font-weight: 600; color: #334155; }
+    .table-custom .block { color: #fff; font-weight: 800; font-size: 0.8rem; flex-wrap: nowrap; white-space: nowrap; }
+
+    /* Khối lệnh Scratch */
+    .blocks-container { background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 14px; padding: 12px 16px; font-family: 'Nunito', 'Segoe UI', sans-serif; font-size: 0.86rem; font-weight: 800; color: #fff; display: flex; flex-direction: column; gap: 4px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
+    .blocks-container.compact { padding: 9px 12px; font-size: 0.78rem; gap: 3px; }
+    .blocks-container + .blocks-container { margin-top: 10px; }
+    .block { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; box-shadow: 0 2px 0 rgba(0,0,0,0.2); width: fit-content; line-height: 1.3; flex-wrap: wrap; }
+    .blocks-container.compact .block { padding: 4px 10px; }
+    .block.event   { background: #ffbf00; color: #5c3b00; }
+    .block.motion  { background: #4c97ff; }
+    .block.looks   { background: #9966ff; }
+    .block.control { background: #ffab19; color: #402300; }
+    .block.sensing { background: #5cb1d6; }
+    .block.variable{ background: #ff8c1a; }
+    .block.sound   { background: #d65cd6; }
+    .block.music   { background: #0fbd8c; }
+    .block.optional { outline: 2px dashed rgba(15,23,42,0.45); outline-offset: 2px; }
+    .block.c-block { display: flex; flex-direction: column; align-items: flex-start; padding: 6px 10px; border-radius: 8px; width: 100%; }
+    .block-head { display: block; }
+    .c-body { display: flex; flex-direction: column; gap: 4px; padding-left: 14px; border-left: 4px solid rgba(0,0,0,0.15); margin: 4px 0; width: 100%; }
+    .block-arg { background: #ffffff; color: #1e293b; border-radius: 12px; padding: 1px 8px; font-size: 0.85em; font-weight: 800; }
+    .block-label { font-size: 0.72rem; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; color: #64748b; margin: 0 0 4px; }
+    .legend-optional { font-size: 0.74rem; font-weight: 700; color: #64748b; margin-top: 4px; }
+    .legend-optional span { display: inline-block; width: 22px; height: 10px; border: 2px dashed #475569; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+
+    /* Ôn nhanh — thẻ kiến thức */
+    .knowledge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .k-card { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 9px 11px; display: flex; flex-direction: column; gap: 5px; }
+    .k-card.wide { grid-column: span 2; }
+    .k-card-title { font-size: 0.84rem; font-weight: 900; color: #0f172a; }
+    .k-card-desc { font-size: 0.78rem; font-weight: 700; color: #475569; line-height: 1.4; }
+    .k-card .block { font-size: 0.76rem; padding: 3px 9px; color: #fff; font-weight: 800; }
+    .k-card .block.control { color: #402300; }
+    .k-card .block.event { color: #5c3b00; }
+
+    /* Phòng thí nghiệm hoạt hình */
+    .anim-lab { background: linear-gradient(135deg, #faf5ff, #eff6ff); border: 2px solid #e2e8f0; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; }
+    .anim-lab-title { font-size: 0.86rem; font-weight: 900; color: #581c87; text-align: center; }
+    .anim-stage { position: relative; height: 150px; background: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 70%, #bbf7d0 70%, #86efac 100%); border-radius: 12px; border: 2px solid #cbd5e1; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+    .anim-sprite { font-size: 4rem; line-height: 1; margin-bottom: 18px; transition: transform 0.12s; }
+    .anim-sprite.hop { transform: translateY(-14px); }
+    .anim-bubble { position: absolute; top: 10px; left: 50%; transform: translateX(8px); background: #fff; border: 2px solid #94a3b8; border-radius: 14px; padding: 4px 10px; font-size: 0.78rem; font-weight: 800; color: #0f172a; opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
+    .anim-bubble.show { opacity: 1; }
+    .anim-tag { position: absolute; top: 8px; left: 10px; background: #9966ff; color: #fff; font-size: 0.72rem; font-weight: 900; padding: 2px 8px; border-radius: 8px; }
+    .anim-count { position: absolute; top: 8px; right: 10px; background: #1e293b; color: #fff; font-size: 0.72rem; font-weight: 900; padding: 2px 8px; border-radius: 8px; }
+    .anim-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .btn-anim { background: #fff; border: 2px solid #cbd5e1; border-radius: 10px; padding: 7px 6px; font-family: inherit; font-size: 0.78rem; font-weight: 800; color: #1e293b; cursor: pointer; transition: all 0.16s; }
+    .btn-anim:hover { transform: translateY(-2px); border-color: var(--scratch-purple); background: #faf5ff; }
+    .btn-anim.danger:hover { border-color: #ef4444; background: #fef2f2; }
+    .anim-feedback { font-size: 0.8rem; font-weight: 800; color: #475569; text-align: center; min-height: 36px; line-height: 1.4; }
+
+    /* Máy gợi ý câu chuyện */
+    .story-gen { background: linear-gradient(135deg, #fff7ed, #fdf2f8); border: 2px solid #fed7aa; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .story-reels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .story-reel { background: #fff; border: 2px solid #fdba74; border-radius: 12px; padding: 6px 6px 8px; text-align: center; min-height: 72px; display: flex; flex-direction: column; justify-content: center; gap: 3px; overflow: hidden; }
+    .story-reel-label { font-size: 0.64rem; font-weight: 900; text-transform: uppercase; color: #9a3412; letter-spacing: 0.04em; }
+    .story-reel-val { font-size: 0.8rem; font-weight: 900; color: #0f172a; line-height: 1.3; }
+    .story-reel.spinning .story-reel-val { animation: slotSpin 0.12s linear infinite; }
+    .story-reel.landed { animation: popIn 0.3s ease; border-color: var(--scratch-orange); box-shadow: 0 0 0 3px rgba(255,140,26,0.25); }
+    @keyframes slotSpin { 0% { transform: translateY(-40%); opacity: 0.2; } 50% { opacity: 1; } 100% { transform: translateY(40%); opacity: 0.2; } }
+    .btn-spin { background: linear-gradient(135deg, #ff8c1a, #ff6680); color: #fff; border: none; border-radius: 12px; padding: 9px 12px; font-family: inherit; font-size: 0.86rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 12px rgba(255,102,128,0.35); transition: transform 0.15s; }
+    .btn-spin:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn-spin:disabled { opacity: 0.6; cursor: default; }
+    .story-banner { background: #fff; border-radius: 10px; border-left: 4px solid var(--scratch-orange); padding: 7px 10px; font-size: 0.78rem; font-weight: 700; color: #7c2d12; line-height: 1.5; }
+
+    /* Bác sĩ Scratch */
+    .clinic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .clinic-card { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+    .clinic-card:hover { transform: translateY(-2px); border-color: var(--scratch-red); box-shadow: 0 6px 18px rgba(255,102,128,0.15); }
+    .clinic-card.cured { border-color: #22c55e; background: #f0fdf4; }
+    .clinic-badge { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; width: fit-content; }
+    .clinic-badge.sick { background: #fee2e2; color: #b91c1c; }
+    .clinic-badge.cure { background: #dcfce7; color: #15803d; }
+    .clinic-symptom { font-size: 0.8rem; color: #475569; line-height: 1.4; font-weight: 700; }
+    .clinic-cure { display: none; font-size: 0.8rem; font-weight: 800; color: #15803d; line-height: 1.45; }
+    .clinic-card.cured .clinic-cure { display: block; animation: popIn 0.3s ease; }
+    .btn-cure { align-self: flex-start; background: #fff1f2; border: 2px solid #fda4af; color: #be123c; border-radius: 8px; padding: 4px 10px; font-family: inherit; font-size: 0.74rem; font-weight: 900; cursor: pointer; transition: all 0.15s; }
+    .btn-cure:hover { background: #ffe4e6; transform: translateY(-1px); }
+    .clinic-card.cured .btn-cure { display: none; }
+
+    /* Đấu trường Đúng / Sai */
+    .arena-wrap { background: linear-gradient(135deg, #faf5ff, #f0fdf4); border: 2px solid #e2e8f0; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .arena-rule-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.82rem; font-weight: 800; color: #475569; background: #ffffff; border-radius: 10px; padding: 7px 14px; border: 1px solid #e2e8f0; }
+    .arena-streak-badge { background: linear-gradient(135deg,#ff8c1a,#ffbf00); color:#fff; font-size:0.82rem; font-weight:900; padding: 3px 10px; border-radius: 8px; }
+    .arena-streak-badge.bump { animation: bounce 0.45s ease; }
+    .arena-scenario { background: #ffffff; border-radius: 14px; border: 2px solid #cbd5e1; padding: 16px 20px; text-align: center; min-height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; transition: border-color 0.25s, box-shadow 0.25s; }
+    .arena-scenario.pop { animation: popIn 0.3s ease; }
+    .arena-scenario.right { border-color: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,0.25); animation: bounce 0.45s ease; }
+    .arena-scenario.wrongc { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239,68,68,0.2); animation: shake 0.4s ease; }
+    @keyframes popIn { 0%{transform:scale(0.93);opacity:0.5} 100%{transform:scale(1);opacity:1} }
+    @keyframes bounce { 0%,100%{transform:scale(1)} 40%{transform:scale(1.06)} 70%{transform:scale(0.98)} }
+    .arena-scenario-emoji { font-size: 2.4rem; }
+    .arena-scenario-text { font-size: 1.12rem; font-weight: 900; color: #0f172a; line-height: 1.4; }
+    .arena-scenario-sub  { font-size: 0.84rem; font-weight: 700; color: #64748b; }
+    .arena-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-arena { padding: 12px 10px; border-radius: 12px; border: 2.5px solid; font-family: inherit; font-size: 0.95rem; font-weight: 900; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-arena:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+    .btn-arena:disabled { cursor: default; }
+    .btn-arena.win  { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+    .btn-arena.lose { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+    .btn-arena.correct-glow { box-shadow: 0 0 0 4px rgba(34,197,94,0.45); }
+    .btn-arena.wrong-glow   { animation: shake 0.4s ease; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .arena-feedback-msg { text-align: center; font-size: 0.9rem; font-weight: 800; min-height: 24px; color: #475569; line-height: 1.45; }
+    .btn-arena-next { background: var(--scratch-purple); color: #fff; border: none; font-family: inherit; font-weight: 800; font-size: 0.9rem; padding: 9px 20px; border-radius: 10px; cursor: pointer; width: 100%; transition: all 0.16s; }
+    .btn-arena-next:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* Đấu trường Quiz */
+    .quiz-arena { display: flex; flex-direction: column; gap: 10px; background: #f8fafc; border-radius: 16px; padding: 14px 18px; border: 1px solid #e2e8f0; }
+    .quiz-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #475569; font-size: 0.9rem; }
+    .quiz-question-box { font-size: 1.08rem; font-weight: 800; color: #0f172a; line-height: 1.4; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .quiz-opt-btn { background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; padding: 10px 12px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: #1e293b; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.16s; }
+    .quiz-opt-btn:hover:not(:disabled) { border-color: var(--scratch-purple); background: #faf5ff; transform: translateY(-2px); }
+    .quiz-opt-btn.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; font-weight: 800; animation: bounce 0.45s ease; }
+    .quiz-opt-btn.wrong   { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; animation: shake 0.4s ease; }
+    .quiz-opt-badge { width: 24px; height: 24px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; flex-shrink: 0; color: #475569; }
+    .quiz-opt-btn.correct .quiz-opt-badge { background: #22c55e; color: #fff; }
+    .quiz-opt-btn.wrong .quiz-opt-badge   { background: #ef4444; color: #fff; }
+    .quiz-explain { display: none; background: #ffffff; border-radius: 10px; padding: 8px 12px; border-left: 4px solid #3b82f6; font-size: 0.88rem; font-weight: 700; color: #1e3a8a; }
+    .quiz-explain.show { display: block; }
+    .quiz-nav-row { display: flex; justify-content: flex-end; align-items: center; }
+    .btn-quiz-next { background: var(--scratch-purple); color: #fff; border: none; font-family: inherit; font-weight: 800; font-size: 0.88rem; padding: 8px 18px; border-radius: 10px; cursor: pointer; display: none; transition: all 0.16s; }
+    .btn-quiz-next.show { display: inline-flex; }
+    .btn-quiz-next:hover { opacity: 0.9; transform: translateY(-1px); }
+    .trophy { font-size: 2.8rem; margin-bottom: 6px; display: inline-block; animation: bounceY 1.4s ease-in-out infinite; }
+
+    /* Bài mở rộng */
+    .level-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; font-weight: 900; padding: 4px 10px; border-radius: 8px; color: #fff; margin-bottom: 4px; }
+    .level-a { background: #16a34a; }
+    .level-b { background: #2563eb; }
+    .level-c { background: #9333ea; }
+    .ex-card { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 7px; }
+    .ex-card.a { border-top: 5px solid #16a34a; }
+    .ex-card.b { border-top: 5px solid #2563eb; }
+    .ex-card.c { border-top: 5px solid #9333ea; }
+    .ex-card .level-badge { align-self: flex-start; margin-bottom: 0; }
+    .ex-card h3 { font-size: 1.02rem; font-weight: 900; color: #0f172a; }
+    .ex-req { font-size: 0.8rem; font-weight: 700; color: #334155; line-height: 1.45; }
+    .ex-try { background: #fefce8; border: 2px dashed #facc15; border-radius: 10px; padding: 6px 10px; font-size: 0.78rem; font-weight: 700; color: #713f12; line-height: 1.45; }
+    .ex-check { font-size: 0.76rem; font-weight: 800; color: #15803d; }
+    .scene-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .scene-pill { background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 10px; padding: 6px; text-align: center; font-size: 0.74rem; font-weight: 800; color: #1e3a8a; line-height: 1.35; }
+    .scene-pill b { display: block; font-size: 1.2rem; }
+
+    /* Showcase */
+    .award-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+    .award { background: #fff; border: 2px solid #e2e8f0; border-radius: 14px; padding: 10px 8px; text-align: center; cursor: pointer; transition: all 0.18s; font-family: inherit; }
+    .award:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
+    .award.lit { border-color: #facc15; background: #fefce8; box-shadow: 0 0 0 4px rgba(250,204,21,0.35); animation: bounce 0.45s ease; }
+    .award-emoji { font-size: 1.8rem; display: block; }
+    .award-name { font-size: 0.8rem; font-weight: 900; color: #0f172a; display: block; margin-top: 2px; }
+    .award-desc { font-size: 0.7rem; font-weight: 700; color: #64748b; display: block; }
+
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding-left: 0; }
+    .checklist li { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; color: #334155; margin: 0; }
+    .check-icon { width: 20px; height: 20px; border-radius: 6px; background: var(--scratch-green); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #ffffff; flex-shrink: 0; }
+    .th-badge { display: inline-block; background: var(--scratch-red); color: #fff; font-weight: 800; font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; margin-right: 4px; vertical-align: middle; }
+
+    .nav { position: fixed; bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 100; }
+    .nav button { background: rgba(255,255,255,0.18); border: 2px solid rgba(255,255,255,0.4); color: #fff; width: 46px; height: 46px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: background 0.2s, transform 0.15s; backdrop-filter: blur(8px); }
+    .nav button:hover:not(:disabled) { background: rgba(255,255,255,0.32); transform: scale(1.08); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+    .slide-counter { color: rgba(255,255,255,0.92); font-size: 0.9rem; font-weight: 800; min-width: 56px; text-align: center; }
+    .hint { position: fixed; bottom: 76px; color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: 600; transition: opacity 0.4s; }
+    html:fullscreen, html:-webkit-full-screen { width: 100%; height: 100%; }
+    html:fullscreen body, html:-webkit-full-screen body { width: 100%; height: 100%; min-height: 100%; background: #0f172a; padding: 0; }
+    html:fullscreen .deck, html:-webkit-full-screen .deck { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0; }
+    html:fullscreen .slide, html:-webkit-full-screen .slide { border-radius: 0; box-shadow: none; }
+    html:fullscreen .global-topbar, html:-webkit-full-screen .global-topbar { display: none; }
+    html:fullscreen .hint, html:-webkit-full-screen .hint { display: none; }
+    html:fullscreen .nav, html:-webkit-full-screen .nav { bottom: 16px; opacity: 0.35; transition: opacity 0.25s; }
+    html:fullscreen .nav:hover, html:-webkit-full-screen .nav:hover { opacity: 1; }
+    html:fullscreen .progress-bar, html:-webkit-full-screen .progress-bar { height: 3px; }
+    .fs-exit { display: none; position: fixed; top: 12px; right: 12px; z-index: 300; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.35); color: #fff; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; font-size: 1rem; backdrop-filter: blur(6px); transition: background 0.15s; }
+    .fs-exit:hover { background: rgba(0,0,0,0.75); }
+    html:fullscreen .fs-exit, html:-webkit-full-screen .fs-exit { display: flex; align-items: center; justify-content: center; }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="1" aria-valuemax="15" aria-valuenow="1"></div>
+
+<header class="global-topbar">
+  <div class="brand">
+    <span class="brand-icon">🎭</span>
+    <span>InnoMind <span class="brand-sub" id="brandSub">· Scratch</span></span>
+  </div>
+  <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">⛶</button>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1: Tiêu đề -->
+  <section class="slide title-slide active" data-index="0" aria-label="Tiêu đề">
+    <div class="slide-main">
+      <div class="title-emoji"><span>🎭</span><span>🥁</span><span>🎵</span></div>
+      <h1>Luyện Hiển Thị &amp; Âm Nhạc</h1>
+      <p class="subtitle">Làm nhân vật nhảy múa, kể chuyện nhiều cảnh — và thêm tiếng trống cho thật vui!</p>
+      <div class="title-meta">
+        <span class="badge highlight">📅 Tuần 3</span>
+        <span class="badge">🛠️ Buổi 6 — Bài tập</span>
+        <span class="badge">🎯 Độ tuổi: 7–10</span>
       </div>
-      <div class="slide-dots" id="dots" aria-label="Chọn slide"></div>
-      <div class="topbar-actions">
-        <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình (F)">
-          ⛶
-        </button>
-      </div>
-    </header>
-
-    <div class="deck" id="deck">
-      <!-- Slide 1 -->
-      <section
-        class="slide title-slide active"
-        data-index="0"
-        aria-label="Tiêu đề"
-      >
-        <div class="slide-main">
-          <div class="title-emoji">👗</div>
-          <h1>Luyện Looks</h1>
-          <p class="subtitle">
-            Lập trình Scratch — Tháng 1 · Nội dung cơ bản (1)
-          </p>
-          <div class="title-meta">
-            <span class="badge">📅 Tuần 3</span>
-            <span class="badge">✏️ Buổi 6 — Bài tập</span>
-            <span class="badge">🎵 Extension Music</span>
-            <span class="badge">🎯 7–10 tuổi</span>
-          </div>
-          <p class="start-hint">Nhấn → hoặc Space để bắt đầu</p>
-        </div>
-      </section>
-
-      <!-- Slide 2 -->
-      <section class="slide" data-index="1" aria-label="Khởi động ôn tập">
-        <div class="slide-main">
-          <span class="slide-tag purple">🎬 Khởi động ôn tập</span>
-          <h2>Đúng hay Sai? 👍👎</h2>
-          <div class="slide-body">
-            <div class="highlight-box purple" style="margin-top: 0">
-              Nghe từng câu, giơ <strong>ngón cái lên</strong> nếu Đúng, giơ
-              <strong>ngón cái xuống</strong> nếu Sai — click từng câu để hiện
-              đáp án!
-            </div>
-            <div class="quiz-item" data-quiz>
-              <span class="quiz-num">1</span>
-              <div>
-                Scratch chạy khối lệnh từ dưới lên trên.
-                <div class="quiz-answer">
-                  Sai — Scratch chạy từ <strong>trên xuống dưới</strong>!
-                </div>
-              </div>
-            </div>
-            <div class="quiz-item" data-quiz>
-              <span class="quiz-num">2</span>
-              <div>
-                <code>wait</code> dùng để tạm dừng chương trình một khoảng
-                thời gian.
-                <div class="quiz-answer">Đúng! ✅</div>
-              </div>
-            </div>
-            <div class="quiz-item" data-quiz>
-              <span class="quiz-num">3</span>
-              <div>
-                <code>say</code> và <code>think</code> là cùng một khối.
-                <div class="quiz-answer">
-                  Sai — bong bóng thoại khác nhau: nói 💬 và nghĩ 💭.
-                </div>
-              </div>
-            </div>
-            <div class="quiz-item" data-quiz>
-              <span class="quiz-num">4</span>
-              <div>
-                <code>hide</code> làm sprite biến mất khỏi Stage.
-                <div class="quiz-answer">Đúng! ✅</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 3 -->
-      <section class="slide" data-index="2" aria-label="Ôn nhanh & Extension Music">
-        <div class="slide-main">
-          <span class="slide-tag orange">🎵 Ôn nhanh + Extension Music</span>
-          <h2>Nhớ Looks — và thêm nhạc vào!</h2>
-          <div class="slide-body">
-            <div class="highlight-box orange" style="margin-top: 0">
-              Hôm nay em gắn <strong>Music</strong> vào bài Looks — trống
-              theo nhịp nhảy, nốt nhạc mở cảnh, tiếng bất ngờ khi
-              <code>show</code>!
-            </div>
-            <div class="cols" style="margin-top: 10px">
-              <div>
-                <p class="section-label" style="margin-top: 0">Ôn nhanh Looks</p>
-                <div class="emoji-row">⏱️ 👗 💬 👁️</div>
-                <ul>
-                  <li>Chuỗi lệnh chạy <strong>từ trên xuống</strong></li>
-                  <li><code>wait</code> = tạm dừng · <code>switch costume</code> = đổi hình</li>
-                  <li><code>say</code> = nói · <code>show</code>/<code>hide</code> = hiện/ẩn</li>
-                </ul>
-                <p class="section-label">Cách thêm Music</p>
-                <p style="font-size: 0.94rem; font-weight: 600">
-                  Góc dưới trái → <strong>+</strong> → chọn
-                  <strong>Music</strong> 🎵
-                </p>
-              </div>
-              <div>
-                <p class="section-label" style="margin-top: 0">
-                  Khối Music em sẽ dùng
-                </p>
-                <div class="blocks" style="font-size: 0.76rem">
-                  <div class="block sound">
-                    play drum (1 Snare) for (0.25) beats / phát tiếng trống
-                  </div>
-                  <div class="block sound indent">
-                    play note (60) for (0.5) beats / phát nốt nhạc (số cao =
-                    cao hơn)
-                  </div>
-                  <div class="block sound indent">
-                    rest for (2) beats / im lặng đúng số nhịp
-                  </div>
-                  <div class="block sound indent">
-                    set instrument to (1 Piano) / chọn nhạc cụ
-                  </div>
-                  <div class="block sound indent">
-                    set tempo to (120) bpm / chỉnh nhịp nhanh, chậm
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 4 -->
-      <section class="slide" data-index="3" aria-label="Luyện tập 1">
-        <div class="slide-main">
-          <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
-          <h2><span class="th-label btvn-label">LT1</span> Nhảy 5 lần</h2>
-          <div class="slide-body">
-            <div class="highlight-box orange" style="margin-top: 0">
-              Em luyện lặp đổi costume + <code>wait</code> để sprite nhảy
-              <strong>5 lần</strong> — làm ngay tại lớp, có khó khăn cứ hỏi
-              giáo viên!
-            </div>
-            <div class="cols cols-60-40">
-              <div>
-                <p class="section-label" style="margin-top: 0">Yêu cầu</p>
-                <ul>
-                  <li>
-                    Ít nhất <strong>5 chu kỳ</strong> đổi costume — dùng
-                    <code>repeat 5</code> hoặc viết tay 5 lần
-                  </li>
-                  <li>Có <code>wait</code> mỗi lần</li>
-                  <li>Hoạt hình mượt, chạy khi bấm cờ xanh</li>
-                </ul>
-                <div class="tip" style="margin-top: 12px">
-                  <span class="tip-icon">🎵</span>
-                  <div>
-                    <strong>Thử Music:</strong> thêm
-                    <code>play drum (1 Snare) for (0.25) beats</code> mỗi lần
-                    nhảy.
-                  </div>
-                </div>
-              </div>
-              <div>
-                <p class="section-label" style="margin-top: 0">
-                  Gợi ý khối lệnh
-                </p>
-                <div class="blocks" style="font-size: 0.8rem">
-                  <div class="block event">
-                    when green flag clicked / khi bấm cờ xanh
-                  </div>
-                  <div class="block control c-block indent">
-                    repeat 5 / lặp 5 lần
-                    <div class="c-body">
-                      <div class="block looks">
-                        next costume / trang phục kế tiếp
-                      </div>
-                      <div class="block control">
-                        wait 0.3 seconds / chờ 0.3 giây
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 5 -->
-      <section class="slide" data-index="4" aria-label="Luyện tập 2">
-        <div class="slide-main">
-          <span class="slide-tag red">✍️ Luyện tập tại lớp</span>
-          <h2>
-            <span class="th-label btvn-label">LT2</span> Câu chuyện 3 cảnh
-          </h2>
-          <div class="slide-body">
-            <div class="highlight-box orange" style="margin-top: 0">
-              Em kể một câu chuyện <strong>3 cảnh</strong>, mỗi cảnh có
-              <code>say</code> ít nhất 1 câu — xong thì đổi máy với bạn bên
-              cạnh 2 phút để cùng kiểm tra!
-            </div>
-            <div class="cols cols-60-40">
-              <div>
-                <p class="section-label" style="margin-top: 0">Yêu cầu</p>
-                <ul>
-                  <li>3 cảnh — đổi costume hoặc backdrop mỗi cảnh</li>
-                  <li>3 câu <code>say</code> trở lên</li>
-                  <li>Có <code>wait</code> giữa các cảnh</li>
-                </ul>
-                <div class="tip" style="margin-top: 12px">
-                  <span class="tip-icon">🎵</span>
-                  <div>
-                    <strong>Thử Music:</strong> mỗi cảnh thêm
-                    <code>play note</code> hoặc <code>play drum</code> trước
-                    <code>say</code>.
-                  </div>
-                </div>
-              </div>
-              <div>
-                <p class="section-label" style="margin-top: 0">
-                  Gợi ý khối lệnh
-                </p>
-                <div class="blocks" style="font-size: 0.8rem">
-                  <div class="block event">
-                    when green flag clicked / khi bấm cờ xanh
-                  </div>
-                  <div class="block looks indent">
-                    switch backdrop to (rừng) / cảnh 1: đổi nền
-                  </div>
-                  <div class="block looks indent">
-                    say "Ngày xửa ngày xưa…" for 2 seconds / câu mở đầu
-                  </div>
-                  <div class="block control indent">
-                    wait 2 seconds / chờ 2 giây
-                  </div>
-                  <div class="block looks indent optional">
-                    … (cảnh 2: đổi costume + say, cảnh 3: đổi nền + say kết)
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 6 -->
-      <section class="slide" data-index="5" aria-label="Giới thiệu bài mở rộng">
-        <div class="slide-main">
-          <span class="slide-tag green">🎯 Giới thiệu bài mở rộng</span>
-          <h2>Em chọn 1 bài để làm</h2>
-          <div class="slide-body">
-            <div class="highlight-box green" style="margin-top: 0">
-              Giáo viên demo nhanh bài <strong>A1 "Nhảy 3 bước (nâng cao)"</strong>
-              — chỉ rõ cách thêm <code>play drum</code> vào hoạt hình nhảy.
-              Sau đó em chọn <strong>1 mức</strong> A, B hoặc C — mỗi bài đều
-              gợi ý thêm khối <strong>Music</strong> (trống / nốt nhạc). Mỗi
-              bài có 1 slide riêng — bấm chấm phía trên để tới bài em chọn.
-            </div>
-            <div class="knowledge-grid" style="margin-top: 14px">
-              <div class="k-card green span-2">
-                <strong>🅰️ Mức A — Cơ bản</strong>
-                Costume + nhịp — <code>play drum</code> mỗi lần đổi hình (A1
-                hoặc A2).
-              </div>
-              <div class="k-card blue span-2">
-                <strong>🅱️ Mức B — Trung bình</strong>
-                Kể chuyện nhiều cảnh + nhạc nền <code>play note</code> (B1
-                hoặc B2).
-              </div>
-              <div class="k-card purple span-2">
-                <strong>🅲 Mức C — Thử thách</strong>
-                Hiệu ứng Looks + âm thanh bất ngờ bằng Music (C1 hoặc C2).
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 7 -->
-      <section class="slide" data-index="6" aria-label="A1">
-        <div class="slide-main">
-          <span class="slide-tag green">Bài mở rộng · Mức A</span>
-          <h2><span class="th-label">A1</span> Nhảy 3 bước (nâng cao)</h2>
-          <div class="slide-body">
-            <p style="font-weight: 600; margin-bottom: 10px">
-              Hoạt hình nhảy với 3 costume, có thêm tiếng trống Music đệm theo
-              từng bước nhảy cho vui tai!
-            </p>
-            <div class="cols cols-60-40">
-              <div>
-                <p class="section-label" style="margin-top: 0">Yêu cầu</p>
-                <ul>
-                  <li>3 costume + <code>wait</code></li>
-                  <li>Chạy khi cờ xanh</li>
-                </ul>
-                <p class="section-label">✨ Thử thêm</p>
-                <p style="font-size: 0.92rem; font-weight: 600; color: #5a6a7e">
-                  Thêm <code>play drum (1 Snare) for (0.25) beats</code> mỗi
-                  lần nhảy, và thử đổi sang loại trống khác (Bass Drum,
-                  Claves) để so sánh âm thanh
-                </p>
-              </div>
-              <div>
-                <p class="section-label" style="margin-top: 0">
-                  Gợi ý khối lệnh
-                </p>
-                <div class="blocks" style="font-size: 0.8rem">
-                  <div class="block event">
-                    when green flag clicked / khi bấm cờ xanh
-                  </div>
-                  <div class="block looks indent">
-                    next costume / trang phục kế tiếp
-                  </div>
-                  <div class="block sound indent">
-                    play drum (1 Snare) for (0.25) beats / đánh trống Snare
-                    0.25 nhịp
-                  </div>
-                  <div class="block control indent">
-                    wait 0.4 seconds / chờ 0.4 giây
-                  </div>
-                  <div class="block looks indent optional">
-                    … (lặp lại thêm 2 lần nữa)
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 8 -->
-      <section class="slide" data-index="7" aria-label="A2">
-        <div class="slide-main">
-          <span class="slide-tag green">Bài mở rộng · Mức A</span>
-          <h2><span class="th-label">A2</span> Nhịp điệu</h2>
-          <div class="slide-body">
-            <p style="font-weight: 600; margin-bottom: 10px">
-              Đổi costume theo nhịp thật nhanh (0.2 giây) — như một vũ điệu
-              disco có tiếng trống dẫn nhịp!
-            </p>
-            <div class="cols cols-60-40">
-              <div>
-                <p class="section-label" style="margin-top: 0">Yêu cầu</p>
-                <ul>
-                  <li><code>next costume</code> + <code>wait 0.2 seconds</code></li>
-                  <li>Lặp ít nhất 8 lần</li>
-                </ul>
-                <p class="section-label">✨ Thử thêm</p>
-                <p style="font-size: 0.92rem; font-weight: 600; color: #5a6a7e">
-                  Thử <code>set tempo to (180) bpm</code> hoặc
-                  <code>wait 0.5</code> để so sánh nhịp, và đổi loại trống
-                  giữa các vòng lặp để tạo tiết tấu phong phú hơn
-                </p>
-              </div>
-              <div>
-                <p class="section-label" style="margin-top: 0">
-                  Gợi ý khối lệnh
-                </p>
-                <div class="blocks" style="font-size: 0.78rem">
-                  <div class="block event">
-                    when green flag clicked / khi bấm cờ xanh
-                  </div>
-                  <div class="block control c-block indent">
-                    repeat 8 / lặp 8 lần
-                    <div class="c-body">
-                      <div class="block looks">
-                        next costume / trang phục kế tiếp
-                      </div>
-                      <div class="block sound">
-                        play drum (4 Claves) for (0.2) beats / đánh Claves
-                        0.2 nhịp
-                      </div>
-                      <div class="block control">
-                        wait 0.2 seconds / chờ 0.2 giây
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 9 -->
-      <section class="slide" data-index="8" aria-label="B1">
-        <div class="slide-main">
-          <span class="slide-tag">Bài mở rộng · Mức B</span>
-          <h2><span class="th-label level-b">B1</span> Câu chuyện 3 cảnh</h2>
-          <div class="slide-body">
-            <p style="font-weight: 600; margin-bottom: 10px">
-              Một truyện ngắn 3 cảnh — mỗi cảnh đổi costume kèm 1 câu thoại,
-              có nhạc mở màn cho không khí.
-            </p>
-            <div class="cols cols-60-40">
-              <div>
-                <p class="section-label" style="margin-top: 0">Yêu cầu</p>
-                <ul>
-                  <li>3 cảnh; 3 câu <code>say</code></li>
-                  <li>Đổi backdrop hoặc costume mỗi cảnh</li>
-                </ul>
-                <p class="section-label">✨ Thử thêm</p>
-                <p style="font-size: 0.92rem; font-weight: 600; color: #5a6a7e">
-                  <code>set instrument to (1 Piano)</code> + <code>play note</code>
-                  mở mỗi cảnh, và đổi nhạc cụ khác nhau cho từng cảnh để phân
-                  biệt không khí
-                </p>
-              </div>
-              <div>
-                <p class="section-label" style="margin-top: 0">
-                  Gợi ý khối lệnh
-                </p>
-                <div class="blocks" style="font-size: 0.8rem">
-                  <div class="block event">
-                    when green flag clicked / khi bấm cờ xanh
-                  </div>
-                  <div class="block sound indent">
-                    set instrument to (1 Piano) / chọn nhạc cụ Piano
-                  </div>
-                  <div class="block looks indent">
-                    say "Ngày xửa ngày xưa…" for 2 seconds / mở đầu câu
-                    chuyện
-                  </div>
-                  <div class="block control indent">
-                    wait 2 seconds / chờ 2 giây
-                  </div>
-                  <div class="block looks indent optional">
-                    … (tiếp cảnh 2, cảnh 3)
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 10 -->
-      <section class="slide" data-index="9" aria-label="B2">
-        <div class="slide-main">
-          <span class="slide-tag">Bài mở rộng · Mức B</span>
-          <h2><span class="th-label level-b">B2</span> Kịch bản 4 cảnh</h2>
-          <div class="slide-body">
-            <p style="font-weight: 600; margin-bottom: 10px">
-              Một kịch bản dài hơn — 4 cảnh, mỗi cảnh đổi backdrop hoặc
-              costume kèm 1 câu thoại, như một vở kịch nhỏ.
-            </p>
-            <div class="cols cols-60-40">
-              <div>
-                <p class="section-label" style="margin-top: 0">Yêu cầu</p>
-                <ul>
-                  <li>4 cảnh; 4 câu <code>say</code></li>
-                  <li>Có <code>wait</code> giữa cảnh</li>
-                </ul>
-                <p class="section-label">✨ Thử thêm</p>
-                <p style="font-size: 0.92rem; font-weight: 600; color: #5a6a7e">
-                  <code>play drum (2 Bass Drum) for (0.5) beats</code> giữa
-                  các cảnh; thử <code>think</code> thay <code>say</code> ở 1
-                  cảnh, và thêm 1 câu <code>say</code> kết luận ở cuối kịch
-                  bản
-                </p>
-              </div>
-              <div>
-                <p class="section-label" style="margin-top: 0">
-                  Gợi ý khối lệnh
-                </p>
-                <div class="blocks" style="font-size: 0.8rem">
-                  <div class="block event">
-                    when green flag clicked / khi bấm cờ xanh
-                  </div>
-                  <div class="block looks indent">
-                    say "Cảnh 1: mở đầu…" for 2 seconds / cảnh 1
-                  </div>
-                  <div class="block sound indent">
-                    play drum (2 Bass Drum) for (0.5) beats / trống chuyển
-                    cảnh
-                  </div>
-                  <div class="block looks indent optional">
-                    … (tiếp cảnh 2, 3, 4)
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 11 -->
-      <section class="slide" data-index="10" aria-label="C1">
-        <div class="slide-main">
-          <span class="slide-tag purple">Bài mở rộng · Mức C</span>
-          <h2><span class="th-label level-c">C1</span> Biến hình thần chú</h2>
-          <div class="slide-body">
-            <p style="font-weight: 600; margin-bottom: 10px">
-              Nhân vật đọc một câu thần chú bí ẩn rồi biến hình thành phiên
-              bản "phép thuật" của chính mình.
-            </p>
-            <div class="cols cols-60-40">
-              <div>
-                <p class="section-label" style="margin-top: 0">Yêu cầu</p>
-                <ul>
-                  <li><code>say</code> thần chú → <code>wait</code></li>
-                  <li><code>switch costume</code> sang hình "biến hình"</li>
-                  <li>Kết bằng <code>say</code> "Ta là…!"</li>
-                </ul>
-                <p class="section-label">✨ Thử thêm</p>
-                <p style="font-size: 0.92rem; font-weight: 600; color: #5a6a7e">
-                  2–3 nốt tăng dần (60 → 64 → 67) trước khi biến, và cho nhân
-                  vật biến lại costume cũ sau 3 giây để hoàn thành một vòng
-                  "biến hình rồi trở lại"
-                </p>
-              </div>
-              <div>
-                <p class="section-label" style="margin-top: 0">
-                  Gợi ý khối lệnh
-                </p>
-                <div class="blocks" style="font-size: 0.78rem">
-                  <div class="block looks">
-                    say "Biến hình!" / nói "Biến hình!"
-                  </div>
-                  <div class="block sound indent">
-                    play note (72) for (0.3) beats / chơi nốt phép thuật
-                  </div>
-                  <div class="block control indent">
-                    wait 1 seconds / chờ 1 giây
-                  </div>
-                  <div class="block looks indent">
-                    switch costume to costume-đặc-biệt / đổi sang hình biến
-                    hình
-                  </div>
-                  <div class="block looks indent">
-                    say "Ta là…!" / nói lời tuyên bố
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 12 -->
-      <section class="slide" data-index="11" aria-label="C2">
-        <div class="slide-main">
-          <span class="slide-tag purple">Bài mở rộng · Mức C</span>
-          <h2><span class="th-label level-c">C2</span> Câu chuyện ma vui</h2>
-          <div class="slide-body">
-            <p style="font-weight: 600; margin-bottom: 10px">
-              Một câu chuyện ma hài hước: sprite biến mất bất ngờ rồi xuất
-              hiện lại làm khán giả giật mình!
-            </p>
-            <div class="cols cols-60-40">
-              <div>
-                <p class="section-label" style="margin-top: 0">Yêu cầu</p>
-                <ul>
-                  <li><code>hide</code> → <code>wait</code> → <code>show</code></li>
-                  <li><code>say</code> câu bất ngờ</li>
-                </ul>
-                <p class="section-label">✨ Thử thêm</p>
-                <p style="font-size: 0.92rem; font-weight: 600; color: #5a6a7e">
-                  Đổi loại trống (Snare, Bass Drum) để thử âm thanh khác
-                  nhau, và thêm 1 lần <code>hide</code>/<code>show</code>
-                  thứ hai để tạo bất ngờ liên tiếp
-                </p>
-              </div>
-              <div>
-                <p class="section-label" style="margin-top: 0">
-                  Gợi ý khối lệnh
-                </p>
-                <div class="blocks" style="font-size: 0.78rem">
-                  <div class="block looks">
-                    say "Trong rừng tối…" / mở đầu câu chuyện
-                  </div>
-                  <div class="block looks indent">hide / ẩn đi</div>
-                  <div class="block sound indent">
-                    rest for (2) beats / im lặng 2 nhịp
-                  </div>
-                  <div class="block looks indent">show / hiện lại</div>
-                  <div class="block sound indent">
-                    play drum (1 Snare) for (0.5) beats / trống bất ngờ
-                  </div>
-                  <div class="block looks indent">say "Bù!" / nói "Bù!"</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 13 -->
-      <section class="slide" data-index="12" aria-label="Thử thách thêm">
-        <div class="slide-main">
-          <span class="slide-tag yellow">🎵 Thử thách thêm (không bắt buộc)</span>
-          <h2>Bài nhạc 1 phút</h2>
-          <div class="slide-body">
-            <div class="highlight-box orange" style="margin-top: 0">
-              Nếu còn thời gian sau khi hoàn thành bài mở rộng, em có thể thử
-              sáng tác một bài nhạc ngắn <strong>ngay tại lớp</strong> bằng
-              các khối Music — hoàn toàn tự chọn, không bắt buộc!
-            </div>
-            <div class="cols cols-60-40">
-              <div>
-                <p class="section-label" style="margin-top: 0">Yêu cầu</p>
-                <ul>
-                  <li>Đã thêm extension <strong>Music</strong></li>
-                  <li>Có ít nhất <code>play note</code> và <code>play drum</code></li>
-                  <li>Có <code>set tempo to</code></li>
-                  <li>Dài khoảng 30–60 giây</li>
-                </ul>
-                <p class="section-label">✨ Thử thêm</p>
-                <p style="font-size: 0.92rem; font-weight: 600; color: #5a6a7e">
-                  Đổi nhạc cụ giữa các đoạn; dùng <code>rest</code> tạo
-                  khoảng lặng
-                </p>
-              </div>
-              <div>
-                <p class="section-label" style="margin-top: 0">
-                  Gợi ý khối lệnh
-                </p>
-                <div class="blocks" style="font-size: 0.76rem">
-                  <div class="block event">
-                    when green flag clicked / khi bấm cờ xanh
-                  </div>
-                  <div class="block sound indent">
-                    set tempo to (120) bpm / đặt nhịp độ 120 BPM
-                  </div>
-                  <div class="block sound indent">
-                    set instrument to (1 Piano) / chọn nhạc cụ Piano
-                  </div>
-                  <div class="block control c-block indent">
-                    repeat 4 / lặp 4 lần
-                    <div class="c-body">
-                      <div class="block sound">
-                        play note (60) for (0.5) beats / chơi nốt 60
-                      </div>
-                      <div class="block sound">
-                        play drum (1 Snare) for (0.25) beats / đánh trống
-                        Snare
-                      </div>
-                      <div class="block sound">
-                        rest for (0.25) beats / nghỉ 0.25 nhịp
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 14 -->
-      <section class="slide title-slide" data-index="13" aria-label="Tổng kết">
-        <div class="slide-main">
-          <div class="title-emoji">🎉</div>
-          <h2 style="font-size: 1.9rem; margin-bottom: 16px">
-            Showcase & Tổng kết buổi Bài tập
-          </h2>
-          <ul
-            style="
-              font-size: 1.05rem;
-              line-height: 2;
-              text-align: left;
-              font-weight: 700;
-              max-width: 540px;
-            "
-          >
-            <li>
-              ✅ Đã hoàn thành <strong>Luyện tập 1</strong> (nhảy 5 lần) và
-              <strong>Luyện tập 2</strong> (câu chuyện 3 cảnh) ngay tại lớp
-            </li>
-            <li>✅ Đã chọn 1 bài mở rộng A / B / C</li>
-            <li>✅ Luyện thêm <code>costume</code>, <code>wait</code>, <code>say</code></li>
-            <li>✅ Biết dùng <code>show</code> / <code>hide</code> cho hiệu ứng</li>
-            <li>
-              ✅ Thêm extension <strong>Music</strong>: <code>play drum</code>,
-              <code>play note</code>
-            </li>
-            <li>🖼️ Showcase: gallery walk xem project bạn, 2–3 bạn trình chiếu</li>
-          </ul>
-          <p
-            style="
-              margin-top: 24px;
-              font-size: 1.15rem;
-              color: var(--scratch-orange);
-              font-weight: 800;
-            "
-          >
-            Hẹn gặp ở Buổi 7 — Sự kiện &amp; Điều khiển! 👋
-          </p>
-        </div>
-      </section>
+      <p class="start-hint">Nhấn → hoặc Phím cách để bắt đầu nào! 🚀</p>
     </div>
+  </section>
 
-    <nav class="nav" aria-label="Điều hướng slide">
-      <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">
-        &#8592;
-      </button>
-      <span class="slide-counter" id="counter" aria-live="polite">1 / 14</span>
-      <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">
-        &#8594;
-      </button>
-    </nav>
-    <p class="hint" id="hint">
-      ← → hoặc Space · F toàn màn hình · Esc thoát · click hai bên màn hình
-    </p>
-    <button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">
-      ✕
-    </button>
+  <!-- Slide 2: Khởi động — Đúng hay Sai? -->
+  <section class="slide" data-index="1" aria-label="Khởi động Đúng hay Sai">
+    <div class="slide-main">
+      <span class="slide-tag purple">🎬 Khởi động ôn tập (10 phút)</span>
+      <h2>Đúng Hay Sai? Nhớ Lại Buổi 5 Nào! ⚡</h2>
+      <div class="slide-body">
+        <div class="arena-wrap">
+          <div class="arena-rule-bar">
+            <span>Đọc to câu hỏi → cả lớp đoán → bấm <strong>✅ ĐÚNG</strong> hoặc <strong>❌ SAI</strong></span>
+            <span class="arena-streak-badge" id="arenaStreak">🔥 Chuỗi đúng: 0</span>
+          </div>
+          <div class="arena-scenario" id="arenaScenario">
+            <div class="arena-scenario-emoji" id="arenaEmoji">🔽</div>
+            <div class="arena-scenario-text" id="arenaText">Đang tải câu hỏi...</div>
+            <div class="arena-scenario-sub" id="arenaSub"></div>
+          </div>
+          <div class="arena-btns">
+            <button class="btn-arena win" id="btnArenaTrue">✅ ĐÚNG!</button>
+            <button class="btn-arena lose" id="btnArenaFalse">❌ SAI!</button>
+          </div>
+          <div class="arena-feedback-msg" id="arenaFeedback">Cả lớp đoán trước, rồi thầy/cô bấm để kiểm tra nhé!</div>
+          <button class="btn-arena-next" id="btnArenaNext" style="display:none;">Câu tiếp theo ➡️</button>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script>
-      const slides = document.querySelectorAll(".slide");
-      const total = slides.length;
-      let current = 0;
-      let hasNavigated = false;
+  <!-- Slide 3: Ôn nhanh cốt lõi + Phòng thí nghiệm hoạt hình -->
+  <section class="slide" data-index="2" aria-label="Ôn nhanh khối Hiển thị">
+    <div class="slide-main">
+      <span class="slide-tag orange">🔁 Trạm kỹ năng cốt lõi</span>
+      <h2>5 Bí Kíp Làm Nhân Vật "Sống Động" 🎬</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div class="knowledge-grid">
+            <div class="k-card wide">
+              <span class="k-card-title">⬇️ Chuỗi lệnh chạy từ trên xuống</span>
+              <span class="k-card-desc">Máy làm từng khối một, khối trên trước — khối dưới sau. Đổi thứ tự là đổi cả câu chuyện!</span>
+            </div>
+            <div class="k-card">
+              <span class="k-card-title">⏸️ Tạm dừng</span>
+              <span class="block control">đợi <span class="block-arg">1</span> giây</span>
+              <span class="k-card-desc">Cho mắt kịp nhìn thấy từng dáng.</span>
+            </div>
+            <div class="k-card">
+              <span class="k-card-title">👕 Đổi dáng</span>
+              <span class="block looks">trang phục kế tiếp</span>
+              <span class="k-card-desc">Đổi liên tục = hoạt hình!</span>
+            </div>
+            <div class="k-card">
+              <span class="k-card-title">💬 Nói &amp; 💭 Nghĩ</span>
+              <span class="block looks">nói <span class="block-arg">Xin chào!</span> trong <span class="block-arg">2</span> giây</span>
+              <span class="k-card-desc">Nghĩ = bong bóng đám mây.</span>
+            </div>
+            <div class="k-card">
+              <span class="k-card-title">👻 Hiện &amp; Ẩn</span>
+              <span style="display:flex; gap:5px;"><span class="block looks">hiện</span><span class="block looks">ẩn</span></span>
+              <span class="k-card-desc">Đã ẩn thì nhớ hiện lại!</span>
+            </div>
+          </div>
+          <div class="anim-lab" id="animLab">
+            <div class="anim-lab-title">🧪 Phòng thí nghiệm hoạt hình</div>
+            <div class="anim-stage">
+              <span class="anim-tag" id="animTag">trang phục 1</span>
+              <span class="anim-count" id="animCount">Lần 0 / 5</span>
+              <div class="anim-bubble" id="animBubble">Xong rồi! 🎉</div>
+              <div class="anim-sprite" id="animSprite">🧍</div>
+            </div>
+            <div class="anim-btns">
+              <button class="btn-anim" data-wait="0.3">▶️ đợi 0.3 giây</button>
+              <button class="btn-anim" data-wait="1">🐢 đợi 1 giây</button>
+              <button class="btn-anim danger" data-wait="0">⚡ Quên khối đợi</button>
+            </div>
+            <div class="anim-feedback" id="animFeedback">Bấm thử 3 nút để so sánh: nhân vật <strong>lặp lại 5 lần</strong> đổi trang phục!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      const progressBar = document.getElementById("progressBar");
-      const counter = document.getElementById("counter");
-      const btnPrev = document.getElementById("btnPrev");
-      const btnNext = document.getElementById("btnNext");
-      const brandSub = document.getElementById("brandSub");
+  <!-- Slide 4: Tiện ích Âm nhạc -->
+  <section class="slide" data-index="3" aria-label="Tiện ích Âm nhạc">
+    <div class="slide-main">
+      <span class="slide-tag music">🎵 Đồ nghề mới: Tiện ích Âm nhạc</span>
+      <h2>Thêm Tiếng Trống &amp; Nốt Nhạc Cho Hoạt Hình! 🥁</h2>
+      <div class="slide-body">
+        <div class="cols-40-60" style="margin-top:0;">
+          <div>
+            <p class="section-label" style="margin-top:0;">3 bước thêm tiện ích</p>
+            <div class="card" style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; align-items:center; font-size:0.88rem; font-weight:700; color:#334155;"><span class="step-pill">1</span> Bấm nút <strong>&nbsp;➕ xanh&nbsp;</strong> ở góc dưới bên trái</div>
+              <div style="display:flex; align-items:center; font-size:0.88rem; font-weight:700; color:#334155;"><span class="step-pill">2</span> Chọn thẻ <strong>&nbsp;🎵 Âm nhạc</strong></div>
+              <div style="display:flex; align-items:center; font-size:0.88rem; font-weight:700; color:#334155;"><span class="step-pill">3</span> Nhóm khối màu <strong style="color:#0f9d76;">&nbsp;xanh ngọc&nbsp;</strong> hiện ra!</div>
+            </div>
+            <div class="tip">
+              <span class="tip-icon">🎧</span>
+              <div><strong>Luật lớp học:</strong> Đeo tai nghe hoặc vặn loa <strong>thật nhỏ</strong> để không làm phiền bạn bên cạnh nhé!</div>
+            </div>
+            <div class="highlight-box green" style="font-size:0.86rem;">
+              💡 Hôm nay em gắn Âm nhạc vào bài Hiển thị: <strong>trống theo nhịp nhảy</strong>, <strong>nốt nhạc mở cảnh</strong>, <strong>tiếng bất ngờ</strong> khi nhân vật hiện ra!
+            </div>
+          </div>
+          <div>
+            <table class="table-custom">
+              <thead><tr><th style="width:56%;">Khối lệnh</th><th>Em dùng để làm gì?</th></tr></thead>
+              <tbody>
+                <tr><td><span class="block music">đánh trống <span class="block-arg">(1) Trống Snare ▾</span> trong <span class="block-arg">0.25</span> nhịp</span></td><td>Phát tiếng <strong>trống</strong> 🥁</td></tr>
+                <tr><td><span class="block music">phát nốt <span class="block-arg">60</span> trong <span class="block-arg">0.5</span> nhịp</span></td><td>Phát <strong>nốt nhạc</strong> — số càng lớn, tiếng càng cao 🎹</td></tr>
+                <tr><td><span class="block music">nghỉ trong <span class="block-arg">0.25</span> nhịp</span></td><td><strong>Im lặng</strong> đúng số nhịp 🤫</td></tr>
+                <tr><td><span class="block music">đặt nhạc cụ là <span class="block-arg">(1) Piano ▾</span></span></td><td>Chọn <strong>nhạc cụ</strong> cho khối phát nốt 🎸</td></tr>
+                <tr><td><span class="block music">đặt nhịp độ là <span class="block-arg">60</span></span></td><td>Chỉnh nhạc <strong>nhanh / chậm</strong> ⏱️</td></tr>
+              </tbody>
+            </table>
+            <p class="legend-optional" style="margin-top:8px;">🔢 Loại trống và nhạc cụ có <strong>số thứ tự</strong> ở đầu — em chọn theo số cho nhanh!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      function buildDots() {
-        const template = Array.from(
-          { length: total },
-          (_, i) =>
-            `<button class="dot${i === 0 ? " active" : ""}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`,
-        ).join("");
-        document.getElementById("dots").innerHTML = template;
-      }
+  <!-- Slide 5: LT1 — Nhảy 5 lần -->
+  <section class="slide" data-index="4" aria-label="Luyện tập 1 Nhảy 5 lần">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp · LT1</span>
+      <h2><span class="th-badge">LT1</span> Nhảy 5 Lần 🤸</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div>
+            <p class="section-label" style="margin-top:0;">Nhiệm vụ</p>
+            <p style="font-size:0.9rem; font-weight:700; color:#334155; line-height:1.55;">Em làm nhân vật đổi trang phục + <strong>đợi</strong> để nhảy đủ <strong>5 lần</strong>.</p>
+            <div class="cols" style="margin-top:6px;">
+              <div>
+                <p class="block-label">Cách 1 — Viết tay 5 lần</p>
+                <div class="blocks-container compact">
+                  <div class="block event">khi bấm vào 🏳️</div>
+                  <div class="block looks">trang phục kế tiếp</div>
+                  <div class="block control">đợi <span class="block-arg">0.3</span> giây</div>
+                  <div class="block looks">trang phục kế tiếp</div>
+                  <div class="block control">đợi <span class="block-arg">0.3</span> giây</div>
+                  <div style="color:#64748b; font-size:0.78rem; font-weight:800; padding-left:6px;">… thêm 3 cặp nữa ⬇️</div>
+                </div>
+              </div>
+              <div>
+                <p class="block-label">Cách 2 — Gọn hơn với vòng lặp</p>
+                <div class="blocks-container compact">
+                  <div class="block event">khi bấm vào 🏳️</div>
+                  <div class="block control c-block">
+                    <span class="block-head">lặp lại <span class="block-arg">5</span> lần</span>
+                    <div class="c-body">
+                      <div class="block looks">trang phục kế tiếp</div>
+                      <div class="block control">đợi <span class="block-arg">0.3</span> giây</div>
+                    </div>
+                  </div>
+                </div>
+                <p class="legend-optional">🎁 Bật mí: khối <strong>lặp lại</strong> nằm trong nhóm <strong>Điều khiển</strong> (màu cam).</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="section-label" style="margin-top:0;">Checklist tự kiểm LT1</p>
+            <ul class="checklist">
+              <li><span class="check-icon">✓</span> Nhân vật đổi trang phục 5 lần</li>
+              <li><span class="check-icon">✓</span> Có khối <code>đợi</code> mỗi lần</li>
+              <li><span class="check-icon">✓</span> Hoạt hình nhìn mượt, không nhảy cóc</li>
+            </ul>
+            <div class="tip">
+              <span class="tip-icon">⚠️</span>
+              <div>Trang phục không đổi? Mở thẻ <strong>Trang phục</strong> — nhân vật cần có <strong>từ 2 trang phục trở lên</strong>!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      function updateDots() {
-        document.querySelectorAll(".dot").forEach((dot) => {
-          dot.classList.toggle("active", Number(dot.dataset.goto) === current);
-        });
-      }
+  <!-- Slide 6: LT2 — Câu chuyện 3 cảnh -->
+  <section class="slide" data-index="5" aria-label="Luyện tập 2 Câu chuyện 3 cảnh">
+    <div class="slide-main">
+      <span class="slide-tag red">✍️ Luyện tập tại lớp · LT2</span>
+      <h2><span class="th-badge">LT2</span> Câu Chuyện 3 Cảnh 📖</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div>
+            <div class="cols" style="margin-top:0;">
+              <div>
+                <p class="block-label">Kịch bản mẫu</p>
+                <div class="blocks-container compact">
+                  <div class="block event">khi bấm vào 🏳️</div>
+                  <div class="block looks">chuyển sang phông nền <span class="block-arg">Khu rừng ▾</span></div>
+                  <div class="block looks">nói <span class="block-arg">Ngày xửa ngày xưa…</span> trong <span class="block-arg">2</span> giây</div>
+                  <div class="block looks">chuyển sang trang phục <span class="block-arg">trang phục 2 ▾</span></div>
+                  <div class="block looks">nói <span class="block-arg">Bỗng nhiên…</span> trong <span class="block-arg">2</span> giây</div>
+                  <div class="block looks">chuyển sang phông nền <span class="block-arg">Lâu đài ▾</span></div>
+                  <div class="block looks">nói <span class="block-arg">Và thế là…</span> trong <span class="block-arg">2</span> giây</div>
+                </div>
+              </div>
+              <div>
+                <p class="section-label" style="margin-top:0;">Checklist tự kiểm LT2</p>
+                <ul class="checklist">
+                  <li><span class="check-icon">✓</span> Có 3 cảnh</li>
+                  <li><span class="check-icon">✓</span> Có 3 câu nói trở lên</li>
+                  <li><span class="check-icon">✓</span> Có khoảng dừng giữa các cảnh</li>
+                </ul>
+                <div class="tip" style="font-size:0.8rem;">
+                  <span class="tip-icon">🔄</span>
+                  <div><strong>Đổi máy 2 phút:</strong> Em và bạn bên cạnh kiểm tra checklist của nhau!</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="story-gen" id="storyGen">
+            <div class="anim-lab-title" style="color:#9a3412;">🎲 Bí ý tưởng? Quay thử!</div>
+            <div class="story-reels">
+              <div class="story-reel" id="storyReel0"><span class="story-reel-label">Nhân vật</span><span class="story-reel-val">🐱 Mèo con</span></div>
+              <div class="story-reel" id="storyReel1"><span class="story-reel-label">Ở đâu?</span><span class="story-reel-val">🌳 Khu rừng</span></div>
+              <div class="story-reel" id="storyReel2"><span class="story-reel-label">Chuyện bất ngờ</span><span class="story-reel-val">🎁 hộp quà biết nói</span></div>
+            </div>
+            <button class="btn-spin" id="btnStorySpin">🎰 QUAY CÂU CHUYỆN MỚI!</button>
+            <div class="story-banner" id="storyBanner">
+              <strong>Cảnh 1:</strong> 🐱 Mèo con đang dạo chơi ở 🌳 Khu rừng.<br>
+              <strong>Cảnh 2:</strong> Bỗng nhiên gặp 🎁 hộp quà biết nói!<br>
+              <strong>Cảnh 3:</strong> Em tự nghĩ một kết thúc thật vui! 😄
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      function goTo(index) {
-        if (index < 0 || index >= total || index === current) return;
-        if (!hasNavigated) {
-          hasNavigated = true;
-          document.body.classList.add("presenting");
-        }
-        current = index;
-        slides.forEach((s, i) => {
-          s.classList.remove("active", "prev", "next");
-          s.setAttribute("aria-hidden", i !== current);
-          if (i === current) s.classList.add("active");
-          else if (i < current) s.classList.add("prev");
-          else s.classList.add("next");
-        });
-        const pct = ((current + 1) / total) * 100;
-        progressBar.style.width = pct + "%";
-        progressBar.setAttribute("aria-valuenow", current + 1);
-        counter.textContent = current + 1 + " / " + total;
-        btnPrev.disabled = current === 0;
-        btnNext.disabled = current === total - 1;
-        brandSub.textContent =
-          current === 0 || current === total - 1
-            ? "· Scratch"
-            : "· Tuần 3 Buổi 6";
-        updateDots();
-      }
+  <!-- Slide 7: Bác sĩ Scratch -->
+  <section class="slide" data-index="6" aria-label="Bác sĩ Scratch sửa lỗi">
+    <div class="slide-main">
+      <span class="slide-tag red">🩺 Bác sĩ Scratch sửa lỗi</span>
+      <h2>Phòng Khám Hoạt Hình: Chữa Bệnh Cho Mèo Nhảy Múa! 🚑</h2>
+      <div class="slide-body">
+        <div class="cols-40-60" style="margin-top:0;">
+          <div>
+            <p class="block-label">🤒 Bệnh nhân hôm nay — "Mèo nhảy rồi trốn"</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block control c-block">
+                <span class="block-head">lặp lại <span class="block-arg">5</span> lần</span>
+                <div class="c-body">
+                  <div class="block looks">trang phục kế tiếp</div>
+                </div>
+              </div>
+              <div class="block looks">nói <span class="block-arg">Mình trốn đây!</span></div>
+              <div class="block looks">ẩn</div>
+            </div>
+            <div class="highlight-box red" style="font-size:0.84rem;">
+              🔎 <strong>Triệu chứng:</strong> Mèo không nhảy mà "đứng hình", câu nói không bao giờ tắt, và bấm cờ lần 2 thì… Mèo mất tích luôn!<br>
+              👉 Cả lớp tìm xem có mấy bệnh?
+            </div>
+          </div>
+          <div class="clinic-grid">
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 1: Nhảy cóc 🐸</span>
+              <span class="clinic-symptom">Chỉ thấy trang phục cuối, không thấy nhảy.</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Thêm <code>đợi (0.3) giây</code> ngay dưới <code>trang phục kế tiếp</code> trong vòng lặp.</div>
+            </div>
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 2: Mất tích 👻</span>
+              <span class="clinic-symptom">Bấm cờ lần 2, nhân vật không hiện lại.</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Thêm khối <code>hiện</code> ngay dưới <code>khi bấm vào 🏳️</code>. Đã ẩn thì phải có hiện!</div>
+            </div>
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 3: Nói mãi 💬</span>
+              <span class="clinic-symptom">Bong bóng thoại không bao giờ tắt.</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Đổi sang <code>nói [...] trong (2) giây</code> — bong bóng tự tắt sau 2 giây.</div>
+            </div>
+            <div class="clinic-card">
+              <span class="clinic-badge sick">Bệnh 4: Không có trống 🥁</span>
+              <span class="clinic-symptom">Tìm mãi không thấy khối đánh trống.</span>
+              <button class="btn-cure">💊 Xem phương thuốc</button>
+              <div class="clinic-cure">Bấm <strong>➕</strong> góc dưới bên trái → thêm tiện ích <strong>🎵 Âm nhạc</strong>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      function next() {
-        goTo(current + 1);
-      }
-      function prev() {
-        goTo(current - 1);
-      }
+  <!-- Slide 8: Giới thiệu bài mở rộng -->
+  <section class="slide" data-index="7" aria-label="Giới thiệu bài mở rộng">
+    <div class="slide-main">
+      <span class="slide-tag green">🎯 Thử thách phân tầng (10 phút giới thiệu)</span>
+      <h2>Chọn Mức Thử Thách Của Em! 🚀</h2>
+      <div class="slide-body">
+        <div class="tip" style="margin-top:0; margin-bottom:10px;">
+          <span class="tip-icon">📌</span>
+          <div>Em chọn <strong>1 mức</strong> A, B hoặc C, rồi chọn <strong>1 trong 2 bài</strong> của mức đó. Xong sớm thì thử mức cao hơn!</div>
+        </div>
+        <div class="cols-3">
+          <div class="card green">
+            <span class="level-badge level-a">🅰️ Mức A — Cơ bản</span>
+            <h3>🤸 Nhảy theo nhịp trống</h3>
+            <p class="desc">Luyện <strong>trang phục + đợi</strong> và thêm <strong>tiếng trống</strong> theo từng bước nhảy.</p>
+            <p class="desc" style="margin-top:6px;"><strong>A1:</strong> Nhảy 3 bước (nâng cao)<br><strong>A2:</strong> Nhịp điệu disco</p>
+          </div>
+          <div class="card blue">
+            <span class="level-badge level-b">🅱️ Mức B — Trung bình</span>
+            <h3>📖 Kể chuyện có nhạc</h3>
+            <p class="desc">Kể chuyện <strong>nhiều cảnh</strong>, mỗi cảnh có câu nói, kèm <strong>nhạc / trống</strong> chuyển cảnh.</p>
+            <p class="desc" style="margin-top:6px;"><strong>B1:</strong> Câu chuyện 3 cảnh<br><strong>B2:</strong> Kịch bản 4 cảnh</p>
+          </div>
+          <div class="card purple">
+            <span class="level-badge level-c">🅲 Mức C — Thử thách</span>
+            <h3>✨ Hiệu ứng phép thuật</h3>
+            <p class="desc">Kết hợp <strong>biến hình, ẩn/hiện</strong> với <strong>âm thanh Âm nhạc</strong> tạo bất ngờ.</p>
+            <p class="desc" style="margin-top:6px;"><strong>C1:</strong> Biến hình thần chú<br><strong>C2:</strong> Câu chuyện ma vui</p>
+          </div>
+        </div>
+        <div class="highlight-box purple" style="margin-top:12px; font-size:0.88rem;">
+          👀 <strong>Thầy/cô demo trước:</strong> Bài <strong>A1</strong> trên máy chiếu — chỉ rõ chỗ gắn khối <code>đánh trống</code> vào hoạt hình nhảy. Sau đó em tự chọn mức!
+        </div>
+      </div>
+    </div>
+  </section>
 
-      btnPrev.addEventListener("click", (e) => {
-        e.stopPropagation();
-        prev();
-      });
-      btnNext.addEventListener("click", (e) => {
-        e.stopPropagation();
-        next();
-      });
+  <!-- Slide 9: Mức A -->
+  <section class="slide" data-index="8" aria-label="Bài mở rộng Mức A">
+    <div class="slide-main">
+      <span class="slide-tag green">Bài mở rộng · Mức A (Cơ bản)</span>
+      <h2>Mức A: Nhảy Múa Theo Nhịp Trống 🥁🤸</h2>
+      <div class="slide-body">
+        <div class="cols" style="margin-top:0;">
+          <div class="ex-card a">
+            <span class="level-badge level-a">A1</span>
+            <h3>Nhảy 3 bước (nâng cao)</h3>
+            <p class="ex-req">🎯 <strong>Yêu cầu:</strong> 3 lần đổi trang phục + <code>đợi</code> + chạy khi bấm cờ xanh.</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block control c-block">
+                <span class="block-head">lặp lại <span class="block-arg">3</span> lần</span>
+                <div class="c-body">
+                  <div class="block looks">trang phục kế tiếp</div>
+                  <div class="block music optional">đánh trống <span class="block-arg">(1) Trống Snare ▾</span> trong <span class="block-arg">0.25</span> nhịp</div>
+                  <div class="block control">đợi <span class="block-arg">0.4</span> giây</div>
+                </div>
+              </div>
+            </div>
+            <p class="ex-check">✅ 3 trang phục · Có đợi · Chạy được</p>
+            <div class="ex-try">✨ <strong>Thử thêm:</strong> Gắn khối trống (viền đứt ở trên), rồi đổi sang <strong>Trống Bass</strong> hoặc <strong>Claves</strong> để so sánh âm thanh.</div>
+          </div>
+          <div class="ex-card a">
+            <span class="level-badge level-a">A2</span>
+            <h3>Nhịp điệu disco 🪩</h3>
+            <p class="ex-req">🎯 <strong>Yêu cầu:</strong> Đổi trang phục + <code>đợi (0.2) giây</code>, lặp ít nhất <strong>8 lần</strong>.</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block music optional">đặt nhịp độ là <span class="block-arg">180</span></div>
+              <div class="block control c-block">
+                <span class="block-head">lặp lại <span class="block-arg">8</span> lần</span>
+                <div class="c-body">
+                  <div class="block looks">trang phục kế tiếp</div>
+                  <div class="block music">đánh trống <span class="block-arg">(4) Claves ▾</span> trong <span class="block-arg">0.2</span> nhịp</div>
+                  <div class="block control">đợi <span class="block-arg">0.2</span> giây</div>
+                </div>
+              </div>
+            </div>
+            <p class="ex-check">✅ Có lặp · Đợi 0.2 · Ít nhất 8 lần · Nhịp đều</p>
+            <div class="ex-try">✨ <strong>Thử thêm:</strong> Đổi <code>đợi 0.5</code> để so sánh nhịp nhanh/chậm, hoặc đổi loại trống giữa các vòng lặp.</div>
+          </div>
+        </div>
+        <p class="legend-optional"><span></span>Khối viền đứt = phần <strong>thử thêm</strong>, không bắt buộc.</p>
+      </div>
+    </div>
+  </section>
 
-      document.addEventListener("click", (e) => {
-        const dot = e.target.closest(".dot");
-        if (dot) {
-          e.stopPropagation();
-          goTo(Number(dot.dataset.goto));
-          return;
-        }
-        if (
-          e.target.closest(
-            "button, .quiz-item, code, .global-topbar, .nav",
-          )
-        )
-          return;
-        const x = e.clientX;
-        if (x < window.innerWidth * 0.2) prev();
-        else if (x > window.innerWidth * 0.8) next();
-      });
+  <!-- Slide 10: Mức B -->
+  <section class="slide" data-index="9" aria-label="Bài mở rộng Mức B">
+    <div class="slide-main">
+      <span class="slide-tag">Bài mở rộng · Mức B (Trung bình)</span>
+      <h2>Mức B: Nhà Kể Chuyện Có Nhạc Nền 📖🎹</h2>
+      <div class="slide-body">
+        <div class="cols" style="margin-top:0;">
+          <div class="ex-card b">
+            <span class="level-badge level-b">B1</span>
+            <h3>Câu chuyện 3 cảnh</h3>
+            <p class="ex-req">🎯 <strong>Yêu cầu:</strong> 3 cảnh · 3 câu nói · mỗi cảnh đổi phông nền hoặc trang phục. Mở đầu → Cao trào → Kết thúc.</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block music optional">đặt nhạc cụ là <span class="block-arg">(1) Piano ▾</span></div>
+              <div class="block music optional">phát nốt <span class="block-arg">60</span> trong <span class="block-arg">0.5</span> nhịp</div>
+              <div class="block looks">chuyển sang phông nền <span class="block-arg">Khu rừng ▾</span></div>
+              <div class="block looks">nói <span class="block-arg">Ngày xửa ngày xưa…</span> trong <span class="block-arg">2</span> giây</div>
+              <div style="color:#64748b; font-size:0.76rem; font-weight:800; padding-left:6px;">… lặp lại cho Cảnh 2 và Cảnh 3 ⬇️</div>
+            </div>
+            <p class="ex-check">✅ 3 cảnh · 3 câu · Đổi hình hoặc nền</p>
+            <div class="ex-try">✨ <strong>Thử thêm:</strong> Mở mỗi cảnh bằng 1 nốt nhạc, mỗi cảnh <strong>một nhạc cụ khác</strong> để phân biệt không khí.</div>
+          </div>
+          <div class="ex-card b">
+            <span class="level-badge level-b">B2</span>
+            <h3>Kịch bản 4 cảnh 🎭</h3>
+            <p class="ex-req">🎯 <strong>Yêu cầu:</strong> 4 cảnh · 4 câu nói · có <code>đợi</code> giữa các cảnh — như một vở kịch nhỏ!</p>
+            <div class="scene-strip">
+              <div class="scene-pill"><b>🌅</b>Cảnh 1<br>Mở đầu</div>
+              <div class="scene-pill"><b>⚡</b>Cảnh 2<br>Cao trào</div>
+              <div class="scene-pill"><b>🤔</b>Cảnh 3<br>Giải quyết</div>
+              <div class="scene-pill"><b>🎉</b>Cảnh 4<br>Kết thúc</div>
+            </div>
+            <p class="block-label" style="margin-top:4px;">Giữa 2 cảnh</p>
+            <div class="blocks-container compact">
+              <div class="block control">đợi <span class="block-arg">1</span> giây</div>
+              <div class="block music optional">đánh trống <span class="block-arg">(2) Trống Bass ▾</span> trong <span class="block-arg">0.5</span> nhịp</div>
+              <div class="block looks">chuyển sang phông nền <span class="block-arg">phông nền kế tiếp ▾</span></div>
+            </div>
+            <p class="ex-check">✅ 4 cảnh · 4 câu · Đổi hình/nền · Có đợi</p>
+            <div class="ex-try">✨ <strong>Thử thêm:</strong> Dùng <code>nghĩ</code> thay <code>nói</code> ở 1 cảnh, thêm 1 câu kết luận ở cuối.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowRight" || e.key === "PageDown") {
-          e.preventDefault();
-          next();
-        } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
-          e.preventDefault();
-          prev();
-        } else if (e.key === " " || e.key === "Spacebar") {
-          e.preventDefault();
-          next();
-        } else if (e.key === "Home") {
-          e.preventDefault();
-          goTo(0);
-        } else if (e.key === "End") {
-          e.preventDefault();
-          goTo(total - 1);
-        } else if (e.key === "f" || e.key === "F") {
-          e.preventDefault();
-          toggleFullscreen();
-        }
-      });
+  <!-- Slide 11: Mức C -->
+  <section class="slide" data-index="10" aria-label="Bài mở rộng Mức C">
+    <div class="slide-main">
+      <span class="slide-tag purple">Bài mở rộng · Mức C (Thử thách)</span>
+      <h2>Mức C: Phù Thủy Hiệu Ứng Âm Thanh ✨🔮</h2>
+      <div class="slide-body">
+        <div class="cols" style="margin-top:0;">
+          <div class="ex-card c">
+            <span class="level-badge level-c">C1</span>
+            <h3>Biến hình thần chú 🪄</h3>
+            <p class="ex-req">🎯 <strong>Yêu cầu:</strong> Nói thần chú → <code>đợi</code> → đổi sang trang phục "biến hình" → nói câu kết.</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block looks">nói <span class="block-arg">Biến hình!</span> trong <span class="block-arg">1</span> giây</div>
+              <div class="block music">phát nốt <span class="block-arg">72</span> trong <span class="block-arg">0.3</span> nhịp</div>
+              <div class="block control">đợi <span class="block-arg">1</span> giây</div>
+              <div class="block looks">chuyển sang trang phục <span class="block-arg">phép thuật ▾</span></div>
+              <div class="block looks">nói <span class="block-arg">Ta là Mèo Phù Thủy!</span> trong <span class="block-arg">2</span> giây</div>
+            </div>
+            <p class="ex-check">✅ Có thần chú · Có biến hình · Có kết</p>
+            <div class="ex-try">✨ <strong>Thử thêm:</strong> 3 nốt tăng dần <strong>60 → 64 → 67</strong> trước khi biến; sau 3 giây biến lại trang phục cũ.</div>
+          </div>
+          <div class="ex-card c">
+            <span class="level-badge level-c">C2</span>
+            <h3>Câu chuyện ma vui 👻</h3>
+            <p class="ex-req">🎯 <strong>Yêu cầu:</strong> <code>ẩn</code> → chờ → <code>hiện</code> → nói câu bất ngờ làm khán giả giật mình!</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block looks">hiện</div>
+              <div class="block looks">nói <span class="block-arg">Trong rừng tối…</span> trong <span class="block-arg">2</span> giây</div>
+              <div class="block looks">ẩn</div>
+              <div class="block music">nghỉ trong <span class="block-arg">2</span> nhịp</div>
+              <div class="block looks">hiện</div>
+              <div class="block music">đánh trống <span class="block-arg">(1) Trống Snare ▾</span> trong <span class="block-arg">0.5</span> nhịp</div>
+              <div class="block looks">nói <span class="block-arg">Bù! 👻</span> trong <span class="block-arg">2</span> giây</div>
+            </div>
+            <p class="ex-check">✅ Có ẩn/hiện · Có chờ · Có thoại · Gây bất ngờ vui</p>
+            <div class="ex-try">✨ <strong>Thử thêm:</strong> Thêm lần <code>ẩn</code>/<code>hiện</code> thứ hai để bất ngờ liên tiếp! (Để ý khối <code>hiện</code> đầu tiên — nhớ Bệnh 2 không?)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      document
-        .getElementById("btnFullscreen")
-        .addEventListener("click", (e) => {
-          e.stopPropagation();
-          toggleFullscreen();
-        });
+  <!-- Slide 12: Thử thách thêm — Sáng tác nhạc -->
+  <section class="slide" data-index="11" aria-label="Thử thách thêm sáng tác nhạc">
+    <div class="slide-main">
+      <span class="slide-tag yellow">🎵 Thử thách thêm (không bắt buộc)</span>
+      <h2>Nhạc Sĩ Nhí: Sáng Tác Bài Nhạc 30 Giây! 🎼</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div>
+            <div class="highlight-box yellow" style="margin-top:0; font-size:0.88rem;">
+              🎹 Xong bài mở rộng rồi? Em thử sáng tác một đoạn nhạc <strong>30–60 giây</strong> chỉ bằng khối <strong>Âm nhạc</strong> — hoàn toàn tự chọn!
+            </div>
+            <p class="section-label">Yêu cầu</p>
+            <ul class="checklist">
+              <li><span class="check-icon">✓</span> Có tiện ích Âm nhạc</li>
+              <li><span class="check-icon">✓</span> Có ít nhất 1 khối <code>phát nốt</code> và 1 khối <code>đánh trống</code></li>
+              <li><span class="check-icon">✓</span> Có khối <code>đặt nhịp độ là</code></li>
+              <li><span class="check-icon">✓</span> Đã lưu dự án</li>
+            </ul>
+            <div class="tip">
+              <span class="tip-icon">🎨</span>
+              <div><strong>Thử thêm:</strong> Đổi nhạc cụ giữa các đoạn · Dùng <code>nghỉ</code> tạo khoảng lặng · Nghe thử rồi chỉnh lại cho hay hơn!</div>
+            </div>
+          </div>
+          <div>
+            <p class="block-label">Bản nhạc mẫu "Đô – Mi – Son"</p>
+            <div class="blocks-container compact">
+              <div class="block event">khi bấm vào 🏳️</div>
+              <div class="block music">đặt nhịp độ là <span class="block-arg">120</span></div>
+              <div class="block music">đặt nhạc cụ là <span class="block-arg">(1) Piano ▾</span></div>
+              <div class="block control c-block">
+                <span class="block-head">lặp lại <span class="block-arg">2</span> lần</span>
+                <div class="c-body">
+                  <div class="block music">phát nốt <span class="block-arg">60</span> trong <span class="block-arg">0.5</span> nhịp</div>
+                  <div class="block music">phát nốt <span class="block-arg">64</span> trong <span class="block-arg">0.5</span> nhịp</div>
+                  <div class="block music">phát nốt <span class="block-arg">67</span> trong <span class="block-arg">0.5</span> nhịp</div>
+                  <div class="block music">đánh trống <span class="block-arg">(2) Trống Bass ▾</span> trong <span class="block-arg">0.5</span> nhịp</div>
+                  <div class="block music">nghỉ trong <span class="block-arg">0.5</span> nhịp</div>
+                </div>
+              </div>
+            </div>
+            <p class="legend-optional">🎧 Nhớ đeo tai nghe khi nghe thử nhé!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      document.getElementById("btnExitFs").addEventListener("click", (e) => {
-        e.stopPropagation();
-        exitFullscreen();
-      });
+  <!-- Slide 13: Đấu trường Quiz -->
+  <section class="slide" data-index="12" aria-label="Đấu trường Quiz">
+    <div class="slide-main">
+      <span class="slide-tag purple">🏆 Đấu trường Quiz (5 phút củng cố)</span>
+      <h2>Thử Tài Đạo Diễn Hoạt Hình &amp; Nhạc Sĩ Nhí! 🧠</h2>
+      <div class="slide-body">
+        <div class="quiz-arena">
+          <div class="quiz-header">
+            <span id="quizProgressText">Câu hỏi 1 / 5</span>
+            <span id="quizScoreText" style="color:var(--scratch-orange); font-weight:900;">⭐ Điểm: 0</span>
+          </div>
+          <div class="quiz-question-box" id="quizQuestion">1. Đang tải câu hỏi...</div>
+          <div class="quiz-options" id="quizOptions"></div>
+          <div class="quiz-explain" id="quizExplain"></div>
+          <div class="quiz-nav-row">
+            <button class="btn-quiz-next" id="btnQuizNext">Câu tiếp theo ➡️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      function isFullscreen() {
-        return !!(
-          document.fullscreenElement || document.webkitFullscreenElement
-        );
-      }
+  <!-- Slide 14: Showcase & Tổng kết -->
+  <section class="slide" data-index="13" aria-label="Showcase và Tổng kết">
+    <div class="slide-main">
+      <span class="slide-tag yellow">🖼️ Showcase &amp; Tổng kết (15 phút)</span>
+      <h2>Triển Lãm Hoạt Hình Của Lớp Mình! 🎪</h2>
+      <div class="slide-body">
+        <div class="cols-60-40" style="margin-top:0;">
+          <div>
+            <p class="section-label" style="margin-top:0;">🚶 Cách đi triển lãm</p>
+            <div class="card" style="display:flex; flex-direction:column; gap:7px;">
+              <div style="display:flex; align-items:center; font-size:0.86rem; font-weight:700; color:#334155;"><span class="step-pill">1</span> Để dự án chạy sẵn trên màn hình của em.</div>
+              <div style="display:flex; align-items:center; font-size:0.86rem; font-weight:700; color:#334155;"><span class="step-pill">2</span> Đi xem 3–4 dự án của các bạn ngồi gần.</div>
+              <div style="display:flex; align-items:center; font-size:0.86rem; font-weight:700; color:#334155;"><span class="step-pill">3</span> Khen bạn 1 điều em thích nhất!</div>
+            </div>
+            <p class="section-label">🏅 Bình chọn danh hiệu (bấm để trao)</p>
+            <div class="award-grid">
+              <button class="award"><span class="award-emoji">🕺</span><span class="award-name">Vũ công số 1</span><span class="award-desc">Hoạt hình mượt nhất</span></button>
+              <button class="award"><span class="award-emoji">📖</span><span class="award-name">Người kể chuyện</span><span class="award-desc">Câu chuyện hay nhất</span></button>
+              <button class="award"><span class="award-emoji">🥁</span><span class="award-name">Nhạc sĩ nhí</span><span class="award-desc">Âm nhạc vui nhất</span></button>
+            </div>
+          </div>
+          <div>
+            <div class="highlight-box green" style="margin-top:0; font-size:0.88rem;">
+              ✅ <strong>Hôm nay em đã:</strong><br>
+              • Ôn lại các khối <strong>Hiển thị</strong><br>
+              • Thêm <strong>tiện ích Âm nhạc</strong> 🎵<br>
+              • Làm bài mở rộng theo mức em chọn
+            </div>
+            <div class="card purple" style="margin-top:10px;">
+              <h3>🔮 Bật mí Buổi 7:</h3>
+              <p class="desc"><strong>Sự kiện &amp; Điều khiển</strong> — em sẽ tự tay điều khiển nhân vật bằng <strong>phím bấm</strong> và <strong>click chuột</strong>! ⌨️🖱️</p>
+            </div>
+            <p style="margin-top:10px; font-size:0.95rem; color:#16a34a; font-weight:900; text-align:center;">💾 Nhớ lưu dự án trước khi ra về!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      function toggleFullscreen() {
-        if (isFullscreen()) exitFullscreen();
-        else enterFullscreen();
-      }
+  <!-- Slide 15: Ghi chú cho giáo viên -->
+  <section class="slide" data-index="14" aria-label="Ghi chú giáo viên">
+    <div class="slide-main">
+      <span class="slide-tag red">👩‍🏫 Dành cho Giáo viên</span>
+      <h2>Chiến Lược Sư Phạm &amp; Quản Trị Lớp Buổi 6 🎭</h2>
+      <div class="slide-body">
+        <div class="cols" style="margin-top:0;">
+          <div class="card">
+            <h3>⚡ Phân hóa theo nhịp độ</h3>
+            <ul style="font-size:0.84rem; line-height:1.55; margin-top:4px;">
+              <li><strong>Học sinh chậm:</strong> Ưu tiên xong LT1 bằng cách viết tay, chọn Mức A. Chọn sẵn nhân vật có ≥ 3 trang phục (Mèo, Ben, Dinosaur…).</li>
+              <li><strong>Học sinh vừa:</strong> LT1 dùng <code>lặp lại</code>, LT2 đủ 3 cảnh, chọn Mức B.</li>
+              <li><strong>Học sinh nhanh:</strong> Mức C + "Nhạc sĩ nhí". Gợi ý tự vẽ thêm trang phục "phép thuật".</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>🩺 Lỗi thường gặp</h3>
+            <ul style="font-size:0.84rem; line-height:1.55; margin-top:4px;">
+              <li>Thiếu <code>đợi</code> → hoạt hình "nhảy cóc".</li>
+              <li>Dùng <code>ẩn</code> mà quên <code>hiện</code> đầu kịch bản → nhân vật mất tích ở lần chạy sau.</li>
+              <li>Nhầm <strong>trang phục</strong> (của nhân vật) với <strong>phông nền</strong> (cảnh phía sau).</li>
+              <li>Không thấy khối Âm nhạc → chưa thêm tiện ích.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="cols" style="margin-top:10px;">
+          <div class="card orange">
+            <h3>🔇 Quản lý âm thanh lớp học</h3>
+            <p class="desc">Chuẩn bị tai nghe hoặc quy định âm lượng máy ≤ 20%. Chỉ bật loa máy chiếu khi demo hoặc Showcase. Phòng thí nghiệm hoạt hình &amp; minigame trên slide đều <strong>không phát âm thanh</strong>.</p>
+          </div>
+          <div class="card purple">
+            <h3>⏱️ Phân bổ thời gian (90 phút)</h3>
+            <p class="desc" style="color:#4c1d95;">
+              • 0–10p: Khởi động Đúng/Sai (Slide 2)<br>
+              • 10–20p: Ôn nhanh + Âm nhạc (Slide 3–4)<br>
+              • 20–40p: LT1, LT2 + Bác sĩ Scratch (Slide 5–7)<br>
+              • 40–75p: Giới thiệu &amp; làm bài mở rộng (Slide 8–12)<br>
+              • 75–80p: Quiz củng cố (Slide 13)<br>
+              • 80–90p: Showcase &amp; Tổng kết (Slide 14)
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      function enterFullscreen() {
-        const el = document.documentElement;
-        (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
-      }
+</div>
 
-      function exitFullscreen() {
-        (document.exitFullscreen || document.webkitExitFullscreen)?.call(
-          document,
-        );
-      }
+<nav class="nav" aria-label="Điều hướng slide">
+  <button id="btnPrev" title="Slide trước (←)" aria-label="Slide trước">&#8592;</button>
+  <span class="slide-counter" id="counter" aria-live="polite">1 / 15</span>
+  <button id="btnNext" title="Slide sau (→)" aria-label="Slide sau">&#8594;</button>
+</nav>
+<p class="hint" id="hint">← → hoặc Phím cách · F toàn màn hình · Esc thoát · click hai bên màn hình</p>
+<button class="fs-exit" id="btnExitFs" title="Thoát toàn màn hình (Esc)">✕</button>
 
-      function onFullscreenChange() {
-        document.body.classList.toggle("is-fullscreen", isFullscreen());
-      }
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0, hasNavigated = false;
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const brandSub = document.getElementById('brandSub');
 
-      document.addEventListener("fullscreenchange", onFullscreenChange);
-      document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+  function buildDots() {
+    document.getElementById('dots').innerHTML = Array.from({ length: total }, (_, i) =>
+      `<button class="dot${i === 0 ? ' active' : ''}" data-goto="${i}" aria-label="Slide ${i + 1}"></button>`
+    ).join('');
+  }
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach(d => d.classList.toggle('active', Number(d.dataset.goto) === current));
+  }
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    if (!hasNavigated) { hasNavigated = true; document.body.classList.add('presenting'); }
+    current = index;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev', 'next');
+      s.setAttribute('aria-hidden', i !== current);
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+      else s.classList.add('next');
+    });
+    const pct = ((current + 1) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', current + 1);
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    brandSub.textContent = current === 0 || current === total - 1 ? '· Scratch' : '· Tuần 3 Buổi 6';
+    updateDots();
+  }
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+  btnPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  btnNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.dot');
+    if (dot) { e.stopPropagation(); goTo(Number(dot.dataset.goto)); return; }
+    if (e.target.closest('button, code, .global-topbar, .nav, .quiz-arena, .arena-wrap, .anim-lab, .story-gen, .clinic-card, .award-grid')) return;
+    const x = e.clientX;
+    if (x < window.innerWidth * 0.2) prev();
+    else if (x > window.innerWidth * 0.8) next();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === ' ' || e.key === 'Spacebar') { if (e.target.tagName !== 'BUTTON') { e.preventDefault(); next(); } }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+  });
+  function isFullscreen() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function toggleFullscreen() { if (isFullscreen()) exitFullscreen(); else enterFullscreen(); }
+  function enterFullscreen() { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el); }
+  function exitFullscreen() { (document.exitFullscreen || document.webkitExitFullscreen)?.call(document); }
+  function onFullscreenChange() { document.body.classList.toggle('is-fullscreen', isFullscreen()); }
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+  document.getElementById('btnFullscreen').addEventListener('click', e => { e.stopPropagation(); toggleFullscreen(); });
+  document.getElementById('btnExitFs').addEventListener('click', e => { e.stopPropagation(); exitFullscreen(); });
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+  document.addEventListener('touchend', e => { const diff = e.changedTouches[0].screenX - touchStartX; if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1)); }, { passive: true });
 
-      document.querySelectorAll("[data-quiz]").forEach((item) => {
-        item.addEventListener("click", (e) => {
-          e.stopPropagation();
-          item.classList.toggle("revealed");
-        });
-      });
+  /* ARENA — Đúng hay Sai? */
+  const arenaScenarios = [
+    { emoji: '🔽', text: 'Scratch chạy các khối lệnh từ DƯỚI lên TRÊN.', sub: 'Đúng hay sai?', answer: false, explain: '❌ SAI! Scratch chạy từ TRÊN xuống DƯỚI, từng khối một.' },
+    { emoji: '⏸️', text: 'Khối "đợi (1) giây" dùng để tạm dừng chương trình một lúc.', sub: 'Đúng hay sai?', answer: true, explain: '✅ ĐÚNG! Khối đợi giúp mắt em kịp nhìn thấy từng dáng của nhân vật.' },
+    { emoji: '💬', text: 'Khối "nói" và khối "nghĩ" là cùng một khối.', sub: 'Đúng hay sai?', answer: false, explain: '❌ SAI! "nói" hiện bong bóng thoại thường, còn "nghĩ" hiện bong bóng hình đám mây 💭.' },
+    { emoji: '👻', text: 'Khối "ẩn" làm nhân vật biến mất khỏi Sân khấu.', sub: 'Đúng hay sai?', answer: true, explain: '✅ ĐÚNG! Muốn nhân vật xuất hiện lại thì dùng khối "hiện".' },
+    { emoji: '👕', text: 'Trang phục là cảnh nền phía sau Sân khấu.', sub: 'Đúng hay sai?', answer: false, explain: '❌ SAI! Trang phục là "quần áo, dáng" của nhân vật. Cảnh nền phía sau gọi là PHÔNG NỀN.' },
+    { emoji: '🥁', text: 'Muốn có khối "đánh trống", em phải thêm tiện ích Âm nhạc trước.', sub: 'Đúng hay sai? (Câu hỏi bật mí bài mới!)', answer: true, explain: '✅ ĐÚNG! Bấm nút ➕ ở góc dưới bên trái → chọn Âm nhạc. Hôm nay mình sẽ học ngay!' }
+  ];
+  let arenaIdx = 0, arenaStreak = 0, arenaAnswered = false;
+  const arenaScenarioEl = document.getElementById('arenaScenario');
+  const arenaEmojiEl = document.getElementById('arenaEmoji');
+  const arenaTextEl = document.getElementById('arenaText');
+  const arenaSubEl = document.getElementById('arenaSub');
+  const arenaFeedbackEl = document.getElementById('arenaFeedback');
+  const arenaStreakEl = document.getElementById('arenaStreak');
+  const btnArenaTrue = document.getElementById('btnArenaTrue');
+  const btnArenaFalse = document.getElementById('btnArenaFalse');
+  const btnArenaNext = document.getElementById('btnArenaNext');
+  function loadArenaScenario() {
+    arenaAnswered = false;
+    btnArenaTrue.disabled = false; btnArenaFalse.disabled = false;
+    btnArenaTrue.classList.remove('correct-glow', 'wrong-glow');
+    btnArenaFalse.classList.remove('correct-glow', 'wrong-glow');
+    arenaScenarioEl.classList.remove('right', 'wrongc');
+    const s = arenaScenarios[arenaIdx % arenaScenarios.length];
+    arenaEmojiEl.textContent = s.emoji; arenaTextEl.textContent = `Câu ${arenaIdx % arenaScenarios.length + 1}/${arenaScenarios.length}: ${s.text}`; arenaSubEl.textContent = s.sub;
+    arenaFeedbackEl.textContent = 'Cả lớp đoán trước, rồi thầy/cô bấm để kiểm tra nhé!';
+    btnArenaNext.style.display = 'none';
+    arenaScenarioEl.classList.add('pop'); setTimeout(() => arenaScenarioEl.classList.remove('pop'), 300);
+  }
+  function handleArena(chosen) {
+    if (arenaAnswered) return; arenaAnswered = true;
+    const s = arenaScenarios[arenaIdx % arenaScenarios.length];
+    const correct = chosen === s.answer;
+    const chosenBtn = chosen ? btnArenaTrue : btnArenaFalse;
+    btnArenaTrue.disabled = true; btnArenaFalse.disabled = true;
+    if (correct) {
+      arenaStreak++;
+      chosenBtn.classList.add('correct-glow');
+      arenaScenarioEl.classList.add('right');
+      arenaFeedbackEl.innerHTML = `<span style="color:#15803d;">🎉 CHÍNH XÁC! ${s.explain}</span>`;
+    } else {
+      arenaStreak = 0;
+      chosenBtn.classList.add('wrong-glow');
+      arenaScenarioEl.classList.add('wrongc');
+      arenaFeedbackEl.innerHTML = `<span style="color:#dc2626;">💡 Chưa đúng! ${s.explain}</span>`;
+    }
+    arenaStreakEl.textContent = `🔥 Chuỗi đúng: ${arenaStreak}`;
+    arenaStreakEl.classList.remove('bump'); void arenaStreakEl.offsetWidth; arenaStreakEl.classList.add('bump');
+    btnArenaNext.style.display = 'block';
+  }
+  btnArenaTrue.addEventListener('click', e => { e.stopPropagation(); handleArena(true); });
+  btnArenaFalse.addEventListener('click', e => { e.stopPropagation(); handleArena(false); });
+  btnArenaNext.addEventListener('click', e => { e.stopPropagation(); arenaIdx++; loadArenaScenario(); });
+  loadArenaScenario();
 
-      let touchStartX = 0;
-      document.addEventListener(
-        "touchstart",
-        (e) => {
-          touchStartX = e.changedTouches[0].screenX;
-        },
-        { passive: true },
-      );
+  /* PHÒNG THÍ NGHIỆM HOẠT HÌNH */
+  const ANIM_COSTUMES = ['🧍', '🙆', '🤸'];
+  const ANIM_REPEATS = 5;
+  const animSprite = document.getElementById('animSprite');
+  const animTag = document.getElementById('animTag');
+  const animCount = document.getElementById('animCount');
+  const animBubble = document.getElementById('animBubble');
+  const animFeedback = document.getElementById('animFeedback');
+  let animRunId = 0;
+  function showCostume(idx) {
+    animSprite.textContent = ANIM_COSTUMES[idx];
+    animTag.textContent = `trang phục ${idx + 1}`;
+  }
+  function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+  async function runAnimation(waitSec) {
+    const runId = ++animRunId;
+    let costume = 0;
+    showCostume(costume);
+    animBubble.classList.remove('show');
+    animCount.textContent = `Lần 0 / ${ANIM_REPEATS}`;
+    if (waitSec === 0) {
+      costume = ANIM_REPEATS % ANIM_COSTUMES.length;
+      showCostume(costume);
+      animCount.textContent = `Lần ${ANIM_REPEATS} / ${ANIM_REPEATS}`;
+      animBubble.classList.add('show');
+      animFeedback.innerHTML = '<span style="color:#dc2626;">⚡ Chớp mắt đã xong! Máy chạy quá nhanh nên em chỉ thấy <strong>trang phục cuối</strong> — đây là bệnh "nhảy cóc"!</span>';
+      return;
+    }
+    animFeedback.textContent = `Đang chạy: trang phục kế tiếp → đợi ${waitSec} giây…`;
+    for (let i = 1; i <= ANIM_REPEATS; i++) {
+      await sleep(waitSec * 1000);
+      if (runId !== animRunId) return;
+      costume = (costume + 1) % ANIM_COSTUMES.length;
+      showCostume(costume);
+      animCount.textContent = `Lần ${i} / ${ANIM_REPEATS}`;
+      animSprite.classList.add('hop'); setTimeout(() => animSprite.classList.remove('hop'), 120);
+    }
+    animBubble.classList.add('show');
+    animFeedback.innerHTML = waitSec < 0.5
+      ? '<span style="color:#15803d;">🎉 Mượt quá! Đợi 0.3 giây là nhịp nhảy vừa đẹp.</span>'
+      : '<span style="color:#b45309;">🐢 Chậm như rùa! Đợi 1 giây thì nhảy hơi chậm — thử số nhỏ hơn nhé.</span>';
+  }
+  document.querySelectorAll('.btn-anim').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); runAnimation(Number(btn.dataset.wait)); });
+  });
 
-      document.addEventListener(
-        "touchend",
-        (e) => {
-          const diff = e.changedTouches[0].screenX - touchStartX;
-          if (Math.abs(diff) > 50) goTo(current + (diff < 0 ? 1 : -1));
-        },
-        { passive: true },
-      );
+  /* MÁY GỢI Ý CÂU CHUYỆN */
+  const storyReels = [
+    ['🐱 Mèo con', '🐶 Cún con', '🦖 Khủng long nhỏ', '🧙 Phù thủy tí hon', '🤖 Rô-bốt', '🐧 Chim cánh cụt'],
+    ['🌳 Khu rừng', '🏖️ Bãi biển', '🏰 Lâu đài', '🚀 Vũ trụ', '🏫 Trường học', '🍭 Xứ sở kẹo ngọt'],
+    ['🎁 hộp quà biết nói', '🎂 chiếc bánh khổng lồ', '👻 con ma vui tính', '🐉 rồng con đi lạc', '⭐ ngôi sao rơi xuống', '🌈 cầu vồng biết trượt']
+  ];
+  const STORY_SPIN_MS = 900, STORY_STAGGER_MS = 350, STORY_TICK_MS = 80;
+  const btnStorySpin = document.getElementById('btnStorySpin');
+  const storyBanner = document.getElementById('storyBanner');
+  const reelEls = [0, 1, 2].map(i => document.getElementById('storyReel' + i));
+  function pickRandom(list) { return list[Math.floor(Math.random() * list.length)]; }
+  function spinReel(reelIdx, stopAfterMs) {
+    const el = reelEls[reelIdx];
+    const valEl = el.querySelector('.story-reel-val');
+    el.classList.remove('landed');
+    el.classList.add('spinning');
+    const ticker = setInterval(() => { valEl.textContent = pickRandom(storyReels[reelIdx]); }, STORY_TICK_MS);
+    return new Promise(resolve => setTimeout(() => {
+      clearInterval(ticker);
+      const finalVal = pickRandom(storyReels[reelIdx]);
+      valEl.textContent = finalVal;
+      el.classList.remove('spinning');
+      el.classList.add('landed');
+      resolve(finalVal);
+    }, stopAfterMs));
+  }
+  btnStorySpin.addEventListener('click', async e => {
+    e.stopPropagation();
+    btnStorySpin.disabled = true;
+    const [who, where, twist] = await Promise.all(reelEls.map((_, i) => spinReel(i, STORY_SPIN_MS + i * STORY_STAGGER_MS)));
+    storyBanner.innerHTML = `<strong>Cảnh 1:</strong> ${who} đang dạo chơi ở ${where}.<br><strong>Cảnh 2:</strong> Bỗng nhiên gặp ${twist}!<br><strong>Cảnh 3:</strong> Em tự nghĩ một kết thúc thật vui! 😄`;
+    btnStorySpin.disabled = false;
+  });
 
-      buildDots();
-      slides.forEach((s, i) => {
-        s.setAttribute("aria-hidden", i !== 0);
-        if (i === 0) s.classList.add("active");
-        else s.classList.add("next");
-      });
-      progressBar.style.width = (1 / total) * 100 + "%";
-      btnPrev.disabled = true;
-    </script>
-  </body>
+  /* BÁC SĨ SCRATCH */
+  document.querySelectorAll('.btn-cure').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); btn.closest('.clinic-card').classList.add('cured'); });
+  });
+
+  /* DANH HIỆU SHOWCASE */
+  document.querySelectorAll('.award').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); btn.classList.toggle('lit'); });
+  });
+
+  /* QUIZ */
+  const quizQuestions = [
+    { q: '1. Muốn nhân vật nhảy mượt, giữa hai lần "trang phục kế tiếp" em nên thêm khối nào?', opts: ['ẩn', 'đợi (0.3) giây', 'nói [Nhảy!]', 'chuyển sang phông nền'], ans: 1, explain: 'Khối "đợi (0.3) giây" cho mắt kịp nhìn từng dáng. Thiếu nó thì hoạt hình bị "nhảy cóc"!' },
+    { q: '2. Kịch bản kết thúc bằng khối "ẩn". Bấm cờ xanh lần 2, nhân vật không hiện nữa. Em sửa thế nào?', opts: ['Thêm "hiện" ngay dưới "khi bấm vào 🏳️"', 'Xóa nhân vật rồi tạo lại', 'Thêm "đợi (5) giây" ở cuối', 'Bấm cờ xanh thật nhiều lần'], ans: 0, explain: 'Đặt "hiện" ở đầu kịch bản để mỗi lần bấm cờ, nhân vật luôn xuất hiện trở lại!' },
+    { q: '3. Em muốn thêm tiện ích Âm nhạc. Em bấm vào đâu?', opts: ['Thẻ Trang phục', 'Nút ➕ ở góc dưới bên trái', 'Nút cờ xanh 🏳️', 'Nút dừng 🛑'], ans: 1, explain: 'Nút ➕ (Thêm tiện ích) nằm ở góc dưới bên trái. Chọn Âm nhạc là có ngay khối trống và nốt nhạc!' },
+    { q: '4. Khối nào tạo ra khoảng IM LẶNG đúng số nhịp?', opts: ['đánh trống (1) trong (0.25) nhịp', 'phát nốt (60) trong (0.5) nhịp', 'nghỉ trong (0.25) nhịp', 'đặt nhịp độ là (60)'], ans: 2, explain: 'Khối "nghỉ trong ... nhịp" giúp bản nhạc có khoảng lặng — như khi ca sĩ lấy hơi!' },
+    { q: '5. Kể chuyện nhiều cảnh, em muốn đổi CẢNH NỀN phía sau từ khu rừng sang lâu đài. Em dùng khối nào?', opts: ['trang phục kế tiếp', 'chuyển sang phông nền [Lâu đài]', 'nghĩ [Lâu đài]', 'hiện'], ans: 1, explain: 'Phông nền là cảnh phía sau Sân khấu. Trang phục chỉ đổi dáng của nhân vật thôi!' }
+  ];
+  let currentQuizIdx = 0, quizScore = 0, quizAnswered = false;
+  const quizProgressText = document.getElementById('quizProgressText');
+  const quizScoreText = document.getElementById('quizScoreText');
+  const quizQuestion = document.getElementById('quizQuestion');
+  const quizOptions = document.getElementById('quizOptions');
+  const quizExplain = document.getElementById('quizExplain');
+  const btnQuizNext = document.getElementById('btnQuizNext');
+  function renderQuizQuestion() {
+    quizAnswered = false;
+    const qData = quizQuestions[currentQuizIdx];
+    quizProgressText.textContent = `Câu hỏi ${currentQuizIdx + 1} / ${quizQuestions.length}`;
+    quizQuestion.textContent = qData.q;
+    quizExplain.className = 'quiz-explain'; quizExplain.textContent = '';
+    btnQuizNext.className = 'btn-quiz-next';
+    const letters = ['A', 'B', 'C', 'D'];
+    quizOptions.innerHTML = qData.opts.map((opt, i) => `<button class="quiz-opt-btn" data-opt="${i}"><span class="quiz-opt-badge">${letters[i]}</span><span>${opt}</span></button>`).join('');
+    quizOptions.querySelectorAll('.quiz-opt-btn').forEach(btn => { btn.addEventListener('click', e => { e.stopPropagation(); if (quizAnswered) return; handleQuizSelect(Number(btn.dataset.opt)); }); });
+  }
+  function handleQuizSelect(selectedIdx) {
+    quizAnswered = true;
+    const qData = quizQuestions[currentQuizIdx];
+    const isCorrect = selectedIdx === qData.ans;
+    quizOptions.querySelectorAll('.quiz-opt-btn').forEach((btn, i) => { btn.disabled = true; if (i === qData.ans) btn.classList.add('correct'); else if (i === selectedIdx) btn.classList.add('wrong'); });
+    if (isCorrect) { quizScore += 20; quizScoreText.textContent = `⭐ Điểm: ${quizScore}`; quizExplain.innerHTML = `🎉 <strong>Chính xác!</strong> ${qData.explain}`; }
+    else { quizExplain.innerHTML = `💡 <strong>Chưa chính xác!</strong> ${qData.explain}`; }
+    quizExplain.classList.add('show');
+    btnQuizNext.textContent = currentQuizIdx < quizQuestions.length - 1 ? 'Câu tiếp theo ➡️' : 'Xem kết quả chung cuộc 🏆';
+    btnQuizNext.classList.add('show');
+  }
+  function quizTitleFor(score) {
+    if (score >= 80) return 'ĐẠO DIỄN HOẠT HÌNH TÀI BA!';
+    if (score >= 40) return 'NHÀ LÀM PHIM TẬP SỰ!';
+    return 'NHÀ THÁM HIỂM DŨNG CẢM!';
+  }
+  btnQuizNext.addEventListener('click', e => {
+    e.stopPropagation();
+    if (currentQuizIdx < quizQuestions.length - 1) { currentQuizIdx++; renderQuizQuestion(); return; }
+    quizProgressText.textContent = 'Hoàn thành!';
+    quizQuestion.innerHTML = `🎉 Hoàn thành Đấu trường Quiz Buổi 6! Điểm của em: <strong>${quizScore} / 100</strong>`;
+    quizOptions.innerHTML = `<div style="grid-column: span 2; background:#faf5ff; border:2px solid #a855f7; border-radius:14px; padding:18px; text-align:center;"><div class="trophy">🏆🎭</div><h3 style="color:#7e22ce; font-size:1.2rem; margin-bottom:6px;">DANH HIỆU: ${quizTitleFor(quizScore)}</h3><p style="font-size:0.95rem; font-weight:700; color:#581c87;">Em đã nắm được trang phục, đợi, nói/nghĩ, ẩn/hiện và tiện ích Âm nhạc. Sẵn sàng điều khiển nhân vật bằng bàn phím ở Buổi 7!</p></div>`;
+    quizExplain.className = 'quiz-explain'; btnQuizNext.className = 'btn-quiz-next';
+  });
+  renderQuizQuestion();
+
+  /* INIT */
+  buildDots();
+  slides.forEach((s, i) => { s.setAttribute('aria-hidden', i !== 0); if (i === 0) s.classList.add('active'); else s.classList.add('next'); });
+  progressBar.style.width = (1 / total) * 100 + '%';
+  btnPrev.disabled = true;
+</script>
+</body>
 </html>
